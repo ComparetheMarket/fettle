@@ -1,3 +1,5 @@
+# Fettle
+
 Fettle is an experimental mutation testing tool for C#.
 
 Right now it supports projects that:
@@ -7,7 +9,7 @@ Right now it supports projects that:
 
 ...but the plan is to support more platforms and test frameworks in the future.
 
-# What is Mutation Testing?
+## What is Mutation Testing?
 
 Mutation testing can highlight gaps in your tests which test coverage tools cannot. At its heart is the premise that if your code's behaviour changes, then at least one test should fail.
 
@@ -15,9 +17,9 @@ Mutation testing involves artificially inserting bugs (or "mutants") into your c
 
 You can read more about mutation testing in [this post](https://medium.com/comparethemarket/who-will-test-the-tests-bd8c491e5205).
 
-# Getting Started
+## Getting Started
 
-## Building
+### Building
 
 To build locally, clone the repository and `cd` to the cloned location. You can then build/test Fettle like so:
 
@@ -27,7 +29,7 @@ $ ./fake
 
 The built console runner will be available in `./src/Console/bin/Release`.
 
-## Configuration
+### Configuration
 
 You'll need a configuration YAML file to tell Fettle what it should mutate, and how it should do it:
 
@@ -57,7 +59,7 @@ testAssemblies:
 nunitTestRunner: .\tools\NUnit\nunit3-console.exe
 ```
 
-## Running
+### Running
 
 Use the console runner to do some mutation testing like so:
 
