@@ -1,0 +1,13 @@
+﻿
+solution: ../../../../../src/Examples/HasSurvivingMutants/HasSurvivingMutants.sln
+
+testAssemblies:
+    - ../../../../../src/Examples/HasSurvivingMutants/Tests/bin/{0}/HasSurvivingMutants.Tests.dll
+
+nunitTestRunner: ../../../../../tools/NUnit/nunit3-console.exe
+
+projectFilters:
+    - HasSurvivingMutants.Implementation
+
+sourceFileFilters:
+    - Implementation/*.cs

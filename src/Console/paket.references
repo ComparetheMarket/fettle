@@ -1,0 +1,5 @@
+Microsoft.CodeAnalysis.CSharp
+Microsoft.CodeAnalysis.CSharp.Workspaces
+Microsoft.CodeAnalysis.Workspaces.Common
+YamlDotNet
+CommandLineParser

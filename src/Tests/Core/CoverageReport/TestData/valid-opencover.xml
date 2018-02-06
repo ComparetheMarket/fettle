@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CoverageSession>
+  <Modules>
+    <Module>      
+      <Classes>
+        <Class>          
+          <Methods>
+            <Method visited="true">
+              <Name>System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IsPositive(System.Int32)</Name>            
+            </Method>
+          </Methods>
+        </Class>
+        <Class>          
+          <Methods>
+            <Method visited="false">              
+              <Name>System.Boolean HasSurvivingMutants.Implementation.UntestedNumberComparison::IsMeaningful(System.String)</Name>              
+            </Method>            
+          </Methods>
+        </Class>
+      </Classes>
+    </Module>
+  </Modules>
+</CoverageSession>

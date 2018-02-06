@@ -1,0 +1,5 @@
+NUnit
+Moq
+Microsoft.CodeAnalysis.CSharp
+Microsoft.CodeAnalysis.CSharp.Workspaces
+Microsoft.CodeAnalysis.Workspaces.Common
