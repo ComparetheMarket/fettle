@@ -11,7 +11,7 @@ paket-files/
 
 *.tmp
 
-opencover.xml
+/opencover.xml
 TestResult.xml
 nunit-output.log
 nunit-agent_*.log
