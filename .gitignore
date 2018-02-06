@@ -1,7 +1,8 @@
 .fake
 
 .vs
-.user
+*.user
+*.DotSettings
 **/bin/
 **/obj/
 
@@ -12,3 +13,6 @@ paket-files/
 
 opencover.xml
 TestResult.xml
+nunit-output.log
+nunit-agent_*.log
+InternalTrace.*.log
