@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Fettle.Core.Internal.NUnit
 {
@@ -19,7 +20,7 @@ namespace Fettle.Core.Internal.NUnit
                     CreateNoWindow = true,
                     WindowStyle = ProcessWindowStyle.Hidden,
                     FileName = nunitTestRunnerFilePath,
-                    Arguments = $"{string.Join(" ", testAssemblyFilePaths)} --result:{resultFilePath};format=nunit3 --stoponerror --noheader --trace=off"
+                    Arguments = $"{string.Join(" ", WrapInQuotes(testAssemblyFilePaths))} --result:\"{resultFilePath}\";format=nunit3 --stoponerror --noheader --trace=off"
                 }
             };
 
@@ -28,6 +29,11 @@ namespace Fettle.Core.Internal.NUnit
 
             return NUnitTestResultFile.ParseResultFileContents(
                 File.ReadAllText(resultFilePath));
+        }
+
+        private string[] WrapInQuotes(IEnumerable<string> testAssemblyFilePaths)
+        {
+            return testAssemblyFilePaths.Select(originalString => $"\"{originalString}\"").ToArray();
         }
     }
 }
