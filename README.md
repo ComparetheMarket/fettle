@@ -45,18 +45,23 @@ projectFilters:
     - MyProject.App
     - MyProject.Lib
 
-# [Optional] use a filter to define which files to mutate.
-sourceFileFilters:
-    - Implementation\*.cs
-
 # [Required] A list of the assemblies that contain your tests.
 testAssemblies:
     - .\src\MyProject\Tests\bin\Release\Tests.dll
     - .\src\MyProject\IntegrationTests\bin\Release\IntegrationTests.dll
 
-# [Required] Path to the NUnit console test runner.
+# [Required] The NUnit console test runner executable.
 # Fettle will use this to run your tests.
 nunitTestRunner: .\tools\NUnit\nunit3-console.exe
+
+# [Optional] Path to OpenCover test coverage report file.
+# If specified, Fettle will only mutate code that is already covered by tests.
+# This can reduce the time it takes to perform the mutation testing.
+coverageReport: .\opencover.xml
+
+# [Optional] use a filter to define which source files to mutate.
+sourceFileFilters:
+    - Implementation\*.cs
 ```
 
 ### Running
