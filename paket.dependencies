@@ -1,14 +1,17 @@
-framework: net461
-
 source https://dotnet.myget.org/F/dotnet-core/api/v3/index.json
 source https://dotnet.myget.org/F/cli-deps/api/v3/index.json
 source https://www.nuget.org/api/v2/
 
-nuget NUnit framework
-nuget Moq
+nuget NUnit framework 3.8.1
+nuget Moq 4.7.142
+
 nuget Microsoft.CodeAnalysis.CSharp
 nuget Microsoft.CodeAnalysis.CSharp.Workspaces
 nuget Microsoft.CodeAnalysis.Workspaces.Common
-nuget DotNet.Glob
-nuget YamlDotNet
-nuget CommandLineParser
+nuget Microsoft.Build
+nuget Microsoft.Build.Framework
+nuget Microsoft.Build.Tasks.Core
+
+nuget DotNet.Glob 1.6.9
+nuget YamlDotNet 4.2.2
+nuget CommandLineParser 1.9.71

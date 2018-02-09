@@ -1,4 +1,7 @@
 Microsoft.CodeAnalysis.CSharp
 Microsoft.CodeAnalysis.CSharp.Workspaces
 Microsoft.CodeAnalysis.Workspaces.Common
+Microsoft.Build
+Microsoft.Build.Framework
+Microsoft.Build.Tasks.Core
 DotNet.Glob
