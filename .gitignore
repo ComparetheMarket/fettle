@@ -6,6 +6,8 @@
 **/bin/
 **/obj/
 
+.userprefs
+
 packages/
 paket-files/
 
