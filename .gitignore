@@ -6,7 +6,7 @@
 **/bin/
 **/obj/
 
-.userprefs
+*.userprefs
 
 packages/
 paket-files/
