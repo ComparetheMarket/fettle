@@ -1,4 +1,5 @@
-﻿using Fettle.Console;
+﻿using System.IO;
+using Fettle.Console;
 using NUnit.Framework;
 
 namespace Fettle.Tests.Console.ImplementationDetails
@@ -10,34 +11,35 @@ namespace Fettle.Tests.Console.ImplementationDetails
         {
             const string fileContents = @"
 
-solution: src\blah.sln
+solution: src/blah.sln
 
 testAssemblies:
-    - src\Blah.Tests\bin\Debug\Blah.Tests.dll
-    - src\Blurg.Tests\bin\Debug\Blurg.Tests.dll
+    - src/Blah.Tests/bin/Debug/Blah.Tests.dll
+    - src/Blurg.Tests/bin/Debug/Blurg.Tests.dll
 
-nunitTestRunner: nunit\nunit3-console.exe
+nunitTestRunner: nunit/nunit3-console.exe
 
 projectFilters:
     - BlahImpl
 
-sourceFileFilters: [ Blah\Things\*.cs, Wibble\w*mble.cs ]
+sourceFileFilters: [ Blah/Things/*.cs, Wibble/w*mble.cs ]
 
 coverageReport: report.xml
 ";
+            var baseDir = Path.Combine(Path.GetPathRoot(Path.GetTempPath()), "random");
 
-            var config = ConfigFile.Parse(fileContents).WithPathsRelativeTo(@"C:\base\dir");
+            var config = ConfigFile.Parse(fileContents).WithPathsRelativeTo(baseDir);
 
-            Assert.That(config.NunitTestRunnerFilePath, Is.EqualTo(@"C:\base\dir\nunit\nunit3-console.exe"));
-            Assert.That(config.SolutionFilePath, Is.EqualTo(@"C:\base\dir\src\blah.sln"));
+            Assert.That(config.NunitTestRunnerFilePath, Is.EqualTo(Path.Combine(baseDir, "nunit", "nunit3-console.exe")));
+            Assert.That(config.SolutionFilePath, Is.EqualTo(Path.Combine(baseDir, "src" ,"blah.sln")));
             Assert.That(config.TestAssemblyFilePaths, Is.EquivalentTo(new[]
             {
-                @"C:\base\dir\src\Blah.Tests\bin\Debug\Blah.Tests.dll",
-                @"C:\base\dir\src\Blurg.Tests\bin\Debug\Blurg.Tests.dll"
+                Path.Combine(baseDir, "src", "Blah.Tests", "bin", "Debug", "Blah.Tests.dll"),
+                Path.Combine(baseDir, "src", "Blurg.Tests", "bin", "Debug", "Blurg.Tests.dll")
             }));
             Assert.That(config.ProjectFilters, Is.EquivalentTo(new[] { @"BlahImpl" }));
-            Assert.That(config.SourceFileFilters, Is.EquivalentTo(new[] { @"Blah\Things\*.cs", @"Wibble\w*mble.cs" }));
-            Assert.That(config.CoverageReportFilePath, Is.EqualTo(@"C:\base\dir\report.xml"));
+            Assert.That(config.SourceFileFilters, Is.EquivalentTo(new[] { @"Blah/Things/*.cs", @"Wibble/w*mble.cs" }));
+            Assert.That(config.CoverageReportFilePath, Is.EqualTo(Path.Combine(baseDir, "report.xml")));
         }
 
         [Test]
@@ -45,27 +47,28 @@ coverageReport: report.xml
         {
             const string fileContents = @"
 
-solution: src\blah.sln
+solution: src/blah.sln
 
 testAssemblies:
-    - src\Blah.Tests\bin\Debug\Blah.Tests.dll
-    - src\Blurg.Tests\bin\Debug\Blurg.Tests.dll
+    - src/Blah.Tests/bin/Debug/Blah.Tests.dll
+    - src/Blurg.Tests/bin/Debug/Blurg.Tests.dll
 
-nunitTestRunner: nunit\nunit3-console.exe
+nunitTestRunner: nunit/nunit3-console.exe
 
 #projectFilters: [ BlahImpl ]
-#sourceFileFilters: [ Blah\Things\*.cs, Wibble\w*mble.cs ]
+#sourceFileFilters: [ Blah/Things/*.cs, Wibble/w*mble.cs ]
 #coverageReport: report.xml
 ";
+            var baseDir = Path.Combine(Path.GetPathRoot(Path.GetTempPath()), "random");
 
-            var config = ConfigFile.Parse(fileContents).WithPathsRelativeTo(@"C:\base\dir");
+            var config = ConfigFile.Parse(fileContents).WithPathsRelativeTo(baseDir);
 
-            Assert.That(config.NunitTestRunnerFilePath, Is.EqualTo(@"C:\base\dir\nunit\nunit3-console.exe"));
-            Assert.That(config.SolutionFilePath, Is.EqualTo(@"C:\base\dir\src\blah.sln"));
+            Assert.That(config.NunitTestRunnerFilePath, Is.EqualTo(Path.Combine(baseDir, "nunit", "nunit3-console.exe")));
+            Assert.That(config.SolutionFilePath, Is.EqualTo(Path.Combine(baseDir, "src", "blah.sln")));
             Assert.That(config.TestAssemblyFilePaths, Is.EquivalentTo(new[]
             {
-                @"C:\base\dir\src\Blah.Tests\bin\Debug\Blah.Tests.dll",
-                @"C:\base\dir\src\Blurg.Tests\bin\Debug\Blurg.Tests.dll"
+                Path.Combine(baseDir, "src", "Blah.Tests", "bin", "Debug", "Blah.Tests.dll"),
+                Path.Combine(baseDir, "src", "Blurg.Tests", "bin", "Debug", "Blurg.Tests.dll")
             }));
 
             Assert.That(config.ProjectFilters, Is.Null);

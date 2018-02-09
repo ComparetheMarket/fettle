@@ -19,14 +19,30 @@ namespace Fettle.Core
         {
             return new Config
             {
-                SolutionFilePath = Path.Combine(baseDirectory, SolutionFilePath),
-                TestAssemblyFilePaths = TestAssemblyFilePaths.Select(x => Path.Combine(baseDirectory, x)).ToArray(),
-                NunitTestRunnerFilePath = Path.Combine(baseDirectory, NunitTestRunnerFilePath),
+                SolutionFilePath = NormalisePathSeparators(
+                    Path.Combine(baseDirectory, SolutionFilePath)),
+
+                TestAssemblyFilePaths = TestAssemblyFilePaths.Select(x => 
+                        NormalisePathSeparators(    
+                            Path.Combine(baseDirectory, x)))
+                    .ToArray(),
+
+                NunitTestRunnerFilePath = NormalisePathSeparators(
+                    Path.Combine(baseDirectory, NunitTestRunnerFilePath)),
                 
                 ProjectFilters = ProjectFilters?.ToArray(),
                 SourceFileFilters = SourceFileFilters?.ToArray(),
-                CoverageReportFilePath = CoverageReportFilePath != null ? Path.Combine(baseDirectory, CoverageReportFilePath) : null
+
+                CoverageReportFilePath = CoverageReportFilePath != null
+                    ? NormalisePathSeparators(Path.Combine(baseDirectory, CoverageReportFilePath))
+                    : null
             };
+        }
+
+        private string NormalisePathSeparators(string path)
+        {
+            return path.Replace('/', Path.DirectorySeparatorChar)
+                .Replace('\\', Path.DirectorySeparatorChar);
         }
     }
 }
