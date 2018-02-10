@@ -1,8 +1,15 @@
-NUnit
-Moq
 Microsoft.CodeAnalysis.CSharp
 Microsoft.CodeAnalysis.CSharp.Workspaces
 Microsoft.CodeAnalysis.Workspaces.Common
 Microsoft.Build
 Microsoft.Build.Framework
 Microsoft.Build.Tasks.Core
+System.Threading.Tasks.Dataflow
+Microsoft.VisualStudio.RemoteControl
+Microsoft.CodeAnalysis.Features
+Microsoft.CodeAnalysis.CSharp.Features
+Microsoft.CodeAnalysis.VisualBasic.Features
+Microsoft.CodeAnalysis.VisualBasic.Workspaces
+
+NUnit
+Moq

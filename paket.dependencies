@@ -5,12 +5,18 @@ source https://www.nuget.org/api/v2/
 nuget NUnit framework 3.8.1
 nuget Moq 4.7.142
 
+nuget Microsoft.CodeAnalysis.Features
 nuget Microsoft.CodeAnalysis.CSharp
+nuget Microsoft.CodeAnalysis.CSharp.Features
 nuget Microsoft.CodeAnalysis.CSharp.Workspaces
+nuget Microsoft.CodeAnalysis.VisualBasic.Features
+nuget Microsoft.CodeAnalysis.VisualBasic.Workspaces
 nuget Microsoft.CodeAnalysis.Workspaces.Common
 nuget Microsoft.Build
 nuget Microsoft.Build.Framework
 nuget Microsoft.Build.Tasks.Core
+nuget System.Threading.Tasks.Dataflow
+nuget Microsoft.VisualStudio.RemoteControl
 
 nuget DotNet.Glob 1.6.9
 nuget YamlDotNet 4.2.2
