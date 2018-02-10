@@ -34,6 +34,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.engine">
+      <HintPath>..\..\packages\NUnit.ConsoleRunner\tools\nunit.engine.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.engine.api">
+      <HintPath>..\..\packages\NUnit.ConsoleRunner\tools\nunit.engine.api.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -59,7 +65,7 @@
     <Compile Include="IMutationTestRunner.cs" />
     <Compile Include="Internal\DirectoryUtils.cs" />
     <Compile Include="Internal\ITestRunner.cs" />
-    <Compile Include="Internal\NUnit\NUnitTestResultFile.cs" />
+    <Compile Include="Internal\NUnit\NUnitTestResults.cs" />
     <Compile Include="Internal\NUnit\NUnitTestRunner.cs" />
     <Compile Include="Internal\SolutionExtension.cs" />
     <Compile Include="Internal\SyntaxNodeExtensions.cs" />

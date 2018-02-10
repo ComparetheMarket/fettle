@@ -3,21 +3,17 @@ using System.Xml;
 
 namespace Fettle.Core.Internal.NUnit
 {
-    internal static class NUnitTestResultFile
+    internal static class NUnitTestResults
     {
-        public static TestRunnerResult ParseResultFileContents(string fileContents)
+        public static TestRunnerResult Parse(XmlNode rootNode)
         {
-            var xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(fileContents);
-
-            var testRun = xmlDocument.SelectSingleNode("test-run");
-            var testCaseCount = int.Parse(testRun.Attributes["testcasecount"].Value);
+            var testCaseCount = int.Parse(rootNode.Attributes["testcasecount"].Value);
             if (testCaseCount == 0)
             {
                 throw new InvalidOperationException("Failed to run any tests");
             }
 
-            foreach (XmlNode testSuite in testRun.SelectNodes("test-suite"))
+            foreach (XmlNode testSuite in rootNode.SelectNodes("test-suite"))
             {
                 var runState = testSuite.Attributes["runstate"].Value;
                 if (runState == "NotRunnable")
@@ -26,7 +22,7 @@ namespace Fettle.Core.Internal.NUnit
                 }
             }
 
-            var result = testRun.Attributes["result"].Value;
+            var result = rootNode.Attributes["result"].Value;
             switch (result)
             {
                 case "Passed": return TestRunnerResult.AllTestsPassed;

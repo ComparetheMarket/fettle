@@ -37,6 +37,9 @@
     <Reference Include="dotMemory.Unit, Version=109.0.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <HintPath>..\packages\JetBrains.dotMemoryUnit.2.4.20170830.172630\lib\dotMemory.Unit.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.engine">
+      <HintPath>..\..\packages\NUnit.ConsoleRunner\tools\nunit.engine.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -82,7 +85,7 @@
     <Compile Include="Core\ImplementationDetails\Mutation\Logical_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Mathematical_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Relational_operators.cs" />
-    <Compile Include="Core\ImplementationDetails\NUnitTestResultFile_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\NUnitTestResults_Tests.cs" />
     <Compile Include="Core\Temporary_files.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\EndToEnd\Happy_path.cs" />
@@ -113,6 +116,18 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Core\CoverageReport\TestData\invalidxml-opencover.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Core\CoverageReport\TestData\nomethods-opencover.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Core\CoverageReport\TestData\valid-opencover.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
@@ -146,18 +161,6 @@
     <Analyzer Include="..\..\packages\Microsoft.CodeAnalysis.Analyzers\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll">
       <Paket>True</Paket>
     </Analyzer>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Core\CoverageReport\TestData\invalidxml-opencover.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Core\CoverageReport\TestData\nomethods-opencover.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Core\CoverageReport\TestData\valid-opencover.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">

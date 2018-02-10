@@ -1,39 +1,48 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
+using NUnit.Engine;
+using NUnit.Engine.Services;
 
 namespace Fettle.Core.Internal.NUnit
 {
     internal class NUnitTestRunner : ITestRunner
     {
-        public TestRunnerResult RunTests(IEnumerable<string> testAssemblyFilePaths, string nunitTestRunnerFilePath, string tempDirectory)
+        public TestRunnerResult RunTests(IEnumerable<string> testAssemblyFilePaths)
         {
-            var resultFilePath = Path.Combine(
-                tempDirectory,
-                "fettle.nunit-results.xml");
-
-            var nunitProcess = new Process
+            using (var testEngine = new TestEngine())
             {
-                StartInfo = new ProcessStartInfo
+                testEngine.Services.Add(new SettingsService(false));
+                testEngine.Services.Add(new ExtensionService());
+                testEngine.Services.Add(new InProcessTestRunnerFactory());
+                testEngine.Services.Add(new DomainManager());
+                testEngine.Services.Add(new DriverService());
+                testEngine.Services.Add(new TestFilterService());
+                testEngine.Services.Add(new ProjectService());
+                testEngine.Services.Add(new RuntimeFrameworkService());
+
+                testEngine.Services.ServiceManager.StartServices();
+
+                var testPackage = new TestPackage(testAssemblyFilePaths.ToList());
+                testPackage.AddSetting("StopOnError", true);
+                testPackage.AddSetting("ShadowCopyFiles", true);
+                testPackage.AddSetting("DomainUsage", "Single");
+                testPackage.AddSetting("ProcessModel", "Separate");
+
+                using (var testRunner = testEngine.GetRunner(testPackage))
                 {
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = nunitTestRunnerFilePath,
-                    Arguments = $"{string.Join(" ", WrapInQuotes(testAssemblyFilePaths))} --result:\"{resultFilePath}\";format=nunit3 --stoponerror --noheader --trace=off"
+                    var results = testRunner.Run(new NullEventListener(), TestFilter.Empty);
+                    return NUnitTestResults.Parse(results);
                 }
-            };
-
-            nunitProcess.Start();
-            nunitProcess.WaitForExit();
-
-            return NUnitTestResultFile.ParseResultFileContents(
-                File.ReadAllText(resultFilePath));
+            }
         }
 
-        private string[] WrapInQuotes(IEnumerable<string> testAssemblyFilePaths)
+        private class NullEventListener : ITestEventListener
         {
-            return testAssemblyFilePaths.Select(originalString => $"\"{originalString}\"").ToArray();
+            public void OnTestEvent(string report)
+            {
+                // We don't need to respond to events, but the NUnit Engine API requires an 
+                // implementation of ITestEventListener.
+            }
         }
     }
 }

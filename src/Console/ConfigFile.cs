@@ -28,7 +28,6 @@ namespace Fettle.Console
                 {
                     SolutionFilePath = Solution,
                     TestAssemblyFilePaths = TestAssemblies,
-                    NunitTestRunnerFilePath = NunitTestRunner,
                     ProjectFilters = ProjectFilters,
                     SourceFileFilters = SourceFileFilters,
                     CoverageReportFilePath = CoverageReport

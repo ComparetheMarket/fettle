@@ -8,8 +8,6 @@ namespace Fettle.Core
         public string SolutionFilePath { get; set; }        
         public string[] TestAssemblyFilePaths { get; set; }
 
-        public string NunitTestRunnerFilePath { get; set; }
-        
         public string[] ProjectFilters { get; set; }
         public string[] SourceFileFilters { get; set; }
         
@@ -21,7 +19,6 @@ namespace Fettle.Core
             {
                 SolutionFilePath = Path.Combine(baseDirectory, SolutionFilePath),
                 TestAssemblyFilePaths = TestAssemblyFilePaths.Select(x => Path.Combine(baseDirectory, x)).ToArray(),
-                NunitTestRunnerFilePath = Path.Combine(baseDirectory, NunitTestRunnerFilePath),
                 
                 ProjectFilters = ProjectFilters?.ToArray(),
                 SourceFileFilters = SourceFileFilters?.ToArray(),

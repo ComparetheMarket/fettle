@@ -8,10 +8,6 @@ namespace Fettle.Tests.Core.Contexts
     {
         private readonly Config config = new Config
         {
-            NunitTestRunnerFilePath = Path.Combine(
-                TestContext.CurrentContext.TestDirectory,
-                "..", "..", "..", "..", "tools", "nunit", "nunit3-console.exe"),
-
             ProjectFilters = new []{ "HasSurvivingMutants.Implementation" },
             SourceFileFilters = new [] { @"Implementation\*" }
         };

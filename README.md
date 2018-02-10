@@ -5,7 +5,7 @@ Fettle is an experimental mutation testing tool for C#.
 Right now it supports projects that:
 * Run on Windows
 * Use .NET Framework 4.x
-* Are tested using NUnit 3
+* Are tested using NUnit
 
 ...but the plan is to support more platforms and test frameworks in the future.
 
@@ -24,7 +24,7 @@ You can read more about mutation testing in [this post](https://medium.com/compa
 To build locally, clone the repository and `cd` to the cloned location. You can then build/test Fettle like so:
 
 ```
-$ ./fake
+$ fake.bat
 ```
 
 The built console runner will be available in `./src/Console/bin/Release`.
@@ -49,10 +49,6 @@ projectFilters:
 testAssemblies:
     - .\src\MyProject\Tests\bin\Release\Tests.dll
     - .\src\MyProject\IntegrationTests\bin\Release\IntegrationTests.dll
-
-# [Required] The NUnit console test runner executable.
-# Fettle will use this to run your tests.
-nunitTestRunner: .\tools\NUnit\nunit3-console.exe
 
 # [Optional] Path to OpenCover test coverage report file.
 # If specified, Fettle will only mutate code that is already covered by tests.

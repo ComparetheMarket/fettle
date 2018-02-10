@@ -39,7 +39,7 @@ namespace Fettle.Core.Internal
 
             var tempTestAssemblyFilePaths = TempTestAssemblyFilePaths(config, tempDirectory);
 
-            var result = testRunner.RunTests(tempTestAssemblyFilePaths, config.NunitTestRunnerFilePath, tempDirectory);
+            var result = testRunner.RunTests(tempTestAssemblyFilePaths);
 
             return result == TestRunnerResult.AllTestsPassed ?
                 await SurvivingMutant.CreateFrom(mutatedClass) :

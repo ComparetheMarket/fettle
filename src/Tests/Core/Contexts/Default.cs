@@ -42,7 +42,7 @@ namespace Fettle.Tests.Core.Contexts
             mockTestRunner = new Mock<ITestRunner>();
             var wasCalled = false;
 
-            mockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>()))
+            mockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>()))
                           .Returns(() =>
                           {
                               if (!wasCalled)
@@ -58,14 +58,14 @@ namespace Fettle.Tests.Core.Contexts
         protected void Given_a_partially_tested_app_in_which_multiple_mutants_survive_for_a_syntax_node()
         {
             mockTestRunner = new Mock<ITestRunner>();
-            mockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>()))
+            mockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>()))
                           .Returns(TestRunnerResult.AllTestsPassed);
         }
 
         protected void Given_a_fully_tested_app_in_which_no_mutants_will_survive()
         {
             mockTestRunner = new Mock<ITestRunner>();
-            mockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>()))
+            mockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>()))
                           .Returns(TestRunnerResult.SomeTestsFailed);
         }
         
