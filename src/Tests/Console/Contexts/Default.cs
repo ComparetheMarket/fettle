@@ -79,6 +79,13 @@ namespace Fettle.Tests.Console.Contexts
                 .Returns(Task.FromResult(new Result()));
         }
 
+        protected void Given_mutation_testing_will_throw_an_exception(Exception ex)
+        {
+            MockMutationTestRunner
+                .Setup(r => r.Run(It.IsAny<Config>()))
+                .Throws(ex);
+        }
+
         protected void When_running_the_fettle_console_app()
         {
             ExitCode = Program.InternalEntryPoint(

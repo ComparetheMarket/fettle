@@ -6,9 +6,13 @@ source https://www.nuget.org/api/v2/
 
 nuget NUnit framework
 nuget Moq
-nuget Microsoft.CodeAnalysis.CSharp
-nuget Microsoft.CodeAnalysis.CSharp.Workspaces
-nuget Microsoft.CodeAnalysis.Workspaces.Common
+
+nuget Microsoft.Net.Compilers 2.6.1
+nuget Microsoft.CodeAnalysis 2.6.1
+nuget Microsoft.Build 15.5.180
+nuget Microsoft.Build.Framework 15.5.180
+nuget Microsoft.Build.Tasks.Core 15.5.180
+
 nuget DotNet.Glob
 nuget YamlDotNet
 nuget CommandLineParser

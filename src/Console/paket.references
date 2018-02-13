@@ -1,5 +1,8 @@
-Microsoft.CodeAnalysis.CSharp
-Microsoft.CodeAnalysis.CSharp.Workspaces
-Microsoft.CodeAnalysis.Workspaces.Common
 YamlDotNet
 CommandLineParser
+
+Microsoft.Net.Compilers
+Microsoft.CodeAnalysis
+Microsoft.Build
+Microsoft.Build.Framework
+Microsoft.Build.Tasks.Core

@@ -1,5 +1,8 @@
 NUnit
 Moq
-Microsoft.CodeAnalysis.CSharp
-Microsoft.CodeAnalysis.CSharp.Workspaces
-Microsoft.CodeAnalysis.Workspaces.Common
+
+Microsoft.Net.Compilers
+Microsoft.CodeAnalysis
+Microsoft.Build
+Microsoft.Build.Framework
+Microsoft.Build.Tasks.Core
