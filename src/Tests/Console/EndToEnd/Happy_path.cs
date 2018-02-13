@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using NUnit.Framework;
 
@@ -31,7 +32,7 @@ namespace Fettle.Tests.Console.EndToEnd
             var stopwatch = Stopwatch.StartNew();
 
             fettleProcess.Start();
-            fettleProcess.WaitForExit();
+            fettleProcess.WaitForExit((int)TimeSpan.FromMinutes(1).TotalMilliseconds);
 
             stopwatch.Stop();
             System.Console.WriteLine($"Duration: {stopwatch.Elapsed.TotalSeconds} seconds");
