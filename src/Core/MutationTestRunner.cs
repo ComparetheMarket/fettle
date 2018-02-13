@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using Fettle.Core.Internal;
 using Fettle.Core.Internal.MethodCoverage;
 using Fettle.Core.Internal.NUnit;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Fettle.Core
@@ -53,7 +51,7 @@ namespace Fettle.Core
                 using (var workspace = MSBuildWorkspace.Create())
                 {
                     var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
-
+                    
                     var classesToMutate = solution.MutatableClasses(config);
 
                     for (int classIndex = 0; classIndex < classesToMutate.Length; ++classIndex)
