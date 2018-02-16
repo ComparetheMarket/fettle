@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using System.Xml;
 
@@ -32,12 +30,7 @@ namespace Fettle.Core.Internal
             
             // ReSharper restore PossibleNullReferenceException
             // ReSharper restore AssignNullToNotNullAttribute
-
-            if (coveredMethodNames.Count == 0)
-            {
-                throw new InvalidOperationException("Failed to find method coverage information in OpenCover report file");
-            }
-
+            
             return new MethodCoverage.MethodCoverage(coveredMethodNames);
         }
     }

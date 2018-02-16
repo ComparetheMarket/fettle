@@ -24,6 +24,15 @@ namespace Fettle.Tests.Console.Contexts
             commandLineArgs.Add($"a-non-existent-file-{Guid.NewGuid()}.yml");
         }
         
+        protected void Given_mutation_testing_will_return_errors()
+        {
+            Given_a_valid_config_file();
+
+            MockMutationTestRunner
+                .Setup(r => r.Run(It.IsAny<Config>()))
+                .Returns(Task.FromResult(new Result().WithError("an example error")));
+        }
+
         protected void Given_a_valid_config_file()
         {
             var configFilePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", "fettle.config.yml");
@@ -32,7 +41,7 @@ namespace Fettle.Tests.Console.Contexts
             commandLineArgs.Add("--config");
             commandLineArgs.Add(configFilePath);
         }
-
+        
         protected void Given_additional_command_line_arguments(params string[] args)
         {
             commandLineArgs.AddRange(args);
@@ -66,10 +75,7 @@ namespace Fettle.Tests.Console.Contexts
                     eventListener.MutantSurvived(survivingMutant);
                     eventListener.EndMutationOfFile(classFilePath);
                 })
-                .Returns(Task.FromResult(new Result
-                {
-                    SurvivingMutants = { survivingMutant }
-                }));
+                .Returns(Task.FromResult(new Result().WithSurvivingMutants(new []{ survivingMutant })));
         }
 
         protected void Given_no_mutants_will_survive()

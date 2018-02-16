@@ -18,9 +18,9 @@ namespace Fettle.Tests.Core.Contexts
 
         protected SpyEventListener SpyEventListener { get; } = new SpyEventListener();
         protected Result Result { get; private set; }
-        protected Config Config { get; }
+        protected Config Config { get; private set; }
         protected Exception Exception { get; private set; }
-                
+
         protected string[] TempDirectories => Directory.GetDirectories(Path.GetTempPath(), "*fettle*");
 
         public Default()
@@ -101,6 +101,11 @@ namespace Fettle.Tests.Core.Contexts
             TempDirectories.ToList().ForEach(d => Directory.Delete(d, recursive: true));
         }
 
+        protected void Given_config_is_invalid(Func<Config, Config> configModifier)
+        {
+            Config = configModifier(Config);
+        }
+        
         protected void When_mutation_testing_the_app(bool captureException = false)
         {
             try

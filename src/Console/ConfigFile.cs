@@ -15,8 +15,6 @@ namespace Fettle.Console
             public string Solution { get; set; }        
             public string[] TestAssemblies { get; set; }
 
-            public string NunitTestRunner { get; set; }
-        
             public string[] ProjectFilters { get; set; }
             public string[] SourceFileFilters { get; set; }
         
@@ -45,8 +43,8 @@ namespace Fettle.Console
                 .WithNamingConvention(new CamelCaseNamingConvention())
                 .Build();
 
-            return deserializer.Deserialize<InternalConfigRepresentation>(fileContents)
-                .ToConfig();
+            var result = deserializer.Deserialize<InternalConfigRepresentation>(fileContents);
+            return result != null ? result.ToConfig() : new Config();
         }
     }
 }

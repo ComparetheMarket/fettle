@@ -29,53 +29,65 @@ namespace Fettle.Core
 
         public async Task<Result> Run(Config config)
         {
-            var result = new Result();
+            var validationErrors = config.Validate().ToList();
+            if (validationErrors.Any())
+            {
+                return new Result().WithErrors(validationErrors);
+            }
             
-            var tempDirectory = Path.Combine(Path.GetTempPath(), $"fettle-{Guid.NewGuid()}");
-            Directory.CreateDirectory(tempDirectory);
-
             var methodCoverage = config.CoverageReportFilePath != null ?
                 (IMethodCoverage)OpenCoverReportFile.Parse(File.ReadAllText(config.CoverageReportFilePath)) :
                 (IMethodCoverage)new NullMethodCoverage();
+
+            if (!methodCoverage.AnyMethodsCovered)
+            {
+                return new Result().WithError("No methods are covered by tests, so there is nothing to mutate.");
+            }
             
+            var baseTempDirectory = Path.Combine(Path.GetTempPath(), $"fettle-{Guid.NewGuid()}");            
             try
             {
-                foreach (var testAssemblyFilePath in config.TestAssemblyFilePaths)
-                {
-                    var from = Path.GetDirectoryName(testAssemblyFilePath);
-                    var to = Path.Combine(tempDirectory, Path.GetFileNameWithoutExtension(testAssemblyFilePath));
-                    Directory.CreateDirectory(to);
-                    DirectoryUtils.CopyDirectoryContents(from, to);
-                }
+                CreateTempDirectories(baseTempDirectory, config);
 
-                using (var workspace = MSBuildWorkspace.Create())
-                {
-                    var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
-                    
-                    var classesToMutate = solution.MutatableClasses(config);
-
-                    for (int classIndex = 0; classIndex < classesToMutate.Length; ++classIndex)
-                    {
-                        var classToMutate = classesToMutate[classIndex];
-                        
-                        eventListener.BeginMutationOfFile(classToMutate.FilePath, 
-                            Path.GetDirectoryName(config.SolutionFilePath), classIndex, classesToMutate.Length);
-
-                        var survivorsInClass = await MutateClass(config, classToMutate, tempDirectory, methodCoverage)
-                            .ConfigureAwait(false);
-                        
-                        eventListener.EndMutationOfFile(classToMutate.FilePath);
-
-                        result.SurvivingMutants.AddRange(survivorsInClass);
-                    }
-                }
+                var survivingMutants = await MutateSolution(config, baseTempDirectory, methodCoverage);
+                return new Result().WithSurvivingMutants(survivingMutants);
             }
             finally
             {
-                Directory.Delete(tempDirectory, recursive: true);
+                Directory.Delete(baseTempDirectory, recursive: true);
+            }
+        }
+
+        private async Task<IEnumerable<SurvivingMutant>> MutateSolution(
+            Config config, 
+            string tempDirectory, 
+            IMethodCoverage methodCoverage)
+        {
+            var survivingMutants = new List<SurvivingMutant>();
+
+            using (var workspace = MSBuildWorkspace.Create())
+            {
+                var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
+
+                var classesToMutate = solution.MutatableClasses(config);
+
+                for (int classIndex = 0; classIndex < classesToMutate.Length; ++classIndex)
+                {
+                    var classToMutate = classesToMutate[classIndex];
+
+                    eventListener.BeginMutationOfFile(classToMutate.FilePath,
+                        Path.GetDirectoryName(config.SolutionFilePath), classIndex, classesToMutate.Length);
+
+                    var survivorsInClass = await MutateClass(config, classToMutate, tempDirectory, methodCoverage)
+                        .ConfigureAwait(false);
+
+                    eventListener.EndMutationOfFile(classToMutate.FilePath);
+
+                    survivingMutants.AddRange(survivorsInClass);
+                }
             }
 
-            return result;
+            return survivingMutants;
         }
 
         private async Task<IEnumerable<SurvivingMutant>> MutateClass(
@@ -174,6 +186,19 @@ namespace Fettle.Core
             }
 
             return null;
+        }
+
+        private static void CreateTempDirectories(string baseTempDirectory, Config config)
+        {
+            Directory.CreateDirectory(baseTempDirectory);
+
+            foreach (var testAssemblyFilePath in config.TestAssemblyFilePaths)
+            {
+                var from = Path.GetDirectoryName(testAssemblyFilePath);
+                var to = Path.Combine(baseTempDirectory, Path.GetFileNameWithoutExtension(testAssemblyFilePath));
+                Directory.CreateDirectory(to);
+                DirectoryUtils.CopyDirectoryContents(@from, to);
+            }
         }
     }
 }

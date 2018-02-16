@@ -2,22 +2,21 @@
 
 namespace Fettle.Tests.Core.CoverageReport
 {
-    [TestFixture("invalidxml-opencover.xml")]
-    [TestFixture("nomethods-opencover.xml")]
-    class Coverage_report_is_invalid : Contexts.Default
+    class No_methods_are_covered : Contexts.Default
     {
-        public Coverage_report_is_invalid(string coverageReportFilename)
+        public No_methods_are_covered()
         {
             Given_an_app_to_be_mutation_tested();
-            Given_a_coverage_report(coverageReportFilename);
+            Given_a_coverage_report("nomethods-opencover.xml");
 
             When_mutation_testing_the_app(captureException: true);
         }
 
         [Test]
-        public void Then_an_exception_is_thrown()
+        public void Then_an_error_is_returned()
         {
-            Assert.That(Exception, Is.Not.Null);
+            Assert.That(Result.Errors, Is.Not.Null);
+            Assert.That(Result.Errors.Count, Is.GreaterThan(0));
         }
 
         [Test]

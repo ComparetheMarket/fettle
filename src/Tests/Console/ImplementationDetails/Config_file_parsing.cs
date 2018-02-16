@@ -36,32 +36,16 @@ coverageReport: report.xml
             Assert.That(config.SourceFileFilters, Is.EquivalentTo(new[] { @"Blah\Things\*.cs", @"Wibble\w*mble.cs" }));
             Assert.That(config.CoverageReportFilePath, Is.EqualTo(@"C:\base\dir\report.xml"));
         }
-
+        
         [Test]
-        public void Optional_properties_can_be_omitted()
+        public void All_properties_can_be_omitted_as_validation_is_done_later()
         {
-            const string fileContents = @"
-
-solution: src\blah.sln
-
-testAssemblies:
-    - src\Blah.Tests\bin\Debug\Blah.Tests.dll
-    - src\Blurg.Tests\bin\Debug\Blurg.Tests.dll
-
-#projectFilters: [ BlahImpl ]
-#sourceFileFilters: [ Blah\Things\*.cs, Wibble\w*mble.cs ]
-#coverageReport: report.xml
-";
+            const string fileContents = @"";
 
             var config = ConfigFile.Parse(fileContents).WithPathsRelativeTo(@"C:\base\dir");
 
-            Assert.That(config.SolutionFilePath, Is.EqualTo(@"C:\base\dir\src\blah.sln"));
-            Assert.That(config.TestAssemblyFilePaths, Is.EquivalentTo(new[]
-            {
-                @"C:\base\dir\src\Blah.Tests\bin\Debug\Blah.Tests.dll",
-                @"C:\base\dir\src\Blurg.Tests\bin\Debug\Blurg.Tests.dll"
-            }));
-
+            Assert.That(config.SolutionFilePath, Is.Null);
+            Assert.That(config.TestAssemblyFilePaths, Is.Null);
             Assert.That(config.ProjectFilters, Is.Null);
             Assert.That(config.SourceFileFilters, Is.Null);
             Assert.That(config.CoverageReportFilePath, Is.Null);
