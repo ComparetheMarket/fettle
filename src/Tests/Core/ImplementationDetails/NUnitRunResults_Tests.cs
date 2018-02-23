@@ -9,11 +9,11 @@ namespace Fettle.Tests.Core.ImplementationDetails
     class NUnitRunResults_Tests
     {
         [Test]
-        public void When_file_indicates_that_all_tests_pass_Then_returns_AllTestsPass()
+        public void When_file_indicates_that_all_tests_passed_Then_returns_AllTestsPass()
         {
             var xmlNode = StringToXmlNode(
                 @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""no""?>
-                  <test-run id=""2"" testcasecount=""7"" result=""Passed"">
+                  <test-run id=""2"" result=""Passed"" total=""7"">
                   </test-run>
                 ");
 
@@ -27,7 +27,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
         {
             var xmlNode = StringToXmlNode(
                 @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""no""?>
-                  <test-run id=""2"" testcasecount=""7"" result=""Failed"">
+                  <test-run id=""2"" result=""Failed"" total=""7"">
                   </test-run>
                 ");
 
@@ -35,13 +35,13 @@ namespace Fettle.Tests.Core.ImplementationDetails
 
             Assert.That(result, Is.EqualTo(TestRunnerResult.SomeTestsFailed));
         }
-
+        
         [Test]
-        public void When_file_indicates_NUnit_wasnt_able_to_run_tests_Then_throws_an_exception()
+        public void When_file_indicates_no_tests_were_run_Then_throws_an_exception()
         {
             var xmlNode = StringToXmlNode(
                 @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""no""?>
-                  <test-run id=""2"" testcasecount=""0"" result=""Failed"">
+                  <test-run id=""2"" result=""Passed"" total=""0"">
                   </test-run>
                 ");
 
@@ -53,15 +53,15 @@ namespace Fettle.Tests.Core.ImplementationDetails
         {
             var xmlNode = StringToXmlNode(
                 @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""no""?>
-                  <test-run id=""2"" testcasecount=""1"" result=""Failed"">
-                     <test-suite runstate=""Runnable"">                        
+                  <test-run id=""2"" result=""Failed"" total=""7"">
+                     <test-suite runstate=""Runnable"">
                      </test-suite>
-                     <test-suite runstate=""NotRunnable"">                        
+                     <test-suite runstate=""NotRunnable"">
                      </test-suite>
                   </test-run>
                 ");
 
-            Assert.Throws<InvalidOperationException>(() => NUnitRunResults.Parse(xmlNode));            
+            Assert.Throws<InvalidOperationException>(() => NUnitRunResults.Parse(xmlNode));
         }
 
         [TestCase("Inconclusive")]
@@ -70,7 +70,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
         {
             var xmlNode = StringToXmlNode(
                 $@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""no""?>
-                   <test-run id=""2"" testcasecount=""6"" result=""{result}"">
+                   <test-run id=""2"" total=""6"" result=""{result}"">
                    </test-run>
                 ");
 

@@ -7,8 +7,8 @@ namespace Fettle.Core.Internal.NUnit
     {
         public static TestRunnerResult Parse(XmlNode rootNode)
         {
-            var testCaseCount = int.Parse(rootNode.Attributes["testcasecount"].Value);
-            if (testCaseCount == 0)
+            var numTestsRun = int.Parse(rootNode.Attributes["total"].Value);
+            if (numTestsRun == 0)
             {
                 throw new InvalidOperationException("Failed to run any tests");
             }
