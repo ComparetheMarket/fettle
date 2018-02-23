@@ -11,7 +11,6 @@ namespace Fettle.Tests.Core
         {
             new object[] { new Func<Config,Config>(WithNonExistentSolutionFile) },
             new object[] { new Func<Config,Config>(WithNonExistentTestAssembly) },
-            new object[] { new Func<Config,Config>(WithNonExistentCoverageReport) },
 
             new object[] { new Func<Config,Config>(WithNoSolutionFile) },
             new object[] { new Func<Config,Config>(WithNoTestAssemblies) },

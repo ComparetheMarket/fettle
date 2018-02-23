@@ -55,7 +55,6 @@
     <Compile Include="Console\Contexts\Default.cs" />
     <Compile Include="Console\Contexts\SpyOutputWriter.cs" />
     <Compile Include="Console\EndToEnd\Happy_path.cs" />
-    <Compile Include="Console\ImplementationDetails\Config_file_parsing.cs" />
     <Compile Include="Console\Errors_occur.cs" />
     <Compile Include="Console\Missing_command_line_arguments.cs" />
     <Compile Include="Console\Mutation_testing_throws_an_exception.cs" />
@@ -70,10 +69,7 @@
     <Compile Include="Core\Contexts\Default.cs" />
     <Compile Include="Core\Contexts\InvalidConfig.cs" />
     <Compile Include="Core\Contexts\SpyEventListener.cs" />
-    <Compile Include="Core\CoverageReport\Coverage_report_is_invalid.cs" />
-    <Compile Include="Core\CoverageReport\Coverage_report_is_not_specified.cs" />
-    <Compile Include="Core\CoverageReport\Coverage_report_is_specified.cs" />
-    <Compile Include="Core\Finding_tests.cs" />
+    <Compile Include="Core\Method_coverage.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered_with_multiple_filters.cs" />
     <Compile Include="Core\Filtering\Projects_are_not_filtered.cs" />
@@ -84,7 +80,6 @@
     <Compile Include="Core\ImplementationDetails\Mutation\Conditional_operator.cs" />
     <Compile Include="Core\ImplementationDetails\NameOfContainingMethod_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\NUnitExploreResults_Tests.cs" />
-    <Compile Include="Core\ImplementationDetails\OpenCoverReportFile_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Increment_and_decrement_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Equality_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Logical_operators.cs" />
@@ -122,15 +117,6 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Core\CoverageReport\TestData\nomethods-opencover.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Core\CoverageReport\TestData\valid-opencover.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">

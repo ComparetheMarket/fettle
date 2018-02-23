@@ -5,23 +5,27 @@ using NUnit.Framework;
 
 namespace Fettle.Tests.Core
 {
-    class Finding_tests : Contexts.Default
+    class Method_coverage : Contexts.Default
     {
-        public Finding_tests()
+        public Method_coverage()
         {
             Given_an_app_to_be_mutation_tested();
-            Given_tests_will_be_found(new[]{ "example.test.one", "example.test.two" });
 
             When_mutation_testing_the_app();
         }
 
         [Test]
-        public void Then_each_test_that_is_found_is_run()
+        public void Then_only_tests_that_cover_methods_are_run()
         {
             MockTestRunner.Verify(r => r.RunTests(
                 It.IsAny<IEnumerable<string>>(),
                 It.Is<IEnumerable<string>>(tn =>
-                    tn.Contains("example.test.one") && tn.Contains("example.test.two"))));
+                    tn.Contains("example.test.one"))));
+
+            MockTestRunner.Verify(r => r.RunTests(
+                It.IsAny<IEnumerable<string>>(),
+                It.Is<IEnumerable<string>>(tn =>
+                    !tn.Contains("example.test.one"))), Times.Never);
         }
     }
 }

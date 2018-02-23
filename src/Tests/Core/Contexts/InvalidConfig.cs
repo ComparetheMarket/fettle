@@ -9,12 +9,6 @@ namespace Fettle.Tests.Core.Contexts
             config.SolutionFilePath = "non-existent-file";
             return config;
         }
-
-        protected static Config WithNonExistentCoverageReport(Config config)
-        {
-            config.CoverageReportFilePath = "non-existent-file";
-            return config;
-        }
         
         protected static Config WithNonExistentTestAssembly(Config config)
         {

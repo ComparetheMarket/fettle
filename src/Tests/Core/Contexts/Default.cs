@@ -11,7 +11,7 @@ namespace Fettle.Tests.Core.Contexts
 {
     class Default
     {
-        private readonly Mock<ITestFinder> mockTestFinder;
+        private readonly Mock<IMethodCoverage> mockMethodCoverage;
 
         private readonly string baseExampleDir = Path.Combine(TestContext.CurrentContext.TestDirectory,
             "..", "..", "..", "Examples", "HasSurvivingMutants");
@@ -39,11 +39,11 @@ namespace Fettle.Tests.Core.Contexts
             };
 
             MockTestRunner = new Mock<ITestRunner>();
-             
-            mockTestFinder = new Mock<ITestFinder>();
-            mockTestFinder
-                .Setup(x => x.FindTests(It.IsAny<IEnumerable<string>>()))
-                .Returns(new string[0]);
+            
+            mockMethodCoverage = new Mock<IMethodCoverage>();
+            mockMethodCoverage
+                .Setup(x => x.TestsThatCoverMethod(It.IsAny<string>()))
+                .Returns<string>(_ => new []{"example.test.one"});
         }
         
         protected void Given_a_partially_tested_app_in_which_a_mutant_will_survive()
@@ -79,14 +79,7 @@ namespace Fettle.Tests.Core.Contexts
         {
             Given_a_partially_tested_app_in_which_a_mutant_will_survive();
         }
-
-        protected void Given_tests_will_be_found(string[] testNames)
-        {
-            mockTestFinder
-                .Setup(x => x.FindTests(It.IsAny<IEnumerable<string>>()))
-                .Returns(testNames);
-        }
-
+        
         protected void Given_project_filters(params string[] filters)
         {
             Config.ProjectFilters = filters;
@@ -96,19 +89,7 @@ namespace Fettle.Tests.Core.Contexts
         {
             Config.SourceFileFilters = filters;
         }
-
-        protected void Given_a_coverage_report(string coveragereportFilename)
-        {
-            if (coveragereportFilename != null)
-            {
-                Config.CoverageReportFilePath =
-                    Path.Combine(
-                        TestContext.CurrentContext.TestDirectory,
-                        "Core", "CoverageReport", "TestData",
-                        coveragereportFilename);
-            }
-        }
-
+        
         protected void Given_there_are_no_pre_existing_temporary_files()
         {
             TempDirectories.ToList().ForEach(d => Directory.Delete(d, recursive: true));
@@ -123,8 +104,8 @@ namespace Fettle.Tests.Core.Contexts
         {
             try
             {
-                Result = new MutationTestRunner(MockTestRunner.Object, mockTestFinder.Object, SpyEventListener)
-                    .Run(Config).Result;
+                Result = new MutationTestRunner(MockTestRunner.Object, SpyEventListener)
+                    .Run(Config, mockMethodCoverage.Object).Result;
             }
             catch (Exception e)
             {

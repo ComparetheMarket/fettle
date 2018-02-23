@@ -21,7 +21,7 @@ namespace Fettle.Core.Internal.NUnit
             }
         }
 
-        public TestRunnerResult RunTests(IEnumerable<string> testAssemblyFilePaths, IEnumerable<string> testNames)
+        public TestRunnerResult RunTests(IEnumerable<string> testAssemblyFilePaths, IEnumerable<string> testMethodNames)
         {
             using (var testEngine = CreateTestEngine())
             {
@@ -30,12 +30,20 @@ namespace Fettle.Core.Internal.NUnit
                 using (var testRunner = testEngine.GetRunner(testPackage))
                 {
                     var filterBuilder = new TestFilterBuilder();
-                    testNames.ToList().ForEach(tn => filterBuilder.AddTest(tn));
+                    testMethodNames.ToList().ForEach(tn => 
+                        filterBuilder.AddTest(RemoveReturnTypeAndParameters(tn)));
 
                     var results = testRunner.Run(new NullEventListener(), filterBuilder.GetFilter());
                     return NUnitRunResults.Parse(results);
                 }
             }
+        }
+
+        private string RemoveReturnTypeAndParameters(string fullMethodName)
+        {
+            var nameWithoutReturnType = fullMethodName.Split(' ').Skip(1).First();
+            var nameWithoutParams = nameWithoutReturnType.Split('(').First();
+            return nameWithoutParams.Replace("::", ".");
         }
 
         private static TestEngine CreateTestEngine()

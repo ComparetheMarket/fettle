@@ -14,7 +14,7 @@ namespace Fettle.Console
 
             return InternalEntryPoint(args, mutationTestRunnerFactory, new ConsoleOutputWriter());
         }
-
+        
         private class ExitCodes
         {
             public const int NoMutantsSurvived = 0;
@@ -22,7 +22,7 @@ namespace Fettle.Console
             public const int ConfigOrArgsAreInvalid = 2;
             public const int UnexpectedError = 3;
         }
-
+        
         internal static int InternalEntryPoint(
             string[] args,
             Func<IEventListener, IMutationTestRunner> mutationTestRunnerFactory,
@@ -42,7 +42,7 @@ namespace Fettle.Console
 
                 var runner = mutationTestRunnerFactory(eventListener);
 
-                var result = runner.Run(config: parsedArgs.Config)
+                var result = runner.Run(parsedArgs.Config, new MethodCoverage())
                     .Result;
                 
                 if (result.Errors.Any())

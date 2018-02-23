@@ -29,7 +29,7 @@ namespace Fettle.Tests.Console.Contexts
             Given_a_valid_config_file();
 
             MockMutationTestRunner
-                .Setup(r => r.Run(It.IsAny<Config>()))
+                .Setup(r => r.Run(It.IsAny<Config>(), It.IsAny<IMethodCoverage>()))
                 .Returns(Task.FromResult(new Result().WithError("an example error")));
         }
 
@@ -65,7 +65,7 @@ namespace Fettle.Tests.Console.Contexts
             };
 
             MockMutationTestRunner
-                .Setup(r => r.Run(It.IsAny<Config>()))
+                .Setup(r => r.Run(It.IsAny<Config>(), It.IsAny<IMethodCoverage>()))
                 .Callback(() =>
                 {
                     // Raise events that a real MutationTestRunner would raise.
@@ -81,14 +81,14 @@ namespace Fettle.Tests.Console.Contexts
         protected void Given_no_mutants_will_survive()
         {
             MockMutationTestRunner
-                .Setup(r => r.Run(It.IsAny<Config>()))
+                .Setup(r => r.Run(It.IsAny<Config>(), It.IsAny<IMethodCoverage>()))
                 .Returns(Task.FromResult(new Result()));
         }
 
         protected void Given_mutation_testing_will_throw_an_exception(Exception ex)
         {
             MockMutationTestRunner
-                .Setup(r => r.Run(It.IsAny<Config>()))
+                .Setup(r => r.Run(It.IsAny<Config>(), It.IsAny<IMethodCoverage>()))
                 .Throws(ex);
         }
 

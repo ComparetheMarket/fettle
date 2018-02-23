@@ -50,11 +50,6 @@ testAssemblies:
     - .\src\MyProject\Tests\bin\Release\Tests.dll
     - .\src\MyProject\IntegrationTests\bin\Release\IntegrationTests.dll
 
-# [Optional] Path to OpenCover test coverage report file.
-# If specified, Fettle will only mutate code that is already covered by tests.
-# This can reduce the time it takes to perform the mutation testing.
-coverageReport: .\opencover.xml
-
 # [Optional] use a filter to define which source files to mutate.
 sourceFileFilters:
     - Implementation\*.cs

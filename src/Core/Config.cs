@@ -16,7 +16,6 @@ namespace Fettle.Core
         // Optional
         //
         public string[] SourceFileFilters { get; set; }
-        public string CoverageReportFilePath { get; set; }
  
         public Config WithPathsRelativeTo(string baseDirectory)
         {
@@ -36,10 +35,6 @@ namespace Fettle.Core
             result.ProjectFilters = ProjectFilters?.ToArray();
             result.SourceFileFilters = SourceFileFilters?.ToArray();
  
-            result.CoverageReportFilePath = CoverageReportFilePath != null
-                ? Path.Combine(baseDirectory, CoverageReportFilePath)
-                : null;
-
             return result;
         }
 
@@ -81,12 +76,6 @@ namespace Fettle.Core
                 var filesListMessage = string.Join(Environment.NewLine, nonExistentTestAssemblies);
                 yield return
                     $"One or more test assemblies were not found:{Environment.NewLine}{filesListMessage}";
-            }
-
-            if (CoverageReportFilePath != null && !File.Exists(CoverageReportFilePath))
-            {
-                yield return
-                    $"The coverage report file was not found: \"{CoverageReportFilePath}\"";
             }
         }
     }

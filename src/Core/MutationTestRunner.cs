@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Fettle.Core.Internal;
-using Fettle.Core.Internal.MethodCoverage;
 using Fettle.Core.Internal.NUnit;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
@@ -14,36 +13,25 @@ namespace Fettle.Core
     public class MutationTestRunner : IMutationTestRunner
     {
         private readonly ITestRunner testRunner;
-        private readonly ITestFinder testFinder;
         private readonly IEventListener eventListener;
 
         public MutationTestRunner(IEventListener eventListener = null) :
-            this(new NUnitTestEngine(), new NUnitTestEngine(), eventListener)
+            this(new NUnitTestEngine(), eventListener)
         {
         }
 
-        internal MutationTestRunner(ITestRunner testRunner, ITestFinder testFinder, IEventListener eventListener = null)
+        internal MutationTestRunner(ITestRunner testRunner, IEventListener eventListener = null)
         {
             this.testRunner = testRunner;
-            this.testFinder = testFinder;
             this.eventListener = eventListener ?? new NullEventListener();
         }
 
-        public async Task<Result> Run(Config config)
+        public async Task<Result> Run(Config config, IMethodCoverage methodCoverage)
         {
             var validationErrors = config.Validate().ToList();
             if (validationErrors.Any())
             {
                 return new Result().WithErrors(validationErrors);
-            }
-            
-            var methodCoverage = config.CoverageReportFilePath != null ?
-                (IMethodCoverage)OpenCoverReportFile.Parse(File.ReadAllText(config.CoverageReportFilePath)) :
-                (IMethodCoverage)new NullMethodCoverage();
-
-            if (!methodCoverage.AnyMethodsCovered)
-            {
-                return new Result().WithError("No methods are covered by tests, so there is nothing to mutate.");
             }
             
             var baseTempDirectory = Path.Combine(Path.GetTempPath(), $"fettle-{Guid.NewGuid()}");            
@@ -65,8 +53,6 @@ namespace Fettle.Core
             string tempDirectory, 
             IMethodCoverage methodCoverage)
         {
-            var testsToRun = testFinder.FindTests(config.TestAssemblyFilePaths);
-
             var survivingMutants = new List<SurvivingMutant>();
 
             using (var workspace = MSBuildWorkspace.Create())
@@ -82,7 +68,7 @@ namespace Fettle.Core
                     eventListener.BeginMutationOfFile(classToMutate.FilePath,
                         Path.GetDirectoryName(config.SolutionFilePath), classIndex, classesToMutate.Length);
 
-                    var survivorsInClass = await MutateClass(config, classToMutate, tempDirectory, methodCoverage, testsToRun)
+                    var survivorsInClass = await MutateClass(config, classToMutate, tempDirectory, methodCoverage)
                         .ConfigureAwait(false);
 
                     eventListener.EndMutationOfFile(classToMutate.FilePath);
@@ -98,8 +84,7 @@ namespace Fettle.Core
             Config config, 
             Document classToMutate, 
             string tempDirectory,
-            IMethodCoverage methodCoverage,
-            string[] testsToRun)
+            IMethodCoverage methodCoverage)
         {
             var survivors = new List<SurvivingMutant>();
             var classRoot = await classToMutate.GetSyntaxRootAsync();
@@ -121,8 +106,9 @@ namespace Fettle.Core
                     // Therefore there is no code to mutate.
                     continue;
                 }
-
-                if (!methodCoverage.IsMethodCovered(methodName))
+                
+                var testsToRun = methodCoverage.TestsThatCoverMethod(methodName);
+                if (!testsToRun.Any())
                 {
                     continue;
                 }
@@ -146,9 +132,10 @@ namespace Fettle.Core
                     eventListener.MethodMutating(methodName);
                     reportedMethods.Add(methodName);
                 }
-
+                
                 eventListener.SyntaxNodeMutating(nodeIndex, nodesToMutate.Length);
-                var survivor = await MutateSyntaxNode(config, classToMutate, nodeToMutate, classRoot, mutators, testsToRun, tempDirectory);
+                var survivor = await MutateSyntaxNode(config, classToMutate, nodeToMutate, classRoot, mutators,
+                    testsToRun, tempDirectory);
 
                 if (survivor != null)
                 {
