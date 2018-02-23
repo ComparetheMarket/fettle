@@ -6,9 +6,9 @@ using NUnit.Framework;
 
 namespace Fettle.Tests.Core.ImplementationDetails
 {
-    class NUnitTestResults_Tests
+    class NUnitRunResults_Tests
     {
-         [Test]
+        [Test]
         public void When_file_indicates_that_all_tests_pass_Then_returns_AllTestsPass()
         {
             var xmlNode = StringToXmlNode(
@@ -17,7 +17,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
                   </test-run>
                 ");
 
-            var result = NUnitTestResults.Parse(xmlNode);
+            var result = NUnitRunResults.Parse(xmlNode);
 
             Assert.That(result, Is.EqualTo(TestRunnerResult.AllTestsPassed));
         }
@@ -31,7 +31,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
                   </test-run>
                 ");
 
-            var result = NUnitTestResults.Parse(xmlNode);
+            var result = NUnitRunResults.Parse(xmlNode);
 
             Assert.That(result, Is.EqualTo(TestRunnerResult.SomeTestsFailed));
         }
@@ -45,7 +45,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
                   </test-run>
                 ");
 
-            Assert.Throws<InvalidOperationException>(() => NUnitTestResults.Parse(xmlNode));
+            Assert.Throws<InvalidOperationException>(() => NUnitRunResults.Parse(xmlNode));
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
                   </test-run>
                 ");
 
-            Assert.Throws<InvalidOperationException>(() => NUnitTestResults.Parse(xmlNode));            
+            Assert.Throws<InvalidOperationException>(() => NUnitRunResults.Parse(xmlNode));            
         }
 
         [TestCase("Inconclusive")]
@@ -74,7 +74,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
                    </test-run>
                 ");
 
-            Assert.Throws<InvalidOperationException>(() => NUnitTestResults.Parse(xmlNode));
+            Assert.Throws<InvalidOperationException>(() => NUnitRunResults.Parse(xmlNode));
         }
 
         private static XmlNode StringToXmlNode(string text)

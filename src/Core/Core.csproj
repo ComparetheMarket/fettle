@@ -60,6 +60,7 @@
     <Compile Include="Internal\MutatedClass.cs" />
     <Compile Include="Internal\Mutators\SwapChildExpressionsMutator.cs" />
     <Compile Include="Internal\Mutators\SwapOperatorMutator.cs" />
+    <Compile Include="Internal\NUnit\NUnitExploreResults.cs" />
     <Compile Include="Internal\OpenCoverReportFile.cs" />
     <Compile Include="Internal\ProjectCompilation.cs" />
     <Compile Include="IEventListener.cs" />

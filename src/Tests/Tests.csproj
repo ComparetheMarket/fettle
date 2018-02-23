@@ -82,6 +82,7 @@
     <Compile Include="Core\Ignored_lines.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Conditional_operator.cs" />
     <Compile Include="Core\ImplementationDetails\NameOfContainingMethod_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\NUnitExploreResults_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\OpenCoverReportFile_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Increment_and_decrement_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Equality_operators.cs" />

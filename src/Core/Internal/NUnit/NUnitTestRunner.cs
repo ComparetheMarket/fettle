@@ -31,7 +31,7 @@ namespace Fettle.Core.Internal.NUnit
                 using (var testRunner = testEngine.GetRunner(testPackage))
                 {
                     var results = testRunner.Run(new NullEventListener(), TestFilter.Empty);
-                    return NUnitTestResults.Parse(results);
+                    return NUnitRunResults.Parse(results);
                 }
             }
         }

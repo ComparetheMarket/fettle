@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace Fettle.Core.Internal.NUnit
 {
-    internal static class NUnitTestResults
+    internal static class NUnitRunResults
     {
         public static TestRunnerResult Parse(XmlNode rootNode)
         {
