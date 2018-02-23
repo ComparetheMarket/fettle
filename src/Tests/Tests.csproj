@@ -73,6 +73,7 @@
     <Compile Include="Core\CoverageReport\Coverage_report_is_invalid.cs" />
     <Compile Include="Core\CoverageReport\Coverage_report_is_not_specified.cs" />
     <Compile Include="Core\CoverageReport\Coverage_report_is_specified.cs" />
+    <Compile Include="Core\Finding_tests.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered_with_multiple_filters.cs" />
     <Compile Include="Core\Filtering\Projects_are_not_filtered.cs" />
@@ -89,7 +90,7 @@
     <Compile Include="Core\ImplementationDetails\Mutation\Logical_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Mathematical_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Relational_operators.cs" />
-    <Compile Include="Core\ImplementationDetails\NUnitTestResults_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\NUnitRunResults_Tests.cs" />
     <Compile Include="Core\Invalid_config.cs" />
     <Compile Include="Core\Temporary_files.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

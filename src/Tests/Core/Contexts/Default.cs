@@ -11,10 +11,12 @@ namespace Fettle.Tests.Core.Contexts
 {
     class Default
     {
-        private Mock<ITestRunner> mockTestRunner;
+        private readonly Mock<ITestFinder> mockTestFinder;
 
         private readonly string baseExampleDir = Path.Combine(TestContext.CurrentContext.TestDirectory,
             "..", "..", "..", "Examples", "HasSurvivingMutants");
+
+        protected Mock<ITestRunner> MockTestRunner { get; }
 
         protected SpyEventListener SpyEventListener { get; } = new SpyEventListener();
         protected Result Result { get; private set; }
@@ -35,14 +37,20 @@ namespace Fettle.Tests.Core.Contexts
                     Path.Combine(baseExampleDir, "Tests", "bin", BuildConfig.AsString, "HasSurvivingMutants.Tests.dll")
                 }
             };
+
+            MockTestRunner = new Mock<ITestRunner>();
+             
+            mockTestFinder = new Mock<ITestFinder>();
+            mockTestFinder
+                .Setup(x => x.FindTests(It.IsAny<IEnumerable<string>>()))
+                .Returns(new string[0]);
         }
         
         protected void Given_a_partially_tested_app_in_which_a_mutant_will_survive()
         {
-            mockTestRunner = new Mock<ITestRunner>();
             var wasCalled = false;
 
-            mockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>()))
+            MockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
                           .Returns(() =>
                           {
                               if (!wasCalled)
@@ -57,21 +65,26 @@ namespace Fettle.Tests.Core.Contexts
         
         protected void Given_a_partially_tested_app_in_which_multiple_mutants_survive_for_a_syntax_node()
         {
-            mockTestRunner = new Mock<ITestRunner>();
-            mockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>()))
+            MockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
                           .Returns(TestRunnerResult.AllTestsPassed);
         }
 
         protected void Given_a_fully_tested_app_in_which_no_mutants_will_survive()
         {
-            mockTestRunner = new Mock<ITestRunner>();
-            mockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>()))
+            MockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
                           .Returns(TestRunnerResult.SomeTestsFailed);
         }
         
         protected void Given_an_app_to_be_mutation_tested()
         {
             Given_a_partially_tested_app_in_which_a_mutant_will_survive();
+        }
+
+        protected void Given_tests_will_be_found(string[] testNames)
+        {
+            mockTestFinder
+                .Setup(x => x.FindTests(It.IsAny<IEnumerable<string>>()))
+                .Returns(testNames);
         }
 
         protected void Given_project_filters(params string[] filters)
@@ -110,7 +123,7 @@ namespace Fettle.Tests.Core.Contexts
         {
             try
             {
-                Result = new MutationTestRunner(mockTestRunner.Object, SpyEventListener)
+                Result = new MutationTestRunner(MockTestRunner.Object, mockTestFinder.Object, SpyEventListener)
                     .Run(Config).Result;
             }
             catch (Exception e)

@@ -62,5 +62,12 @@ namespace HasSurvivingMutants.Tests
         {
             PartiallyTestedNumberComparison.AddNumbers_should_be_ignored(5);
         }
+
+        [Test, Ignore("deliberately ignored to check fettle ignores non-runnable tests")]
+        public void ShouldNotBeRun()
+        {
+            Assert.That(PartiallyTestedNumberComparison.PositiveOrNegative(1), Is.EqualTo("positive"));
+            Assert.That(PartiallyTestedNumberComparison.PositiveOrNegative(-1), Is.EqualTo("negative"));
+        }
     }
 }

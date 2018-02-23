@@ -25,6 +25,7 @@ namespace Fettle.Core.Internal
             MutatedClass mutatedClass,
             Config config,
             ITestRunner testRunner,
+            string[] testsToRun,
             string tempDirectory)
         {
             var compilationResult = await mutatedClass.CompileContainingProject(tempDirectory);
@@ -39,7 +40,7 @@ namespace Fettle.Core.Internal
 
             var tempTestAssemblyFilePaths = TempTestAssemblyFilePaths(config, tempDirectory);
 
-            var result = testRunner.RunTests(tempTestAssemblyFilePaths);
+            var result = testRunner.RunTests(tempTestAssemblyFilePaths, testsToRun);
 
             return result == TestRunnerResult.AllTestsPassed ?
                 await SurvivingMutant.CreateFrom(mutatedClass) :

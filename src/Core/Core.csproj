@@ -54,6 +54,7 @@
     <Compile Include="Internal\DocumentExtensions.cs" />
     <Compile Include="Internal\Filtering.cs" />
     <Compile Include="Internal\IgnoreComments.cs" />
+    <Compile Include="Internal\ITestFinder.cs" />
     <Compile Include="Internal\MethodCoverage\MethodCoverage.cs" />
     <Compile Include="Internal\MethodCoverage\IMethodCoverage.cs" />
     <Compile Include="Internal\MethodCoverage\NullMethodCoverage.cs" />
@@ -67,8 +68,8 @@
     <Compile Include="IMutationTestRunner.cs" />
     <Compile Include="Internal\DirectoryUtils.cs" />
     <Compile Include="Internal\ITestRunner.cs" />
-    <Compile Include="Internal\NUnit\NUnitTestResults.cs" />
-    <Compile Include="Internal\NUnit\NUnitTestRunner.cs" />
+    <Compile Include="Internal\NUnit\NUnitRunResults.cs" />
+    <Compile Include="Internal\NUnit\NUnitTestEngine.cs" />
     <Compile Include="Internal\SolutionExtension.cs" />
     <Compile Include="Internal\SyntaxNodeExtensions.cs" />
     <Compile Include="Internal\TestRunnerResult.cs" />
