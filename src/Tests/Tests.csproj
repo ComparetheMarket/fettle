@@ -69,6 +69,7 @@
     <Compile Include="Core\Contexts\Default.cs" />
     <Compile Include="Core\Contexts\InvalidConfig.cs" />
     <Compile Include="Core\Contexts\SpyEventListener.cs" />
+    <Compile Include="Core\ImplementationDetails\Method_coverage.cs" />
     <Compile Include="Core\Method_coverage.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered_with_multiple_filters.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Core\ImplementationDetails\NUnitRunResults_Tests.cs" />
     <Compile Include="Core\Invalid_config.cs" />
     <Compile Include="Core\Temporary_files.cs" />
+    <Compile Include="Core\Contexts\MethodCoverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\EndToEnd\Happy_path.cs" />
     <Compile Include="Core\Invalid_mutation.cs" />
@@ -184,6 +186,7 @@
       <Paket>True</Paket>
     </Analyzer>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>

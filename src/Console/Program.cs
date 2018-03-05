@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Fettle.Core;
+using Fettle.Core.Internal;
 
 namespace Fettle.Console
 {
@@ -42,7 +43,7 @@ namespace Fettle.Console
 
                 var runner = mutationTestRunnerFactory(eventListener);
 
-                var result = runner.Run(parsedArgs.Config, new MethodCoverage())
+                var result = runner.Run(parsedArgs.Config)
                     .Result;
                 
                 if (result.Errors.Any())

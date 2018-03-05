@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Text;
 using System.Xml;
 
 namespace Fettle.Core.Internal.NUnit
 {
     internal static class NUnitRunResults
     {
-        public static TestRunnerResult Parse(XmlNode rootNode)
+        public static TestRunResult Parse(XmlNode rootNode)
         {
             var numTestsRun = int.Parse(rootNode.Attributes["total"].Value);
             if (numTestsRun == 0)
@@ -22,13 +23,26 @@ namespace Fettle.Core.Internal.NUnit
                 }
             }
 
-            var result = rootNode.Attributes["result"].Value;
-            switch (result)
+            var resultValue = rootNode.Attributes["result"].Value;
+            TestRunStatus status;
+            switch (resultValue)
             {
-                case "Passed": return TestRunnerResult.AllTestsPassed;
-                case "Failed": return TestRunnerResult.SomeTestsFailed;
-                default: throw new InvalidOperationException($"Unexpected NUnit test run result: \"{result}\"");
+                case "Passed": status = TestRunStatus.AllTestsPassed; break;
+                case "Failed": status = TestRunStatus.SomeTestsFailed; break;
+                default: throw new InvalidOperationException($"Unexpected NUnit test run result: \"{resultValue}\"");
             }
+
+            var consoleOutput = new StringBuilder();
+            foreach (XmlNode outputNode in rootNode.SelectNodes("//test-case/output"))
+            {
+                consoleOutput.Append(outputNode.InnerText);
+            }
+
+            return new TestRunResult
+            {
+                Status = status,
+                ConsoleOutput = consoleOutput.ToString()
+            };
         }
     }
 }

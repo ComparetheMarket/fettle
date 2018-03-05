@@ -4,6 +4,6 @@ namespace Fettle.Core.Internal
 {
     internal interface ITestRunner
     {
-        TestRunnerResult RunTests(IEnumerable<string> testAssemblyFilePaths, IEnumerable<string> testMethodNames);
+        TestRunResult RunTests(IEnumerable<string> testAssemblyFilePaths, IEnumerable<string> testMethodNames);
     }
 }

@@ -13,20 +13,25 @@ namespace Fettle.Core
     public class MutationTestRunner : IMutationTestRunner
     {
         private readonly ITestRunner testRunner;
+        private readonly IMethodCoverage methodCoverage;
         private readonly IEventListener eventListener;
 
         public MutationTestRunner(IEventListener eventListener = null) :
-            this(new NUnitTestEngine(), eventListener)
+            this(new NUnitTestEngine(), new MethodCoverage(), eventListener)
         {
         }
 
-        internal MutationTestRunner(ITestRunner testRunner, IEventListener eventListener = null)
+        internal MutationTestRunner(
+            ITestRunner testRunner,
+            IMethodCoverage methodCoverage,
+            IEventListener eventListener = null)
         {
             this.testRunner = testRunner;
+            this.methodCoverage = methodCoverage;
             this.eventListener = eventListener ?? new NullEventListener();
         }
 
-        public async Task<Result> Run(Config config, IMethodCoverage methodCoverage)
+        public async Task<Result> Run(Config config)
         {
             var validationErrors = config.Validate().ToList();
             if (validationErrors.Any())
@@ -39,7 +44,7 @@ namespace Fettle.Core
             {
                 CreateTempDirectories(baseTempDirectory, config);
 
-                var survivingMutants = await MutateSolution(config, baseTempDirectory, methodCoverage);
+                var survivingMutants = await MutateSolution(config, baseTempDirectory);
                 return new Result().WithSurvivingMutants(survivingMutants);
             }
             finally
@@ -50,8 +55,7 @@ namespace Fettle.Core
 
         private async Task<IEnumerable<SurvivingMutant>> MutateSolution(
             Config config, 
-            string tempDirectory, 
-            IMethodCoverage methodCoverage)
+            string tempDirectory)
         {
             var survivingMutants = new List<SurvivingMutant>();
 
@@ -68,7 +72,7 @@ namespace Fettle.Core
                     eventListener.BeginMutationOfFile(classToMutate.FilePath,
                         Path.GetDirectoryName(config.SolutionFilePath), classIndex, classesToMutate.Length);
 
-                    var survivorsInClass = await MutateClass(config, classToMutate, tempDirectory, methodCoverage)
+                    var survivorsInClass = await MutateClass(config, classToMutate, tempDirectory)
                         .ConfigureAwait(false);
 
                     eventListener.EndMutationOfFile(classToMutate.FilePath);
@@ -83,8 +87,7 @@ namespace Fettle.Core
         private async Task<IEnumerable<SurvivingMutant>> MutateClass(
             Config config, 
             Document classToMutate, 
-            string tempDirectory,
-            IMethodCoverage methodCoverage)
+            string tempDirectory)
         {
             var survivors = new List<SurvivingMutant>();
             var classRoot = await classToMutate.GetSyntaxRootAsync();

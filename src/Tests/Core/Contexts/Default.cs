@@ -56,23 +56,23 @@ namespace Fettle.Tests.Core.Contexts
                               if (!wasCalled)
                               {
                                   wasCalled = true;
-                                  return TestRunnerResult.AllTestsPassed;
+                                  return new TestRunResult { Status = TestRunStatus.AllTestsPassed };
                               }
 
-                              return TestRunnerResult.SomeTestsFailed;
+                              return new TestRunResult { Status = TestRunStatus.SomeTestsFailed };
                           });
         }
         
         protected void Given_a_partially_tested_app_in_which_multiple_mutants_survive_for_a_syntax_node()
         {
             MockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
-                          .Returns(TestRunnerResult.AllTestsPassed);
+                          .Returns(new TestRunResult { Status = TestRunStatus.AllTestsPassed });
         }
 
         protected void Given_a_fully_tested_app_in_which_no_mutants_will_survive()
         {
             MockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
-                          .Returns(TestRunnerResult.SomeTestsFailed);
+                          .Returns(new TestRunResult { Status = TestRunStatus.SomeTestsFailed });
         }
         
         protected void Given_an_app_to_be_mutation_tested()
@@ -104,8 +104,11 @@ namespace Fettle.Tests.Core.Contexts
         {
             try
             {
-                Result = new MutationTestRunner(MockTestRunner.Object, SpyEventListener)
-                    .Run(Config, mockMethodCoverage.Object).Result;
+                Result = new MutationTestRunner(
+                            MockTestRunner.Object, 
+                            mockMethodCoverage.Object, 
+                            SpyEventListener)
+                        .Run(Config).Result;
             }
             catch (Exception e)
             {

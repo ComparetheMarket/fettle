@@ -29,7 +29,7 @@ namespace Fettle.Tests.Console
         public void Then_mutation_testing_is_not_attempted()
         {
             MockMutationTestRunner.Verify(
-                mtr => mtr.Run(It.IsAny<Config>(), It.IsAny<IMethodCoverage>()),
+                mtr => mtr.Run(It.IsAny<Config>()),
                 Times.Never);
         }
     }

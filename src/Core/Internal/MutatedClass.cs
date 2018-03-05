@@ -42,7 +42,7 @@ namespace Fettle.Core.Internal
 
             var result = testRunner.RunTests(tempTestAssemblyFilePaths, testsToRun);
 
-            return result == TestRunnerResult.AllTestsPassed ?
+            return result.Status == TestRunStatus.AllTestsPassed ?
                 await SurvivingMutant.CreateFrom(mutatedClass) :
                 null;
         }
