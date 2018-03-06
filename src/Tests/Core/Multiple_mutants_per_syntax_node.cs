@@ -16,7 +16,7 @@ namespace Fettle.Tests.Core
         [Test]
         public void Then_only_one_surviving_mutant_is_returned_per_syntax_node()
         {
-            Assert.That(Result.SurvivingMutants.Count(sm => sm.SourceLine == 7), Is.EqualTo(1));
+            Assert.That(MutationTestResult.SurvivingMutants.Count(sm => sm.SourceLine == 7), Is.EqualTo(1));
         }
     }
 }

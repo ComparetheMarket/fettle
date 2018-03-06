@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using Fettle.Core;
-using Fettle.Core.Internal;
 using NUnit.Framework;
 
 namespace Fettle.Tests.Core.Contexts
@@ -13,7 +12,7 @@ namespace Fettle.Tests.Core.Contexts
             SourceFileFilters = new [] { @"Implementation\*" }
         };
 
-        protected Result Result { get; private set; }
+        protected MutationTestResult MutationTestResult { get; private set; }
         
         protected void Given_an_app_which_has_gaps_in_its_tests()
         {
@@ -32,10 +31,10 @@ namespace Fettle.Tests.Core.Contexts
         
         protected void When_mutation_testing_the_app()
         {
-            var methodCoverage = new MethodCoverage();
-            methodCoverage.Initialise(config).Wait();
+            var coverageAnalysisResult = new Fettle.Core.MethodCoverage()
+                .AnalyseMethodCoverage(config).Result;
 
-            Result = new MutationTestRunner(methodCoverage)
+            MutationTestResult = new MutationTestRunner(coverageAnalysisResult.MethodsAndTheirCoveringTests)
                 .Run(config)
                 .Result;
         }

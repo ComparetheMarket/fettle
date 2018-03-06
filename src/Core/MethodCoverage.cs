@@ -18,7 +18,6 @@ namespace Fettle.Core
     {
         private readonly ITestFinder testFinder;
         private readonly ITestRunner testRunner;
-        private ImmutableDictionary<string, ImmutableHashSet<string>> testsAndCoveringMethods;
 
         public MethodCoverage() : this(new NUnitTestEngine(), new NUnitTestEngine())
         {
@@ -30,17 +29,12 @@ namespace Fettle.Core
             this.testRunner = testRunner;
         }
 
-        public async Task Initialise(Config config)
+        public async Task<CoverageAnalysisResult> AnalyseMethodCoverage(Config config)
         {
-            // modify each method in each cs file to add instrumentation
-            // compile
-            // for each test
-            //      run it
-            //      every method that was called is "covered" by that test
-            // collate test/methods dictionary and return
-
             var methodIdsToNames = new Dictionary<string, string>();
-            var _testsAndCoveringMethods = new Dictionary<string, ImmutableHashSet<string>>();
+            var methodsAndCoveringTests = new Dictionary<string, ImmutableHashSet<string>>();
+
+            var tests = testFinder.FindTests(config.TestAssemblyFilePaths);
 
             using (var workspace = MSBuildWorkspace.Create())
             {
@@ -74,13 +68,12 @@ namespace Fettle.Core
                         .Select(x => Path.Combine($@"c:\temp\fettletemp\{Path.GetFileName(x)}"))
                         .ToList();
 
-                    var tests = testFinder.FindTests(copiedTestAssemblyFilePaths);
                     foreach (var test in tests)
                     {
                         var runResult = testRunner.RunTests(copiedTestAssemblyFilePaths, new[] {test});
                         if (runResult.Status != TestRunStatus.AllTestsPassed)
                         {
-                            throw new Exception();
+                            return CoverageAnalysisResult.Error($"The test \"{test}\" failed");
                         }
 
                         var calledMethodIds = new HashSet<string>();
@@ -94,21 +87,22 @@ namespace Fettle.Core
                             }
                         }
 
-                        var calledMethodNames = calledMethodIds.Select(id => methodIdsToNames[id]);
-                        _testsAndCoveringMethods.Add(test, calledMethodNames.ToImmutableHashSet());
+                        var calledMethodNames = calledMethodIds
+                            .Where(id => methodIdsToNames.ContainsKey(id)) // todo: remove once guarded against
+                            .Select(id => methodIdsToNames[id]);
+
+                        foreach (var calledMethodName in calledMethodNames)
+                        {
+                            if (!methodsAndCoveringTests.ContainsKey(calledMethodName))
+                                methodsAndCoveringTests.Add(calledMethodName, ImmutableHashSet<string>.Empty);
+
+                            methodsAndCoveringTests[calledMethodName] = methodsAndCoveringTests[calledMethodName].Add(test);
+                        }
                     }
                 }
             }
 
-            testsAndCoveringMethods = _testsAndCoveringMethods.ToImmutableDictionary();
-        }
-
-        public string[] TestsThatCoverMethod(string fullMethodName)
-        {
-            return testsAndCoveringMethods
-                .Where(x => x.Value.Contains(fullMethodName))
-                .Select(x => x.Key)
-                .ToArray();
+            return CoverageAnalysisResult.Success(methodsAndCoveringTests);
         }
 
         private async Task<SyntaxTree> InstrumentDocument(

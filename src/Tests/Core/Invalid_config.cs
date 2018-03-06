@@ -27,9 +27,9 @@ namespace Fettle.Tests.Core
         [Test]
         public void Then_an_error_is_returned()
         {
-            Assert.That(Result.Errors, Is.Not.Null);
-            Assert.That(Result.Errors.Count, Is.EqualTo(1),
-                string.Join(Environment.NewLine, Result.Errors));
+            Assert.That(MutationTestResult.Errors, Is.Not.Null);
+            Assert.That(MutationTestResult.Errors.Count, Is.EqualTo(1),
+                string.Join(Environment.NewLine, MutationTestResult.Errors));
         }
     }
 }

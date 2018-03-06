@@ -16,13 +16,13 @@ namespace Fettle.Tests.Core
         [Test]
         public void Then_the_surviving_mutant_is_returned()
         {
-            Assert.That(Result.SurvivingMutants.Count, Is.EqualTo(1));
+            Assert.That(MutationTestResult.SurvivingMutants.Count, Is.EqualTo(1));
         }
 
         [Test]
         public void Then_the_location_of_the_surviving_mutant_is_returned()
         {
-            var survivor = Result.SurvivingMutants.Single();
+            var survivor = MutationTestResult.SurvivingMutants.Single();
             Assert.That(survivor.SourceFilePath, Does.EndWith("PartiallyTestedNumberComparison.cs"));
             Assert.That(survivor.SourceLine, Is.EqualTo(7));
         }
@@ -30,13 +30,13 @@ namespace Fettle.Tests.Core
         [Test]
         public void Then_the_relevant_pre_mutation_source_code_is_returned()
         {
-            Assert.That(Result.SurvivingMutants.Single().OriginalLine, Does.EndWith("return a > 0;"));
+            Assert.That(MutationTestResult.SurvivingMutants.Single().OriginalLine, Does.EndWith("return a > 0;"));
         }
 
         [Test]
         public void Then_the_relevant_post_mutation_source_code_is_returned()
         {
-            Assert.That(Result.SurvivingMutants.Single().MutatedLine, Does.EndWith("return a < 0;"));
+            Assert.That(MutationTestResult.SurvivingMutants.Single().MutatedLine, Does.EndWith("return a < 0;"));
         }
     }
 }

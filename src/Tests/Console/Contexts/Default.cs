@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
 using Fettle.Console;
@@ -13,10 +14,20 @@ namespace Fettle.Tests.Console.Contexts
     {
         private readonly List<string> commandLineArgs = new List<string>();
         private IEventListener eventListener;
+        private readonly Mock<IMethodCoverage> mockCoverage = new Mock<IMethodCoverage>();
 
         protected Mock<IMutationTestRunner> MockMutationTestRunner { get; } = new Mock<IMutationTestRunner>();
         protected SpyOutputWriter SpyOutputWriter = new SpyOutputWriter();
         protected int ExitCode { get; private set; }
+
+        public Default()
+        {
+            var emptyCoverageResult = CoverageAnalysisResult.Success(new Dictionary<string, ImmutableHashSet<string>>());
+            mockCoverage
+                .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))
+                .Returns(
+                    Task.FromResult(emptyCoverageResult));
+        }
 
         protected void Given_config_file_does_not_exist()
         {
@@ -30,7 +41,17 @@ namespace Fettle.Tests.Console.Contexts
 
             MockMutationTestRunner
                 .Setup(r => r.Run(It.IsAny<Config>()))
-                .Returns(Task.FromResult(new Result().WithError("an example error")));
+                .Returns(Task.FromResult(new MutationTestResult().WithError("an example error")));
+        }
+
+        protected void Given_coverage_analysis_will_return_an_error()
+        {
+            Given_a_valid_config_file();
+
+            mockCoverage
+                .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))
+                .Returns(
+                    Task.FromResult(CoverageAnalysisResult.Error("an example coverage analysis error")));
         }
 
         protected void Given_a_valid_config_file()
@@ -75,14 +96,14 @@ namespace Fettle.Tests.Console.Contexts
                     eventListener.MutantSurvived(survivingMutant);
                     eventListener.EndMutationOfFile(classFilePath);
                 })
-                .Returns(Task.FromResult(new Result().WithSurvivingMutants(new []{ survivingMutant })));
+                .Returns(Task.FromResult(new MutationTestResult().WithSurvivingMutants(new []{ survivingMutant })));
         }
 
         protected void Given_no_mutants_will_survive()
         {
             MockMutationTestRunner
                 .Setup(r => r.Run(It.IsAny<Config>()))
-                .Returns(Task.FromResult(new Result()));
+                .Returns(Task.FromResult(new MutationTestResult()));
         }
 
         protected void Given_mutation_testing_will_throw_an_exception(Exception ex)
@@ -92,18 +113,28 @@ namespace Fettle.Tests.Console.Contexts
                 .Throws(ex);
         }
 
+        protected void Given_coverage_analysis_will_throw_an_exception(Exception ex)
+        {
+            mockCoverage
+                .Setup(r => r.AnalyseMethodCoverage(It.IsAny<Config>()))
+                .Throws(ex);
+        }
+
         protected void When_running_the_fettle_console_app()
         {
+            IMutationTestRunner CreateMockMutationTestRunner(
+                IEventListener eventListenerIn, 
+                IReadOnlyDictionary<string, ImmutableHashSet<string>> _)
+            {
+                eventListener = eventListenerIn;
+                return MockMutationTestRunner.Object;
+            }
+
             ExitCode = Program.InternalEntryPoint(
                 args: commandLineArgs.ToArray(),
-                mutationTestRunnerFactory: CreateMutationTestRunner,
+                mutationTestRunnerFactory: CreateMockMutationTestRunner,
+                methodCoverage: mockCoverage.Object,
                 outputWriter: SpyOutputWriter);
-        }
-        
-        private IMutationTestRunner CreateMutationTestRunner(IEventListener eventListenerIn)
-        {
-            eventListener = eventListenerIn;
-            return MockMutationTestRunner.Object;
         }
 
         private void ModifyConfigFile(string configFilePath)

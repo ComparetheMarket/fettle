@@ -4,7 +4,6 @@ namespace Fettle.Core
 {
     public interface IMethodCoverage
     {
-        Task Initialise(Config config);
-        string[] TestsThatCoverMethod(string fullMethodName);
+        Task<CoverageAnalysisResult> AnalyseMethodCoverage(Config config);
     }
 }

@@ -54,8 +54,10 @@
     <Compile Include="BuildConfig.cs" />
     <Compile Include="Console\Contexts\Default.cs" />
     <Compile Include="Console\Contexts\SpyOutputWriter.cs" />
+    <Compile Include="Console\Coverage_analysis_throws_an_exception.cs" />
     <Compile Include="Console\EndToEnd\Happy_path.cs" />
-    <Compile Include="Console\Errors_occur.cs" />
+    <Compile Include="Console\Errors_occur_during_coverage_analysis.cs" />
+    <Compile Include="Console\Errors_occur_during_mutation_testing.cs" />
     <Compile Include="Console\Missing_command_line_arguments.cs" />
     <Compile Include="Console\Mutation_testing_throws_an_exception.cs" />
     <Compile Include="Console\Missing_config_file.cs" />
@@ -69,7 +71,8 @@
     <Compile Include="Core\Contexts\Default.cs" />
     <Compile Include="Core\Contexts\InvalidConfig.cs" />
     <Compile Include="Core\Contexts\SpyEventListener.cs" />
-    <Compile Include="Core\ImplementationDetails\Method_coverage.cs" />
+    <Compile Include="Core\MethodCoverage\Happy_path.cs" />
+    <Compile Include="Core\MethodCoverage\Tests_fail.cs" />
     <Compile Include="Core\Method_coverage.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered_with_multiple_filters.cs" />
@@ -89,7 +92,7 @@
     <Compile Include="Core\ImplementationDetails\NUnitRunResults_Tests.cs" />
     <Compile Include="Core\Invalid_config.cs" />
     <Compile Include="Core\Temporary_files.cs" />
-    <Compile Include="Core\Contexts\MethodCoverage.cs" />
+    <Compile Include="Core\Contexts\Coverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\EndToEnd\Happy_path.cs" />
     <Compile Include="Core\Invalid_mutation.cs" />

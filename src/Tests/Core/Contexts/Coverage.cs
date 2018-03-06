@@ -13,11 +13,11 @@ namespace Fettle.Tests.Core.Contexts
         private readonly string baseExampleDir = Path.Combine(TestContext.CurrentContext.TestDirectory,
             "..", "..", "..", "Examples", "HasSurvivingMutants");
 
-        private readonly Mock<ITestFinder> mockTestFinder = new Mock<ITestFinder>();
-        private readonly Mock<ITestRunner> mockTestRunner = new Mock<ITestRunner>();
+        private ITestRunner testRunner = new NUnitTestEngine();
+
         private Config config;
 
-        protected IMethodCoverage MethodCoverage { get; private set; }
+        protected CoverageAnalysisResult Result { get; private set;}
 
         protected void Given_an_app_with_tests()
         {
@@ -25,32 +25,35 @@ namespace Fettle.Tests.Core.Contexts
             {
                 SolutionFilePath = Path.Combine(baseExampleDir, "HasSurvivingMutants.sln"),
                 SourceFileFilters = new string[0],
-                ProjectFilters = new []{ "HasSurvivingMutants.Implementation" },
                 TestAssemblyFilePaths = new[]
                 {
                     Path.Combine(baseExampleDir, "Tests", "bin", BuildConfig.AsString, "HasSurvivingMutants.Tests.dll")
                 }
             };
+        }
 
-            mockTestFinder
-                .Setup(x => x.FindTests(It.IsAny<IEnumerable<string>>()))
-                .Returns(new[] { "HasSurvivingMutants.Tests.PartiallyTestedNumberComparison.IsPositive" });
-
+        protected void Given_some_failing_tests()
+        {
+            var mockTestRunner = new Mock<ITestRunner>();
             mockTestRunner
                 .Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
-                .Returns(new TestRunResult
-                {
-                    Status = TestRunStatus.AllTestsPassed
-                });
+                .Returns(new TestRunResult{ Status = TestRunStatus.SomeTestsFailed });
+
+            testRunner = mockTestRunner.Object;
+        }
+
+        protected void Given_project_filters(params string[] projectFilters)
+        {
+            config.ProjectFilters = projectFilters;
         }
 
         protected void When_analysing_method_coverage()
         {
-            MethodCoverage = new MethodCoverage(
-                /*mockTestFinder.Object*/new NUnitTestEngine(), 
-                /*mockTestRunner.Object*/new NUnitTestEngine());
+            var methodCoverage = new Fettle.Core.MethodCoverage(
+                testFinder: new NUnitTestEngine(), 
+                testRunner: testRunner);
 
-            MethodCoverage.Initialise(config).Wait();
+            Result = methodCoverage.AnalyseMethodCoverage(config).Result;
         }
     }
 }

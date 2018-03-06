@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Fettle.Core;
@@ -9,10 +11,20 @@ namespace Fettle.Console
     {
         public static int Main(string[] args)
         {
-            var mutationTestRunnerFactory = new Func<IEventListener, IMutationTestRunner>(
-                el => new MutationTestRunner(new MethodCoverage(), el));
-
-            return InternalEntryPoint(args, mutationTestRunnerFactory, new ConsoleOutputWriter());
+            IMutationTestRunner CreateRealMutationTestRunner(
+                IEventListener eventListener,
+                IReadOnlyDictionary<string, ImmutableHashSet<string>> methodsAndTheirCoveringTests)
+            {
+                return new MutationTestRunner(
+                    methodsAndTheirCoveringTests, 
+                    eventListener);
+            }
+            
+            return InternalEntryPoint(
+                args, 
+                CreateRealMutationTestRunner, 
+                new MethodCoverage(), 
+                new ConsoleOutputWriter());
         }
         
         private static class ExitCodes
@@ -25,7 +37,8 @@ namespace Fettle.Console
         
         internal static int InternalEntryPoint(
             string[] args,
-            Func<IEventListener, IMutationTestRunner> mutationTestRunnerFactory,
+            Func<IEventListener, IReadOnlyDictionary<string, ImmutableHashSet<string>>, IMutationTestRunner> mutationTestRunnerFactory,
+            IMethodCoverage methodCoverage,
             IOutputWriter outputWriter)
         {
             try
@@ -40,10 +53,18 @@ namespace Fettle.Console
                     ? (IEventListener) new QuietEventListener(outputWriter)
                     : (IEventListener) new VerboseEventListener(outputWriter);
 
-                var runner = mutationTestRunnerFactory(eventListener);
+                var coverageResult = methodCoverage.AnalyseMethodCoverage(parsedArgs.Config).Result;
+                if (coverageResult.ErrorDescription != null)
+                {
+                    outputWriter.WriteFailureLine("Unable to perform test coverage analysis:");
+                    outputWriter.WriteFailureLine(coverageResult.ErrorDescription);
 
-                var result = runner.Run(parsedArgs.Config)
-                    .Result;
+                    return ExitCodes.ConfigOrArgsAreInvalid;
+                }
+
+                var runner = mutationTestRunnerFactory(eventListener, coverageResult.MethodsAndTheirCoveringTests);
+
+                var result = runner.Run(parsedArgs.Config).Result;
                 
                 if (result.Errors.Any())
                 {

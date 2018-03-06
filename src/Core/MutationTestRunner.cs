@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,43 +14,41 @@ namespace Fettle.Core
     public class MutationTestRunner : IMutationTestRunner
     {
         private readonly ITestRunner testRunner;
-        private readonly IMethodCoverage methodCoverage;
+        private readonly IReadOnlyDictionary<string, ImmutableHashSet<string>> methodsAndTheirCoveringTests;
         private readonly IEventListener eventListener;
 
         public MutationTestRunner(
-            IMethodCoverage methodCoverage,
+            IReadOnlyDictionary<string, ImmutableHashSet<string>> methodsAndTheirCoveringTests,
             IEventListener eventListener = null) :
-            this(new NUnitTestEngine(), methodCoverage, eventListener)
+            this(new NUnitTestEngine(), methodsAndTheirCoveringTests, eventListener)
         {
         }
 
         internal MutationTestRunner(
             ITestRunner testRunner,
-            IMethodCoverage methodCoverage,
+            IReadOnlyDictionary<string, ImmutableHashSet<string>> methodsAndTheirCoveringTests,
             IEventListener eventListener = null)
         {
             this.testRunner = testRunner;
-            this.methodCoverage = methodCoverage;
+            this.methodsAndTheirCoveringTests = methodsAndTheirCoveringTests;
             this.eventListener = eventListener ?? new NullEventListener();
         }
 
-        public async Task<Result> Run(Config config)
+        public async Task<MutationTestResult> Run(Config config)
         {
             var validationErrors = config.Validate().ToList();
             if (validationErrors.Any())
             {
-                return new Result().WithErrors(validationErrors);
+                return new MutationTestResult().WithErrors(validationErrors);
             }
             
             var baseTempDirectory = Path.Combine(Path.GetTempPath(), $"fettle-{Guid.NewGuid()}");            
             try
             {
-                await methodCoverage.Initialise(config);
-
                 CreateTempDirectories(baseTempDirectory, config);
 
                 var survivingMutants = await MutateSolution(config, baseTempDirectory);
-                return new Result().WithSurvivingMutants(survivingMutants);
+                return new MutationTestResult().WithSurvivingMutants(survivingMutants);
             }
             finally
             {
@@ -113,9 +112,8 @@ namespace Fettle.Core
                     // Therefore there is no code to mutate.
                     continue;
                 }
-                
-                var testsToRun = methodCoverage.TestsThatCoverMethod(methodName);
-                if (!testsToRun.Any())
+
+                if (!methodsAndTheirCoveringTests.TryGetValue(methodName, out var testsToRun))
                 {
                     continue;
                 }
@@ -142,7 +140,7 @@ namespace Fettle.Core
                 
                 eventListener.SyntaxNodeMutating(nodeIndex, nodesToMutate.Length);
                 var survivor = await MutateSyntaxNode(config, classToMutate, nodeToMutate, classRoot, mutators,
-                    testsToRun, tempDirectory);
+                    testsToRun.ToArray(), tempDirectory);
 
                 if (survivor != null)
                 {

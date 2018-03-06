@@ -4,6 +4,6 @@ namespace Fettle.Core
 {
     public interface IMutationTestRunner
     {
-        Task<Result> Run(Config config);
+        Task<MutationTestResult> Run(Config config);
     }
 }
