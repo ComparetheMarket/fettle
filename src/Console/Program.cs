@@ -2,21 +2,20 @@
 using System.IO;
 using System.Linq;
 using Fettle.Core;
-using Fettle.Core.Internal;
 
 namespace Fettle.Console
 {
-    internal class Program
+    internal static class Program
     {
         public static int Main(string[] args)
         {
             var mutationTestRunnerFactory = new Func<IEventListener, IMutationTestRunner>(
-                el => new MutationTestRunner(el));
+                el => new MutationTestRunner(new MethodCoverage(), el));
 
             return InternalEntryPoint(args, mutationTestRunnerFactory, new ConsoleOutputWriter());
         }
         
-        private class ExitCodes
+        private static class ExitCodes
         {
             public const int NoMutantsSurvived = 0;
             public const int SomeMutantsSurvived = 1;

@@ -16,8 +16,10 @@ namespace Fettle.Core
         private readonly IMethodCoverage methodCoverage;
         private readonly IEventListener eventListener;
 
-        public MutationTestRunner(IEventListener eventListener = null) :
-            this(new NUnitTestEngine(), new MethodCoverage(), eventListener)
+        public MutationTestRunner(
+            IMethodCoverage methodCoverage,
+            IEventListener eventListener = null) :
+            this(new NUnitTestEngine(), methodCoverage, eventListener)
         {
         }
 
@@ -42,6 +44,8 @@ namespace Fettle.Core
             var baseTempDirectory = Path.Combine(Path.GetTempPath(), $"fettle-{Guid.NewGuid()}");            
             try
             {
+                await methodCoverage.Initialise(config);
+
                 CreateTempDirectories(baseTempDirectory, config);
 
                 var survivingMutants = await MutateSolution(config, baseTempDirectory);

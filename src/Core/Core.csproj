@@ -56,7 +56,6 @@
     <Compile Include="Internal\Filtering.cs" />
     <Compile Include="Internal\IgnoreComments.cs" />
     <Compile Include="Internal\ITestFinder.cs" />
-    <Compile Include="Internal\MethodCoverage.cs" />
     <Compile Include="Internal\MutatedClass.cs" />
     <Compile Include="Internal\Mutators\SwapChildExpressionsMutator.cs" />
     <Compile Include="Internal\Mutators\SwapOperatorMutator.cs" />
@@ -71,6 +70,7 @@
     <Compile Include="Internal\SolutionExtension.cs" />
     <Compile Include="Internal\SyntaxNodeExtensions.cs" />
     <Compile Include="Internal\TestRunnerResult.cs" />
+    <Compile Include="MethodCoverage.cs" />
     <Compile Include="MutationTestRunner.cs" />
     <Compile Include="Internal\IMutator.cs" />
     <Compile Include="Internal\SyntaxNodeExtensionsForSupportedMutators.cs" />

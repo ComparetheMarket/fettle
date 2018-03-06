@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Fettle.Core.Internal;
 using Fettle.Core.Internal.NUnit;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -11,9 +12,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.MSBuild;
 
-namespace Fettle.Core.Internal
+namespace Fettle.Core
 {
-    internal class MethodCoverage : IMethodCoverage
+    public class MethodCoverage : IMethodCoverage
     {
         private readonly ITestFinder testFinder;
         private readonly ITestRunner testRunner;
@@ -102,6 +103,14 @@ namespace Fettle.Core.Internal
             testsAndCoveringMethods = _testsAndCoveringMethods.ToImmutableDictionary();
         }
 
+        public string[] TestsThatCoverMethod(string fullMethodName)
+        {
+            return testsAndCoveringMethods
+                .Where(x => x.Value.Contains(fullMethodName))
+                .Select(x => x.Key)
+                .ToArray();
+        }
+
         private async Task<SyntaxTree> InstrumentDocument(
             SyntaxTree originalSyntaxTree,
             Document document,
@@ -127,14 +136,6 @@ namespace Fettle.Core.Internal
             }
 
             return await documentEditor.GetChangedDocument().GetSyntaxTreeAsync();
-        }
-
-        public string[] TestsThatCoverMethod(string fullMethodName)
-        {
-            return testsAndCoveringMethods
-                .Where(x => x.Value.Contains(fullMethodName))
-                .Select(x => x.Key)
-                .ToArray();
         }
     }
 }

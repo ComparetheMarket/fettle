@@ -40,13 +40,15 @@ namespace Fettle.Tests.Core.Contexts
                 .Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
                 .Returns(new TestRunResult
                 {
-                    Status = TestRunStatus.AllTestsPassed                    
+                    Status = TestRunStatus.AllTestsPassed
                 });
         }
 
         protected void When_analysing_method_coverage()
         {
-            MethodCoverage = new Fettle.Core.Internal.MethodCoverage(/*mockTestFinder.Object*/new NUnitTestEngine(), /*mockTestRunner.Object*/new NUnitTestEngine());
+            MethodCoverage = new MethodCoverage(
+                /*mockTestFinder.Object*/new NUnitTestEngine(), 
+                /*mockTestRunner.Object*/new NUnitTestEngine());
 
             MethodCoverage.Initialise(config).Wait();
         }

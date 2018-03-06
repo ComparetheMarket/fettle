@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Fettle.Core;
+using Fettle.Core.Internal;
 using NUnit.Framework;
 
 namespace Fettle.Tests.Core.Contexts
@@ -31,7 +32,10 @@ namespace Fettle.Tests.Core.Contexts
         
         protected void When_mutation_testing_the_app()
         {
-            Result = new MutationTestRunner()
+            var methodCoverage = new MethodCoverage();
+            methodCoverage.Initialise(config).Wait();
+
+            Result = new MutationTestRunner(methodCoverage)
                 .Run(config)
                 .Result;
         }
