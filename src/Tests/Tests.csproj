@@ -71,6 +71,7 @@
     <Compile Include="Core\Contexts\Default.cs" />
     <Compile Include="Core\Contexts\InvalidConfig.cs" />
     <Compile Include="Core\Contexts\SpyEventListener.cs" />
+    <Compile Include="Core\MethodCoverage\Compilation_fails.cs" />
     <Compile Include="Core\MethodCoverage\Happy_path.cs" />
     <Compile Include="Core\MethodCoverage\Tests_fail.cs" />
     <Compile Include="Core\Method_coverage.cs" />
@@ -189,7 +190,6 @@
       <Paket>True</Paket>
     </Analyzer>
   </ItemGroup>
-  <ItemGroup />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Fettle.Core;
 using Fettle.Core.Internal;
@@ -11,23 +12,37 @@ namespace Fettle.Tests.Core.Contexts
     class Coverage
     {
         private readonly string baseExampleDir = Path.Combine(TestContext.CurrentContext.TestDirectory,
-            "..", "..", "..", "Examples", "HasSurvivingMutants");
+            "..", "..", "..", "Examples");
 
         private ITestRunner testRunner = new NUnitTestEngine();
 
         private Config config;
 
         protected CoverageAnalysisResult Result { get; private set;}
+        protected Exception ThrownException { get; private set; }
 
         protected void Given_an_app_with_tests()
         {
             config = new Config
             {
-                SolutionFilePath = Path.Combine(baseExampleDir, "HasSurvivingMutants.sln"),
+                SolutionFilePath = Path.Combine(baseExampleDir, "HasSurvivingMutants", "HasSurvivingMutants.sln"),
                 SourceFileFilters = new string[0],
                 TestAssemblyFilePaths = new[]
                 {
-                    Path.Combine(baseExampleDir, "Tests", "bin", BuildConfig.AsString, "HasSurvivingMutants.Tests.dll")
+                    Path.Combine(baseExampleDir, "HasSurvivingMutants", "Tests", "bin", BuildConfig.AsString, "HasSurvivingMutants.Tests.dll")
+                }
+            };
+        }
+
+        protected void Given_an_app_that_does_not_compile()
+        {
+            config = new Config
+            {
+                SolutionFilePath = Path.Combine(baseExampleDir, "DoesNotCompile", "DoesNotCompile.sln"),
+                SourceFileFilters = new string[0],
+                TestAssemblyFilePaths = new[]
+                {
+                    Path.Combine(baseExampleDir, "DoesNotCompile", "Tests", "bin", BuildConfig.AsString, "Tests.dll")
                 }
             };
         }
@@ -47,13 +62,23 @@ namespace Fettle.Tests.Core.Contexts
             config.ProjectFilters = projectFilters;
         }
 
-        protected void When_analysing_method_coverage()
+        protected void When_analysing_method_coverage(bool catchExceptions = false)
         {
-            var methodCoverage = new Fettle.Core.MethodCoverage(
-                testFinder: new NUnitTestEngine(), 
-                testRunner: testRunner);
+            try
+            {
+                var methodCoverage = new Fettle.Core.MethodCoverage(
+                    testFinder: new NUnitTestEngine(), 
+                    testRunner: testRunner);
 
-            Result = methodCoverage.AnalyseMethodCoverage(config).Result;
+                Result = methodCoverage.AnalyseMethodCoverage(config).Result;
+            }
+            catch (Exception e)
+            {
+                if (catchExceptions)
+                    ThrownException = e;
+                else
+                    throw;
+            }
         }
     }
 }

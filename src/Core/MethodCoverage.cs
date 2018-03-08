@@ -61,7 +61,8 @@ namespace Fettle.Core
                         compilation);
                     if (!compilationResult.Success)
                     {
-                        throw new Exception($"compilation failed! {string.Join(Environment.NewLine, compilationResult.Diagnostics)}");
+                        var diagnostics = string.Join(Environment.NewLine, compilationResult.Diagnostics);
+                        throw new Exception($"Failed to compile project {project.AssemblyName}{Environment.NewLine}{diagnostics}");
                     }
 
                     var copiedTestAssemblyFilePaths = config.TestAssemblyFilePaths
@@ -88,7 +89,7 @@ namespace Fettle.Core
                         }
 
                         var calledMethodNames = calledMethodIds
-                            .Where(id => methodIdsToNames.ContainsKey(id)) // todo: remove once guarded against
+                            .Where(id => methodIdsToNames.ContainsKey(id))
                             .Select(id => methodIdsToNames[id]);
 
                         foreach (var calledMethodName in calledMethodNames)
