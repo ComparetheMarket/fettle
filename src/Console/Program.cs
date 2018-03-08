@@ -49,28 +49,24 @@ namespace Fettle.Console
                     return ExitCodes.ConfigOrArgsAreInvalid;
                 }
 
+                var coverageResult = AnalyseCoverage(methodCoverage, outputWriter, parsedArgs.Config);
+                if (coverageResult.ErrorDescription != null)
+                {
+                    return ExitCodes.ConfigOrArgsAreInvalid;
+                }
+
                 var eventListener = parsedArgs.ConsoleOptions.Quiet
                     ? (IEventListener) new QuietEventListener(outputWriter)
                     : (IEventListener) new VerboseEventListener(outputWriter);
 
-                var coverageResult = methodCoverage.AnalyseMethodCoverage(parsedArgs.Config).Result;
-                if (coverageResult.ErrorDescription != null)
-                {
-                    outputWriter.WriteFailureLine("Unable to perform test coverage analysis:");
-                    outputWriter.WriteFailureLine(coverageResult.ErrorDescription);
-
-                    return ExitCodes.ConfigOrArgsAreInvalid;
-                }
-
+                outputWriter.WriteLine("Mutation testing starting...");
                 var runner = mutationTestRunnerFactory(eventListener, coverageResult.MethodsAndTheirCoveringTests);
-
                 var result = runner.Run(parsedArgs.Config).Result;
                 
                 if (result.Errors.Any())
                 {
                     outputWriter.WriteFailureLine("Unable to perform mutation testing:");
                     result.Errors.ToList().ForEach(e => outputWriter.WriteFailureLine($"==> {e}"));
-
                     return ExitCodes.ConfigOrArgsAreInvalid;
                 }
 
@@ -100,7 +96,29 @@ namespace Fettle.Console
                 return ExitCodes.UnexpectedError;
             }
         }
-        
+
+        private static CoverageAnalysisResult AnalyseCoverage(
+            IMethodCoverage methodCoverage, 
+            IOutputWriter outputWriter,
+            Config config)
+        {
+            outputWriter.WriteLine("Coverage analysis starting...");
+
+            var coverageResult = methodCoverage.AnalyseMethodCoverage(config).Result;
+            if (coverageResult.ErrorDescription != null)
+            {
+                outputWriter.WriteFailureLine("Unable to perform test coverage analysis:");
+                outputWriter.WriteFailureLine(coverageResult.ErrorDescription);                
+            }
+            else
+            {
+                outputWriter.WriteLine("Coverage analysis complete.");
+                outputWriter.Write(Environment.NewLine);                
+            }
+
+            return coverageResult;
+        }
+
         private static void OutputSurvivorInfo(SurvivingMutant survivor, int index, Config config, IOutputWriter outputWriter)
         {
             string ToRelativePath(string filePath)
