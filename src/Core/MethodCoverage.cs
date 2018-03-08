@@ -36,38 +36,51 @@ namespace Fettle.Core
 
             var tests = testFinder.FindTests(config.TestAssemblyFilePaths);
 
-            using (var workspace = MSBuildWorkspace.Create())
+            var baseTempDirectory = TempDirectory.Create();
+            try
             {
-                var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
+                var copiedTestAssemblyFilePaths = 
+                    CopyTestAssembliesToTempDirectory(
+                        config.TestAssemblyFilePaths, 
+                        baseTempDirectory)
+                    .ToList();
 
-                foreach (var project in solution.Projects.Where(p => Filtering.ShouldMutateProject(p, config)))
+                using (var workspace = MSBuildWorkspace.Create())
                 {
-                    var originalSyntaxTrees = new List<SyntaxTree>();
-                    var modifiedSyntaxTrees = new List<SyntaxTree>();
-                    
-                    foreach (var originalClass in project.Documents)
+                    var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
+
+                    foreach (var project in solution.Projects.Where(p => Filtering.ShouldMutateProject(p, config)))
                     {
-                        var originalSyntaxTree = await originalClass.GetSyntaxTreeAsync().ConfigureAwait(false);
-                        originalSyntaxTrees.Add(originalSyntaxTree);
-                        modifiedSyntaxTrees.Add(await InstrumentDocument(originalSyntaxTree, originalClass, methodIdsToNames));
+                        var originalSyntaxTrees = new List<SyntaxTree>();
+                        var modifiedSyntaxTrees = new List<SyntaxTree>();
+
+                        foreach (var originalClass in project.Documents)
+                        {
+                            var originalSyntaxTree = await originalClass.GetSyntaxTreeAsync().ConfigureAwait(false);
+                            originalSyntaxTrees.Add(originalSyntaxTree);
+                            modifiedSyntaxTrees.Add(await InstrumentDocument(originalSyntaxTree, originalClass,
+                                methodIdsToNames));
+                        }
+
+                        var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
+                            .RemoveSyntaxTrees(originalSyntaxTrees)
+                            .AddSyntaxTrees(modifiedSyntaxTrees);
+
+                        var outputFilePath = Path.Combine(baseTempDirectory, $@"{project.AssemblyName}.dll");
+                        var compilationResult = ProjectCompilation.CompileProject(
+                            outputFilePath,
+                            compilation);
+                        if (!compilationResult.Success)
+                        {
+                            var diagnostics = string.Join(Environment.NewLine, compilationResult.Diagnostics);
+                            throw new Exception(
+                                $"Failed to compile project {project.AssemblyName}{Environment.NewLine}{diagnostics}");
+                        }
+
+                        CopyInstrumentedAssemblyIntoTempTestAssemblyDirectories(
+                            outputFilePath, 
+                            copiedTestAssemblyFilePaths.Select(Path.GetDirectoryName));
                     }
-
-                    var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
-                        .RemoveSyntaxTrees(originalSyntaxTrees)
-                        .AddSyntaxTrees(modifiedSyntaxTrees);
-
-                    var compilationResult = ProjectCompilation.CompileProject(
-                        $@"c:\temp\fettletemp\{project.AssemblyName}.dll", 
-                        compilation);
-                    if (!compilationResult.Success)
-                    {
-                        var diagnostics = string.Join(Environment.NewLine, compilationResult.Diagnostics);
-                        throw new Exception($"Failed to compile project {project.AssemblyName}{Environment.NewLine}{diagnostics}");
-                    }
-
-                    var copiedTestAssemblyFilePaths = config.TestAssemblyFilePaths
-                        .Select(x => Path.Combine($@"c:\temp\fettletemp\{Path.GetFileName(x)}"))
-                        .ToList();
 
                     foreach (var test in tests)
                     {
@@ -78,7 +91,8 @@ namespace Fettle.Core
                         }
 
                         var calledMethodIds = new HashSet<string>();
-                        var outputLines = runResult.ConsoleOutput.Split(new []{ Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                        var outputLines = runResult.ConsoleOutput.Split(new[] {Environment.NewLine},
+                            StringSplitOptions.RemoveEmptyEntries);
                         foreach (var outputLine in outputLines)
                         {
                             if (outputLine.StartsWith("fettle_covered_method:"))
@@ -97,13 +111,46 @@ namespace Fettle.Core
                             if (!methodsAndCoveringTests.ContainsKey(calledMethodName))
                                 methodsAndCoveringTests.Add(calledMethodName, ImmutableHashSet<string>.Empty);
 
-                            methodsAndCoveringTests[calledMethodName] = methodsAndCoveringTests[calledMethodName].Add(test);
+                            methodsAndCoveringTests[calledMethodName] =
+                                methodsAndCoveringTests[calledMethodName].Add(test);
                         }
                     }
                 }
-            }
 
-            return CoverageAnalysisResult.Success(methodsAndCoveringTests);
+                return CoverageAnalysisResult.Success(methodsAndCoveringTests);
+            }
+            finally
+            {
+                Directory.Delete(baseTempDirectory, recursive: true);
+            }
+        }
+
+        private void CopyInstrumentedAssemblyIntoTempTestAssemblyDirectories(
+            string instrumentedAssemblyFilePath,
+            IEnumerable<string> copiedTestAssemblyDirectories)
+        {
+            foreach (var copiedTestAssemblyDirectory in copiedTestAssemblyDirectories)
+            {
+                File.Copy(
+                    instrumentedAssemblyFilePath, 
+                    Path.Combine(copiedTestAssemblyDirectory, Path.GetFileName(instrumentedAssemblyFilePath)),
+                    overwrite: true);
+            }
+        }
+
+        private static IEnumerable<string> CopyTestAssembliesToTempDirectory(
+            IEnumerable<string> testAssemblyFilePaths,
+            string baseTempDirectory)
+        {
+            foreach (var testAssemblyFilePath in testAssemblyFilePaths)
+            {
+                var fromDir = Path.GetDirectoryName(testAssemblyFilePath);
+                var toDir = Path.Combine(baseTempDirectory, Path.GetFileNameWithoutExtension(testAssemblyFilePath));
+                Directory.CreateDirectory(toDir);
+                DirectoryUtils.CopyDirectoryContents(fromDir, toDir);
+
+                yield return Path.Combine(toDir, Path.GetFileName(testAssemblyFilePath));
+            }
         }
 
         private async Task<SyntaxTree> InstrumentDocument(

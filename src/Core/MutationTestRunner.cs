@@ -41,8 +41,8 @@ namespace Fettle.Core
             {
                 return new MutationTestResult().WithErrors(validationErrors);
             }
-            
-            var baseTempDirectory = Path.Combine(Path.GetTempPath(), $"fettle-{Guid.NewGuid()}");            
+
+            var baseTempDirectory = TempDirectory.Create();
             try
             {
                 CreateTempDirectories(baseTempDirectory, config);
@@ -188,8 +188,6 @@ namespace Fettle.Core
 
         private static void CreateTempDirectories(string baseTempDirectory, Config config)
         {
-            Directory.CreateDirectory(baseTempDirectory);
-
             foreach (var testAssemblyFilePath in config.TestAssemblyFilePaths)
             {
                 var from = Path.GetDirectoryName(testAssemblyFilePath);

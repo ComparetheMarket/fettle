@@ -71,6 +71,7 @@
     <Compile Include="Internal\NUnit\NUnitTestEngine.cs" />
     <Compile Include="Internal\SolutionExtension.cs" />
     <Compile Include="Internal\SyntaxNodeExtensions.cs" />
+    <Compile Include="Internal\TempDirectory.cs" />
     <Compile Include="Internal\TestRunnerResult.cs" />
     <Compile Include="Internal\IMutator.cs" />
     <Compile Include="Internal\SyntaxNodeExtensionsForSupportedMutators.cs" />
