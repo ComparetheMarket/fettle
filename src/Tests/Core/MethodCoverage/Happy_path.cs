@@ -33,6 +33,17 @@ namespace Fettle.Tests.Core.MethodCoverage
         }
 
         [Test]
+        public void Then_methods_are_covered_by_the_tests_that_call_them_during_testing_even_if_they_are_empty()
+        {
+            const string methodName = "System.Void HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::EmptyMethod()";
+            var coveringTests = Result.MethodsAndTheirCoveringTests[methodName];
+            Assert.That(coveringTests, Is.EquivalentTo(new[]
+            {
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.EmptyMethod",
+            }));
+        }
+
+        [Test]
         public void Then_methods_that_are_not_called_are_recognised_as_not_covered_by_any_tests()
         {
             const string methodName = "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AddNumbers_should_be_ignored(System.Int32)";

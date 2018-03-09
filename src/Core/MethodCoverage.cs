@@ -185,8 +185,19 @@ namespace Fettle.Core
 
                     var newNode = SyntaxFactory.ParseStatement(
                         $"System.Console.WriteLine(\"fettle_covered_method:{methodId}\");");
-                    
-                    documentEditor.InsertBefore(methodNode.Body.ChildNodes().First(), newNode);
+
+                    var firstChildNode = methodNode.Body.ChildNodes().FirstOrDefault();
+                    if (firstChildNode != null)
+                    {
+                        documentEditor.InsertBefore(firstChildNode, newNode);
+                    }
+                    else
+                    {
+                        // the method is empty
+                        documentEditor.ReplaceNode(
+                            methodNode, 
+                            methodNode.WithBody(SyntaxFactory.Block(newNode)));
+                    }
                 }
             }
 

@@ -69,5 +69,11 @@ namespace HasSurvivingMutants.Tests
             Assert.That(PartiallyTestedNumberComparison.PositiveOrNegative(1), Is.EqualTo("positive"));
             Assert.That(PartiallyTestedNumberComparison.PositiveOrNegative(-1), Is.EqualTo("negative"));
         }
+
+        [Test]
+        public void EmptyMethod()
+        {
+            PartiallyTestedNumberComparison.EmptyMethod();
+        }
     }
 }

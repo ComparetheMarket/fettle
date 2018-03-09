@@ -57,5 +57,11 @@
 
             return result;
         }
+
+        // An empty method.
+        // This exists to check that coverage analysis and mutation testing can handle empty methods.
+        public static void EmptyMethod()
+        {
+        }
     }
 }
