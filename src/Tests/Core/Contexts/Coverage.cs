@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using Fettle.Core;
 using Fettle.Core.Internal;
@@ -52,6 +53,14 @@ namespace Fettle.Tests.Core.Contexts
             var mockTestRunner = new Mock<ITestRunner>();
             mockTestRunner
                 .Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
+                .Returns(new TestRunResult{ Status = TestRunStatus.SomeTestsFailed });
+
+            mockTestRunner
+                .Setup(x => x.RunTestsAndCollectExecutedMethods(
+                    It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string,string>>(),
+                    It.IsAny<IDictionary<string, ImmutableHashSet<string>>>()))
                 .Returns(new TestRunResult{ Status = TestRunStatus.SomeTestsFailed });
 
             testRunner = mockTestRunner.Object;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Fettle.Core.Internal;
 using Fettle.Core.Internal.NUnit;
@@ -33,8 +34,6 @@ namespace Fettle.Core
         {
             var methodIdsToNames = new Dictionary<string, string>();
             
-            var tests = testFinder.FindTests(config.TestAssemblyFilePaths);
-            
             var baseTempDirectory = TempDirectory.Create();
 
             try
@@ -57,16 +56,18 @@ namespace Fettle.Core
 
                     var methodsAndCoveringTests = new Dictionary<string, ImmutableHashSet<string>>();
 
-                    foreach (var test in tests)
+                    foreach (var copiedTestAssemblyFilePath in copiedTestAssemblyFilePaths)
                     {
-                        if (!RunTestAndCollectExecutedMethods(
-                                test,
-                                copiedTestAssemblyFilePaths,
-                                methodIdsToNames,
-                                methodsAndCoveringTests))
+                        var tests = testFinder.FindTests(new [] { copiedTestAssemblyFilePath });
+
+                        if (!RunTestsAndCollectExecutedMethods(
+                            tests,
+                            copiedTestAssemblyFilePath,
+                            methodIdsToNames,
+                            methodsAndCoveringTests))
                         {
-                            return CoverageAnalysisResult.Error($"The test \"{test}\" failed");
-                        }
+                            return CoverageAnalysisResult.Error("A test failed");
+                        }    
                     }
 
                     return CoverageAnalysisResult.Success(methodsAndCoveringTests);
@@ -78,40 +79,18 @@ namespace Fettle.Core
             }
         }
 
-        private bool RunTestAndCollectExecutedMethods(
-            string test,
-            IEnumerable<string> copiedTestAssemblyFilePaths, 
+        private bool RunTestsAndCollectExecutedMethods(
+            IEnumerable<string> tests,
+            string copiedTestAssemblyFilePath, 
             IDictionary<string, string> methodIdsToNames, 
             IDictionary<string, ImmutableHashSet<string>> methodsAndCoveringTests)
         {
-            var runResult = testRunner.RunTests(copiedTestAssemblyFilePaths, new[] {test});
+            var runResult = testRunner.RunTestsAndCollectExecutedMethods(
+                new [] { copiedTestAssemblyFilePath }, tests, methodIdsToNames, methodsAndCoveringTests);
+
             if (runResult.Status != TestRunStatus.AllTestsPassed)
             {
                 return false;
-            }
-
-            var calledMethodIds = new HashSet<string>();
-            var outputLines = runResult.ConsoleOutput.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var outputLine in outputLines)
-            {
-                if (outputLine.StartsWith("fettle_covered_method:"))
-                {
-                    var method = outputLine.Substring("fettle_covered_method:".Length);
-                    calledMethodIds.Add(method);
-                }
-            }
-
-            var calledMethodNames = calledMethodIds
-                .Where(id => methodIdsToNames.ContainsKey(id))
-                .Select(id => methodIdsToNames[id]);
-
-            foreach (var calledMethodName in calledMethodNames)
-            {
-                if (!methodsAndCoveringTests.ContainsKey(calledMethodName))
-                    methodsAndCoveringTests.Add(calledMethodName, ImmutableHashSet<string>.Empty);
-
-                methodsAndCoveringTests[calledMethodName] =
-                    methodsAndCoveringTests[calledMethodName].Add(test);
             }
 
             return true;

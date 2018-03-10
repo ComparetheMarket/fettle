@@ -193,7 +193,7 @@ namespace Fettle.Core
                 var from = Path.GetDirectoryName(testAssemblyFilePath);
                 var to = Path.Combine(baseTempDirectory, Path.GetFileNameWithoutExtension(testAssemblyFilePath));
                 Directory.CreateDirectory(to);
-                DirectoryUtils.CopyDirectoryContents(@from, to);
+                DirectoryUtils.CopyDirectoryContents(from, to);
             }
         }
     }
