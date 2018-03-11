@@ -9,7 +9,7 @@ namespace Fettle.Tests.Core.MethodCoverage
         public Happy_path()
         {
             Given_an_app_with_tests();
-            Given_project_filters("HasSurvivingMutants.Implementation");
+            Given_project_filters("HasSurvivingMutants.Implementation", "HasSurvivingMutants.MoreImplementation");
 
             When_analysing_method_coverage();
         }
@@ -33,13 +33,28 @@ namespace Fettle.Tests.Core.MethodCoverage
         }
 
         [Test]
-        public void Then_methods_are_covered_by_the_tests_that_call_them_during_testing_even_if_they_are_empty()
+        public void Then_methods_are_covered_by_the_test_cases_that_call_them_during_testing_even_if_they_are_empty()
         {
             const string methodName = "System.Void HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::EmptyMethod()";
             var coveringTests = Result.MethodsAndTheirCoveringTests[methodName];
             Assert.That(coveringTests, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.EmptyMethod",
+            }));
+        }
+
+        [Test]
+        public void Then_methods_are_considered_to_be_covered_by_test_cases_if_their_fixture_setup_or_teardown_methods_call_them()
+        {
+            const string methodName = "System.Boolean HasSurvivingMutants.MoreImplementation.CalledByTestFixture::IsFourtyTwo(System.Int32)";
+            var coveringTests = Result.MethodsAndTheirCoveringTests[methodName];
+            Assert.That(coveringTests, Is.EquivalentTo(new[]
+            {
+                "HasSurvivingMutants.Tests.CalledByTestFixture_Constructor.TestCase",
+                "HasSurvivingMutants.Tests.CalledByTestFixture_OneTimeSetup.TestCase",
+                "HasSurvivingMutants.Tests.CalledByTestFixture_Setup.TestCase",
+                "HasSurvivingMutants.Tests.CalledByTestFixture_Teardown.TestCase",
+                "HasSurvivingMutants.Tests.CalledByTestFixture_OneTimeTeardown.TestCase"
             }));
         }
 
@@ -55,7 +70,8 @@ namespace Fettle.Tests.Core.MethodCoverage
         {
             var onlyContainsMethodsThatMatchFilter = Result.MethodsAndTheirCoveringTests
                 .Keys
-                .All(method => method.Contains("HasSurvivingMutants.Implementation"));
+                .All(method => method.Contains("HasSurvivingMutants.Implementation") ||
+                               method.Contains("HasSurvivingMutants.MoreImplementation"));
 
             Assert.That(onlyContainsMethodsThatMatchFilter, Is.True,
                 $"Actual keys: {string.Join(Environment.NewLine, Result.MethodsAndTheirCoveringTests.Keys)}");

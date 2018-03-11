@@ -43,6 +43,24 @@ namespace Fettle.Core.Internal.NUnit
                         methodsAndCoveringTests[executedMethodName] =
                             methodsAndCoveringTests[executedMethodName].Add(testMethodName);
                     }
+                },
+                onTestFixtureComplete: (testMethodsInFixture, executedMethodIds) =>
+                {
+                    Console.Write(".");
+
+                    foreach (var executedMethodId in executedMethodIds)
+                    {
+                        var executedMethodName = methodIdsToNames[executedMethodId];
+
+                        if (!methodsAndCoveringTests.ContainsKey(executedMethodName))
+                            methodsAndCoveringTests.Add(executedMethodName, ImmutableHashSet<string>.Empty);
+
+                        foreach (var testMethodName in testMethodsInFixture)
+                        {
+                            methodsAndCoveringTests[executedMethodName] =
+                                methodsAndCoveringTests[executedMethodName].Add(testMethodName);
+                        }
+                    }
                 });
 
             return RunTests(testAssemblyFilePaths, testMethodNames, testEventListener);
@@ -110,10 +128,16 @@ namespace Fettle.Core.Internal.NUnit
         private class EventListener : ITestEventListener
         {
             private readonly Action<string, IEnumerable<string>> onTestComplete;
+            private readonly Action<IEnumerable<string>, IEnumerable<string>> onTestFixtureComplete;
 
-            public EventListener(Action<string, IEnumerable<string>> onTestComplete)
+            private readonly List<string> testCasesWithinFixture = new List<string>();
+
+            public EventListener(
+                Action<string, IEnumerable<string>> onTestComplete,
+                Action<IEnumerable<string>, IEnumerable<string>> onTestFixtureComplete)
             {
                 this.onTestComplete = onTestComplete;
+                this.onTestFixtureComplete = onTestFixtureComplete;
             }
 
             public void OnTestEvent(string report)
@@ -121,29 +145,47 @@ namespace Fettle.Core.Internal.NUnit
                 if (report.StartsWith("<test-case"))
                 {
                     var doc = XDocument.Parse(report);
+                    
                     var testName = doc.Root.Attribute("fullname").Value;
-
-                    var consoleOutput = new StringBuilder();
-                    foreach (var outputNode in doc.XPathSelectElements("//test-case/output"))
-                    {
-                        consoleOutput.Append(outputNode.Value);
-                    }
-
-                    var calledMethodIds = new List<string>();
-                    foreach (var outputLine in consoleOutput
-                        .ToString()
-                        .Split(new[] {Environment.NewLine, "\n"}, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        const string prefix = "fettle_covered_method:";
-                        if (outputLine.StartsWith(prefix))
-                        {
-                            var method = outputLine.Substring(prefix.Length);
-                            calledMethodIds.Add(method);
-                        }
-                    }
+                    testCasesWithinFixture.Add(testName);
+                    
+                    var calledMethodIds = ParseExecutedMethodIdsFromOutput(doc);
 
                     onTestComplete(testName, calledMethodIds);
                 }
+                else if (report.StartsWith("<test-suite"))
+                {
+                    var doc = XDocument.Parse(report);
+                    
+                    var calledMethodIds = ParseExecutedMethodIdsFromOutput(doc);
+                    onTestFixtureComplete(testCasesWithinFixture, calledMethodIds);
+
+                    testCasesWithinFixture.Clear();
+                }
+            }
+
+            private static List<string> ParseExecutedMethodIdsFromOutput(XDocument doc)
+            {
+                var consoleOutput = new StringBuilder();
+                foreach (var outputNode in doc.XPathSelectElements("//test-case/output|//test-suite/output"))
+                {
+                    consoleOutput.Append(outputNode.Value);
+                }
+
+                var calledMethodIds = new List<string>();
+                foreach (var outputLine in consoleOutput
+                    .ToString()
+                    .Split(new[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    const string prefix = "fettle_covered_method:";
+                    if (outputLine.StartsWith(prefix))
+                    {
+                        var method = outputLine.Substring(prefix.Length);
+                        calledMethodIds.Add(method);
+                    }
+                }
+
+                return calledMethodIds;
             }
         }
     }
