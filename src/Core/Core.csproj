@@ -55,6 +55,7 @@
     <Compile Include="CoverageAnalysisResult.cs" />
     <Compile Include="IMethodCoverage.cs" />
     <Compile Include="IMutationTestRunner.cs" />
+    <Compile Include="Internal\CoverageCollectingServer.cs" />
     <Compile Include="Internal\DocumentExtensions.cs" />
     <Compile Include="Internal\Filtering.cs" />
     <Compile Include="Internal\IgnoreComments.cs" />

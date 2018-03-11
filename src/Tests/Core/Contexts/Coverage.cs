@@ -59,7 +59,6 @@ namespace Fettle.Tests.Core.Contexts
                 .Setup(x => x.RunTestsAndCollectExecutedMethods(
                     It.IsAny<IEnumerable<string>>(),
                     It.IsAny<IEnumerable<string>>(),
-                    It.IsAny<IDictionary<string,string>>(),
                     It.IsAny<IDictionary<string, ImmutableHashSet<string>>>()))
                 .Returns(new TestRunResult{ Status = TestRunStatus.SomeTestsFailed });
 

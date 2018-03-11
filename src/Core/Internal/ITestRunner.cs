@@ -12,7 +12,6 @@ namespace Fettle.Core.Internal
         TestRunResult RunTestsAndCollectExecutedMethods(
             IEnumerable<string> testAssemblyFilePaths,
             IEnumerable<string> testMethodNames,
-            IDictionary<string, string> methodIdsToNames,
             IDictionary<string, ImmutableHashSet<string>> methodsAndCoveringTests);
     }
 }

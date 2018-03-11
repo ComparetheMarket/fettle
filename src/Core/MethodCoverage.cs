@@ -32,8 +32,6 @@ namespace Fettle.Core
 
         public async Task<CoverageAnalysisResult> AnalyseMethodCoverage(Config config)
         {
-            var methodIdsToNames = new Dictionary<string, string>();
-            
             var baseTempDirectory = TempDirectory.Create();
 
             try
@@ -51,8 +49,7 @@ namespace Fettle.Core
                     await InstrumentThenCompileMultipleProjects(
                         solution.Projects.Where(p => Filtering.ShouldMutateProject(p, config)),
                         baseTempDirectory,
-                        copiedTestAssemblyFilePaths,
-                        methodIdsToNames);
+                        copiedTestAssemblyFilePaths);
 
                     var methodsAndCoveringTests = new Dictionary<string, ImmutableHashSet<string>>();
 
@@ -63,7 +60,6 @@ namespace Fettle.Core
                         if (!RunTestsAndCollectExecutedMethods(
                             tests,
                             copiedTestAssemblyFilePath,
-                            methodIdsToNames,
                             methodsAndCoveringTests))
                         {
                             return CoverageAnalysisResult.Error("A test failed");
@@ -82,11 +78,20 @@ namespace Fettle.Core
         private bool RunTestsAndCollectExecutedMethods(
             IEnumerable<string> tests,
             string copiedTestAssemblyFilePath, 
-            IDictionary<string, string> methodIdsToNames, 
             IDictionary<string, ImmutableHashSet<string>> methodsAndCoveringTests)
         {
             var runResult = testRunner.RunTestsAndCollectExecutedMethods(
-                new [] { copiedTestAssemblyFilePath }, tests, methodIdsToNames, methodsAndCoveringTests);
+                new [] { copiedTestAssemblyFilePath }, tests, methodsAndCoveringTests);
+
+            // todo: remove
+            var result = new List<string>();
+            foreach (var methodsAndCoveringTest in methodsAndCoveringTests)
+            {
+                result.Add($"{methodsAndCoveringTest.Key}");
+                methodsAndCoveringTest.Value.ToList().ForEach(x => result.Add($"\t{x}"));
+                result.Add(Environment.NewLine);
+            }
+            File.WriteAllLines(@"c:\temp\coverage.txt", result);
 
             if (runResult.Status != TestRunStatus.AllTestsPassed)
             {
@@ -99,14 +104,13 @@ namespace Fettle.Core
         private static async Task InstrumentThenCompileMultipleProjects(
             IEnumerable<Project> projects,
             string baseTempDirectory,
-            IList<string> copiedTestAssemblyFilePaths,
-            IDictionary<string, string> methodIdsToNames)
+            IList<string> copiedTestAssemblyFilePaths)
         {
             foreach (var project in projects)
             {
                 var outputFilePath = Path.Combine(baseTempDirectory, $@"{project.AssemblyName}.dll");
 
-                await InstrumentThenCompileProject(project, outputFilePath, methodIdsToNames);
+                await InstrumentThenCompileProject(project, outputFilePath);
 
                 CopyInstrumentedAssemblyIntoTempTestAssemblyDirectories(
                     outputFilePath, 
@@ -116,23 +120,25 @@ namespace Fettle.Core
 
         private static async Task InstrumentThenCompileProject(
             Project project, 
-            string outputFilePath,
-            IDictionary<string, string> methodIdsToNames)
+            string outputFilePath)
         {
             var originalSyntaxTrees = new List<SyntaxTree>();
             var modifiedSyntaxTrees = new List<SyntaxTree>();
+
+            var namespaceSuffix = project.Name.Replace(".", "");
 
             foreach (var originalClass in project.Documents)
             {
                 var originalSyntaxTree = await originalClass.GetSyntaxTreeAsync().ConfigureAwait(false);
                 originalSyntaxTrees.Add(originalSyntaxTree);
                 modifiedSyntaxTrees.Add(
-                    await InstrumentDocument(originalSyntaxTree, originalClass, methodIdsToNames));
+                    await InstrumentDocument(originalSyntaxTree, originalClass, namespaceSuffix));
             }
 
             var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
                 .RemoveSyntaxTrees(originalSyntaxTrees)
-                .AddSyntaxTrees(modifiedSyntaxTrees);
+                .AddSyntaxTrees(modifiedSyntaxTrees)
+                .AddSyntaxTrees(GenerateInstrumentationCollectorDocument(namespaceSuffix));
 
             var compilationResult = ProjectCompilation.CompileProject(
                 outputFilePath,
@@ -145,10 +151,36 @@ namespace Fettle.Core
             }
         }
 
+        private static SyntaxTree GenerateInstrumentationCollectorDocument(string namespaceSuffix)
+        {
+            string classContents = $@"
+            
+            using System.Text;
+            using System.Net.Sockets;
+
+            namespace _FettleInstrumentation_{namespaceSuffix}
+            {{
+                public static class Coverage
+                {{
+                    public static void ReportMethodExecuted(string fullMethodName)
+                    {{
+                        using (var client = new TcpClient(""127.0.0.1"", 4444))
+                        {{
+                            var messageAsBytes = Encoding.UTF8.GetBytes($""{{fullMethodName}}\n"");
+                            client.GetStream().Write(messageAsBytes, 0, messageAsBytes.Length);
+                            client.Close();
+                        }}
+                    }}
+                }}
+            }}";
+
+            return SyntaxFactory.ParseCompilationUnit(classContents).SyntaxTree;
+        }
+
         private static async Task<SyntaxTree> InstrumentDocument(
             SyntaxTree originalSyntaxTree,
             Document document,
-            IDictionary<string,string> methodIdsToNames)
+            string namespaceSuffix)
         {
             var root = await originalSyntaxTree.GetRootAsync();
             var semanticModel = await document.GetSemanticModelAsync();
@@ -159,11 +191,9 @@ namespace Fettle.Core
                 foreach (var methodNode in classNode.DescendantNodes().OfType<MethodDeclarationSyntax>())
                 {
                     var fullMethodName = methodNode.ChildNodes().First().NameOfContainingMethod(semanticModel);
-                    var methodId = Guid.NewGuid().ToString();
-                    methodIdsToNames.Add(methodId, fullMethodName);
 
                     var newNode = SyntaxFactory.ParseStatement(
-                        $"System.Console.WriteLine(\"fettle_covered_method:{methodId}\");");
+                        $"_FettleInstrumentation_{namespaceSuffix}.Coverage.ReportMethodExecuted(\"{fullMethodName}\");");
 
                     var firstChildNode = methodNode.Body.ChildNodes().FirstOrDefault();
                     if (firstChildNode != null)

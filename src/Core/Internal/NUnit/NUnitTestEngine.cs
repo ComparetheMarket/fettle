@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
-using System.Xml.XPath;
 using NUnit.Engine;
 using NUnit.Engine.Services;
 
@@ -27,25 +25,36 @@ namespace Fettle.Core.Internal.NUnit
         public TestRunResult RunTestsAndCollectExecutedMethods(
             IEnumerable<string> testAssemblyFilePaths,
             IEnumerable<string> testMethodNames,
-            IDictionary<string, string> methodIdsToNames,
             IDictionary<string, ImmutableHashSet<string>> methodsAndCoveringTests)
         {
-            var testEventListener = new EventListener(
-                onTestComplete: (testMethodName, executedMethodIds) =>
-                {
-                    foreach (var executedMethodId in executedMethodIds)
+            var collector = new CoverageCollectingServer();
+            collector.Start();
+
+            try
+            {
+                var testEventListener = new EventListener(
+                    onTestComplete: testMethodName =>
                     {
-                        var executedMethodName = methodIdsToNames[executedMethodId];
+                        var executed = collector.PopReceived();
+                        //Console.WriteLine($"...{testMethodName} complete, {executed.Length} exec'd");
+                        Console.Write(".");
 
-                        if (!methodsAndCoveringTests.ContainsKey(executedMethodName))
-                            methodsAndCoveringTests.Add(executedMethodName, ImmutableHashSet<string>.Empty);
+                        foreach (var executedMethodName in executed)
+                        {
+                            if (!methodsAndCoveringTests.ContainsKey(executedMethodName))
+                                methodsAndCoveringTests.Add(executedMethodName, ImmutableHashSet<string>.Empty);
 
-                        methodsAndCoveringTests[executedMethodName] =
-                            methodsAndCoveringTests[executedMethodName].Add(testMethodName);
-                    }
-                });
+                            methodsAndCoveringTests[executedMethodName] =
+                                methodsAndCoveringTests[executedMethodName].Add(testMethodName);
+                        }
+                    });
 
-            return RunTests(testAssemblyFilePaths, testMethodNames, testEventListener);
+                return RunTests(testAssemblyFilePaths, testMethodNames, testEventListener, runSequentially: true);
+            }
+            finally
+            {
+                collector.Stop();
+            }
         }
 
         public TestRunResult RunTests(IEnumerable<string> testAssemblyFilePaths, IEnumerable<string> testMethodNames)
@@ -56,10 +65,11 @@ namespace Fettle.Core.Internal.NUnit
         private TestRunResult RunTests(
             IEnumerable<string> testAssemblyFilePaths, 
             IEnumerable<string> testMethodNames,
-            ITestEventListener testEventListener)
+            ITestEventListener testEventListener,
+            bool runSequentially = false)
         {
             using (var testEngine = CreateTestEngine())
-            using (var testRunner = testEngine.GetRunner(CreateTestPackage(testAssemblyFilePaths)))
+            using (var testRunner = testEngine.GetRunner(CreateTestPackage(testAssemblyFilePaths, runSequentially)))
             {
                 var filterBuilder = new TestFilterBuilder();
                 testMethodNames.ToList().ForEach(tn =>
@@ -88,13 +98,26 @@ namespace Fettle.Core.Internal.NUnit
             return result;
         }
 
-        private static TestPackage CreateTestPackage(IEnumerable<string> testAssemblyFilePaths)
+        private static TestPackage CreateTestPackage(IEnumerable<string> testAssemblyFilePaths, bool runSequentially = false)
         {
             var testPackage = new TestPackage(testAssemblyFilePaths.ToList());
+            
             testPackage.AddSetting("StopOnError", true);
             testPackage.AddSetting("ShadowCopyFiles", true);
             testPackage.AddSetting("DomainUsage", "Single");
-            testPackage.AddSetting("ProcessModel", "Separate");
+
+            if (runSequentially)
+            {
+                testPackage.AddSetting("ProcessModel", "Single");
+                testPackage.AddSetting("MaxAgents", 1);
+                testPackage.AddSetting("NumberOfTestWorkers", 1);
+                testPackage.AddSetting("SynchronousEvents", true);
+            }
+            else
+            {
+                testPackage.AddSetting("ProcessModel", "Separate");
+            }
+
             return testPackage;
         }
 
@@ -109,9 +132,9 @@ namespace Fettle.Core.Internal.NUnit
 
         private class EventListener : ITestEventListener
         {
-            private readonly Action<string, IEnumerable<string>> onTestComplete;
+            private readonly Action<string> onTestComplete;
 
-            public EventListener(Action<string, IEnumerable<string>> onTestComplete)
+            public EventListener(Action<string> onTestComplete)
             {
                 this.onTestComplete = onTestComplete;
             }
@@ -123,26 +146,7 @@ namespace Fettle.Core.Internal.NUnit
                     var doc = XDocument.Parse(report);
                     var testName = doc.Root.Attribute("fullname").Value;
 
-                    var consoleOutput = new StringBuilder();
-                    foreach (var outputNode in doc.XPathSelectElements("//test-case/output"))
-                    {
-                        consoleOutput.Append(outputNode.Value);
-                    }
-
-                    var calledMethodIds = new List<string>();
-                    foreach (var outputLine in consoleOutput
-                        .ToString()
-                        .Split(new[] {Environment.NewLine, "\n"}, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        const string prefix = "fettle_covered_method:";
-                        if (outputLine.StartsWith(prefix))
-                        {
-                            var method = outputLine.Substring(prefix.Length);
-                            calledMethodIds.Add(method);
-                        }
-                    }
-
-                    onTestComplete(testName, calledMethodIds);
+                    onTestComplete(testName);
                 }
             }
         }
