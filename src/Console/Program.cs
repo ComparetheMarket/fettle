@@ -20,9 +20,9 @@ namespace Fettle.Console
                     eventListener);
             }
 
-            IMethodCoverage CreateRealCoverageAnalyser(IEventListener eventListener)
+            ICoverageAnalyser CreateRealCoverageAnalyser(IEventListener eventListener)
             {
-                return new MethodCoverage(eventListener);
+                return new CoverageAnalyser(eventListener);
             }
             
             return InternalEntryPoint(
@@ -43,7 +43,7 @@ namespace Fettle.Console
         internal static int InternalEntryPoint(
             string[] args,
             Func<IEventListener, IReadOnlyDictionary<string, ImmutableHashSet<string>>, IMutationTestRunner> mutationTestRunnerFactory,
-            Func<IEventListener, IMethodCoverage> coverageAnalyserFactory,
+            Func<IEventListener, ICoverageAnalyser> coverageAnalyserFactory,
             IOutputWriter outputWriter)
         {
             try
@@ -104,22 +104,21 @@ namespace Fettle.Console
         }
 
         private static CoverageAnalysisResult AnalyseCoverage(
-            IMethodCoverage methodCoverage, 
+            ICoverageAnalyser coverageAnalyser, 
             IOutputWriter outputWriter,
             Config config)
         {
-            outputWriter.WriteLine("Coverage analysis starting...");
+            outputWriter.Write("Analysing test coverage");
 
-            var coverageResult = methodCoverage.AnalyseMethodCoverage(config).Result;
+            var coverageResult = coverageAnalyser.AnalyseMethodCoverage(config).Result;
             if (coverageResult.ErrorDescription != null)
             {
                 outputWriter.WriteFailureLine("Unable to perform test coverage analysis:");
-                outputWriter.WriteFailureLine(coverageResult.ErrorDescription);                
+                outputWriter.WriteFailureLine(coverageResult.ErrorDescription);
             }
             else
             {
-                outputWriter.WriteLine("Coverage analysis complete.");
-                outputWriter.Write(Environment.NewLine);                
+                outputWriter.Write(Environment.NewLine);
             }
 
             return coverageResult;

@@ -14,7 +14,7 @@ namespace Fettle.Tests.Console.Contexts
     {
         private readonly List<string> commandLineArgs = new List<string>();
         private IEventListener eventListener;
-        private readonly Mock<IMethodCoverage> mockCoverage = new Mock<IMethodCoverage>();
+        private readonly Mock<ICoverageAnalyser> mockCoverage = new Mock<ICoverageAnalyser>();
 
         protected Mock<IMutationTestRunner> MockMutationTestRunner { get; } = new Mock<IMutationTestRunner>();
         protected SpyOutputWriter SpyOutputWriter = new SpyOutputWriter();
@@ -138,7 +138,7 @@ namespace Fettle.Tests.Console.Contexts
 
         protected void When_running_the_fettle_console_app()
         {
-            IMethodCoverage CreateMockCoverageAnalyser(IEventListener eventListenerIn)
+            ICoverageAnalyser CreateMockCoverageAnalyser(IEventListener eventListenerIn)
             {
                 eventListener = eventListenerIn;
                 return mockCoverage.Object;

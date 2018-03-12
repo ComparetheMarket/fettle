@@ -53,8 +53,9 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="CoverageAnalysisResult.cs" />
-    <Compile Include="IMethodCoverage.cs" />
+    <Compile Include="ICoverageAnalyser.cs" />
     <Compile Include="IMutationTestRunner.cs" />
+    <Compile Include="Internal\CoverageTestRunResult.cs" />
     <Compile Include="Internal\DocumentExtensions.cs" />
     <Compile Include="Internal\Filtering.cs" />
     <Compile Include="Internal\IgnoreComments.cs" />
@@ -62,7 +63,9 @@
     <Compile Include="Internal\MutatedClass.cs" />
     <Compile Include="Internal\Mutators\SwapChildExpressionsMutator.cs" />
     <Compile Include="Internal\Mutators\SwapOperatorMutator.cs" />
+    <Compile Include="Internal\NUnit\NUnitEventListener.cs" />
     <Compile Include="Internal\NUnit\NUnitExploreResults.cs" />
+    <Compile Include="Internal\NUnit\NUnitCoverageCollector.cs" />
     <Compile Include="Internal\ProjectCompilation.cs" />
     <Compile Include="IEventListener.cs" />
     <Compile Include="Internal\DirectoryUtils.cs" />
@@ -75,7 +78,7 @@
     <Compile Include="Internal\TestRunnerResult.cs" />
     <Compile Include="Internal\IMutator.cs" />
     <Compile Include="Internal\SyntaxNodeExtensionsForSupportedMutators.cs" />
-    <Compile Include="MethodCoverage.cs" />
+    <Compile Include="CoverageAnalyser.cs" />
     <Compile Include="MutationTestRunner.cs" />
     <Compile Include="NullEventListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

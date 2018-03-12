@@ -61,13 +61,12 @@ namespace Fettle.Tests.Core.Contexts
                 });
 
             mockTestRunner
-                .Setup(x => x.RunTestsAndCollectExecutedMethods(
+                .Setup(x => x.RunTestsAndAnalyseCoverage(
                     It.IsAny<IEnumerable<string>>(),
                     It.IsAny<IEnumerable<string>>(),
                     It.IsAny<IDictionary<string,string>>(),
-                    It.IsAny<Action<string,int>>(),
-                    It.IsAny<IDictionary<string, ImmutableHashSet<string>>>()))
-                .Returns(new TestRunResult
+                    It.IsAny<Action<string,int>>()))
+                .Returns(new CoverageTestRunResult
                 {
                     Status = TestRunStatus.SomeTestsFailed,
                     Error = "HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred failed"
@@ -85,7 +84,7 @@ namespace Fettle.Tests.Core.Contexts
         {
             try
             {
-                var methodCoverage = new Fettle.Core.MethodCoverage(
+                var methodCoverage = new Fettle.Core.CoverageAnalyser(
                     eventListener: MockEventListener.Object,
                     testFinder: new NUnitTestEngine(), 
                     testRunner: testRunner);

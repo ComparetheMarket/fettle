@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Fettle.Core.Internal;
 using Fettle.Core.Internal.NUnit;
@@ -15,18 +14,20 @@ using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Fettle.Core
 {
-    public class MethodCoverage : IMethodCoverage
+    public class CoverageAnalyser : ICoverageAnalyser
     {
         private readonly IEventListener eventListener;
         private readonly ITestFinder testFinder;
         private readonly ITestRunner testRunner;
 
-        public MethodCoverage(IEventListener eventListener) : 
+        public const string CoverageOutputLinePrefix = "fettle_covered_method:";
+
+        public CoverageAnalyser(IEventListener eventListener) : 
             this(eventListener, new NUnitTestEngine(), new NUnitTestEngine())
         {
         }
 
-        internal MethodCoverage(IEventListener eventListener, ITestFinder testFinder, ITestRunner testRunner)
+        internal CoverageAnalyser(IEventListener eventListener, ITestFinder testFinder, ITestRunner testRunner)
         {
             this.eventListener = eventListener;
             this.testFinder = testFinder;
@@ -57,26 +58,29 @@ namespace Fettle.Core
                         copiedTestAssemblyFilePaths,
                         methodIdsToNames);
 
-                    var methodsAndCoveringTests = new Dictionary<string, ImmutableHashSet<string>>();
+                    var allMethodsAndCoveringTests = new Dictionary<string, ImmutableHashSet<string>>();
 
                     foreach (var copiedTestAssemblyFilePath in copiedTestAssemblyFilePaths)
                     {
                         var tests = testFinder.FindTests(new [] { copiedTestAssemblyFilePath });
 
-                        var runResult = testRunner.RunTestsAndCollectExecutedMethods(
+                        var runResult = testRunner.RunTestsAndAnalyseCoverage(
                             testAssemblyFilePaths: new [] { copiedTestAssemblyFilePath }, 
                             testMethodNames: tests, 
                             methodIdsToNames: methodIdsToNames, 
-                            onAnalysingTestCase: (test, index) => eventListener.BeginCoverageAnalysisOfTestCase(test, index, tests.Count()),
-                            methodsAndCoveringTests: methodsAndCoveringTests);
+                            onAnalysingTestCase: (test, index) => eventListener.BeginCoverageAnalysisOfTestCase(test, index, tests.Length));
 
                         if (runResult.Status != TestRunStatus.AllTestsPassed)
                         {
                             return CoverageAnalysisResult.Error(runResult.Error);
                         }
+
+                        allMethodsAndCoveringTests = allMethodsAndCoveringTests
+                            .Union(runResult.MethodsAndCoveringTests)
+                            .ToDictionary(e => e.Key, e => e.Value);
                     }
 
-                    return CoverageAnalysisResult.Success(methodsAndCoveringTests);
+                    return CoverageAnalysisResult.Success(allMethodsAndCoveringTests);
                 }
             }
             finally
@@ -152,7 +156,7 @@ namespace Fettle.Core
                     methodIdsToNames.Add(methodId, fullMethodName);
 
                     var newNode = SyntaxFactory.ParseStatement(
-                        $"System.Console.WriteLine(\"fettle_covered_method:{methodId}\");");
+                        $"System.Console.WriteLine(\"{CoverageOutputLinePrefix}{methodId}\");");
 
                     var firstChildNode = methodNode.Body.ChildNodes().FirstOrDefault();
                     if (firstChildNode != null)

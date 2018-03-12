@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace Fettle.Core.Internal
 {
@@ -10,11 +9,10 @@ namespace Fettle.Core.Internal
             IEnumerable<string> testAssemblyFilePaths,
             IEnumerable<string> testMethodNames);
 
-        TestRunResult RunTestsAndCollectExecutedMethods(
+        CoverageTestRunResult RunTestsAndAnalyseCoverage(
             IEnumerable<string> testAssemblyFilePaths,
             IEnumerable<string> testMethodNames,
             IDictionary<string, string> methodIdsToNames,
-            Action<string, int> onAnalysingTestCase,
-            IDictionary<string, ImmutableHashSet<string>> methodsAndCoveringTests);
+            Action<string, int> onAnalysingTestCase);
     }
 }
