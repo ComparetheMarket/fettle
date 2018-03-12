@@ -63,14 +63,17 @@ namespace Fettle.Core
                     {
                         var tests = testFinder.FindTests(new [] { copiedTestAssemblyFilePath });
 
-                        if (!RunTestsAndCollectExecutedMethods(
-                            tests,
-                            copiedTestAssemblyFilePath,
-                            methodIdsToNames,
-                            methodsAndCoveringTests))
+                        var runResult = testRunner.RunTestsAndCollectExecutedMethods(
+                            testAssemblyFilePaths: new [] { copiedTestAssemblyFilePath }, 
+                            testMethodNames: tests, 
+                            methodIdsToNames: methodIdsToNames, 
+                            onAnalysingTestCase: (test, index) => eventListener.BeginCoverageAnalysisOfTestCase(test, index, tests.Count()),
+                            methodsAndCoveringTests: methodsAndCoveringTests);
+
+                        if (runResult.Status != TestRunStatus.AllTestsPassed)
                         {
-                            return CoverageAnalysisResult.Error("A test failed");
-                        }    
+                            return CoverageAnalysisResult.Error(runResult.Error);
+                        }
                     }
 
                     return CoverageAnalysisResult.Success(methodsAndCoveringTests);
@@ -81,28 +84,7 @@ namespace Fettle.Core
                 Directory.Delete(baseTempDirectory, recursive: true);
             }
         }
-
-        private bool RunTestsAndCollectExecutedMethods(
-            IEnumerable<string> tests,
-            string copiedTestAssemblyFilePath, 
-            IDictionary<string, string> methodIdsToNames, 
-            IDictionary<string, ImmutableHashSet<string>> methodsAndCoveringTests)
-        {
-            var runResult = testRunner.RunTestsAndCollectExecutedMethods(
-                testAssemblyFilePaths: new [] { copiedTestAssemblyFilePath }, 
-                testMethodNames: tests, 
-                methodIdsToNames: methodIdsToNames, 
-                onAnalysingTestCase: (test, index) => eventListener.BeginCoverageAnalysisOfTestCase(test, index, tests.Count()),
-                methodsAndCoveringTests: methodsAndCoveringTests);
-
-            if (runResult.Status != TestRunStatus.AllTestsPassed)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
+        
         private static async Task InstrumentThenCompileMultipleProjects(
             IEnumerable<Project> projects,
             string baseTempDirectory,

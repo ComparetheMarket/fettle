@@ -35,6 +35,37 @@ namespace Fettle.Tests.Core.ImplementationDetails
 
             Assert.That(result.Status, Is.EqualTo(TestRunStatus.SomeTestsFailed));
         }
+
+        [Test]
+        public void When_results_xml_indicates_that_some_tests_failed_Then_error_reflects_their_errors()
+        {
+            var xmlNode = StringToXmlNode(
+                @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""no""?>
+                  <test-run id=""2"" result=""Failed"" total=""2"">
+                     <test-suite runstate=""Runnable"">
+                        <test-suite runstate=""Runnable"">
+                            <test-case>
+                                <failure>
+                                    <message>error message 1</message>
+                                </failure>
+                            </test-case>
+                        </test-suite>
+                        <test-suite runstate=""Runnable"">
+                            <test-case>
+                                <failure>
+                                    <message>error message 2</message>
+                                </failure>
+                            </test-case>
+                        </test-suite>
+                     </test-suite>
+                  </test-run>
+                ");
+
+            var result = NUnitRunResults.Parse(xmlNode);
+
+            Assert.That(result.Error, Does.Contain("error message 1"));
+            Assert.That(result.Error, Does.Contain("error message 2"));
+        }
        
         [Test]
         public void When_results_xml_contains_output_Then_all_ouput_is_collated()

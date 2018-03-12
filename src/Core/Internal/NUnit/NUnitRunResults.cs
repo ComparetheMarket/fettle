@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -41,7 +42,12 @@ namespace Fettle.Core.Internal.NUnit
             return new TestRunResult
             {
                 Status = status,
-                ConsoleOutput = consoleOutput.ToString()
+                ConsoleOutput = consoleOutput.ToString(),
+
+                Error = string.Join(Environment.NewLine,
+                    rootNode.SelectNodes("//test-case/failure/message")
+                        .Cast<XmlNode>()
+                        .Select(x => x.InnerText))
             };
         }
     }

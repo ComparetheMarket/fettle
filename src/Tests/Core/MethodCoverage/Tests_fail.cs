@@ -24,7 +24,7 @@ namespace Fettle.Tests.Core.MethodCoverage
         public void Then_error_description_indicates_the_test_that_failed()
         {
             Assert.That(Result.ErrorDescription, 
-                Does.Contain("HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundre"));
+                Does.Contain("HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred"));
         }
     }
 }

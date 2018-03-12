@@ -54,7 +54,11 @@ namespace Fettle.Tests.Core.Contexts
             var mockTestRunner = new Mock<ITestRunner>();
             mockTestRunner
                 .Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
-                .Returns(new TestRunResult{ Status = TestRunStatus.SomeTestsFailed });
+                .Returns(new TestRunResult
+                {
+                    Status = TestRunStatus.SomeTestsFailed,
+                    Error = "HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred failed"
+                });
 
             mockTestRunner
                 .Setup(x => x.RunTestsAndCollectExecutedMethods(
@@ -63,7 +67,11 @@ namespace Fettle.Tests.Core.Contexts
                     It.IsAny<IDictionary<string,string>>(),
                     It.IsAny<Action<string,int>>(),
                     It.IsAny<IDictionary<string, ImmutableHashSet<string>>>()))
-                .Returns(new TestRunResult{ Status = TestRunStatus.SomeTestsFailed });
+                .Returns(new TestRunResult
+                {
+                    Status = TestRunStatus.SomeTestsFailed,
+                    Error = "HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred failed"
+                });
 
             testRunner = mockTestRunner.Object;
         }
