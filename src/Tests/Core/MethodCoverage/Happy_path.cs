@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Moq;
 using NUnit.Framework;
 
 namespace Fettle.Tests.Core.MethodCoverage
@@ -75,6 +76,43 @@ namespace Fettle.Tests.Core.MethodCoverage
 
             Assert.That(onlyContainsMethodsThatMatchFilter, Is.True,
                 $"Actual keys: {string.Join(Environment.NewLine, Result.MethodsAndTheirCoveringTests.Keys)}");
+        }
+
+        [Test]
+        public void Then_events_are_raised_when_the_analysis_of_tests_begins()
+        {
+            var expectedAnalysedTests = new[]
+            {
+                "HasSurvivingMutants.Tests.CalledByTestFixture_Constructor.TestCase",
+                "HasSurvivingMutants.Tests.CalledByTestFixture_OneTimeSetup.TestCase",
+                "HasSurvivingMutants.Tests.CalledByTestFixture_OneTimeTeardown.TestCase",
+                "HasSurvivingMutants.Tests.CalledByTestFixture_Setup.TestCase",
+                "HasSurvivingMutants.Tests.CalledByTestFixture_Teardown.TestCase",
+                "HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred",
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.AreBothZero",
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.EmptyMethod",
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsNegative",
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsPositive",
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsZero",
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Methods_with_ignored_statements",
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.PositiveOrNegative",
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Postincrement",
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Preincrement",
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Sum"
+            };
+
+            MockEventListener.Verify(
+                el => el.BeginCoverageAnalysisOfTestCase(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()),
+                    Times.Exactly(expectedAnalysedTests.Length));
+
+            var index = 0;
+            foreach (var testName in expectedAnalysedTests)
+            {
+                MockEventListener.Verify(el => 
+                    el.BeginCoverageAnalysisOfTestCase(testName, index, expectedAnalysedTests.Length));
+                index++;
+            }
+            
         }
     }
 }

@@ -11,12 +11,16 @@ namespace Fettle.Tests.Core.Contexts
 
         private readonly List<string> begunMethods = new List<string>();
         public IReadOnlyList<string> BegunMethods => begunMethods;
-
+        
         public bool HaveAnyFilesBegun => begunFiles.Any();
         public bool HaveAnyMethodsBegun => begunMethods.Any();
         public bool HaveAnySyntaxNodesBegun { get; private set; }
         public bool HaveAnyFilesEnded { get; private set; }
         public bool HaveAnyMutantsSurvived { get; private set; }
+
+        public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
+        {
+        }
 
         public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total)
         {

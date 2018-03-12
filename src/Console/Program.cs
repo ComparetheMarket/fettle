@@ -19,11 +19,16 @@ namespace Fettle.Console
                     methodsAndTheirCoveringTests, 
                     eventListener);
             }
+
+            IMethodCoverage CreateRealCoverageAnalyser(IEventListener eventListener)
+            {
+                return new MethodCoverage(eventListener);
+            }
             
             return InternalEntryPoint(
                 args, 
                 CreateRealMutationTestRunner, 
-                new MethodCoverage(), 
+                CreateRealCoverageAnalyser, 
                 new ConsoleOutputWriter());
         }
         
@@ -38,7 +43,7 @@ namespace Fettle.Console
         internal static int InternalEntryPoint(
             string[] args,
             Func<IEventListener, IReadOnlyDictionary<string, ImmutableHashSet<string>>, IMutationTestRunner> mutationTestRunnerFactory,
-            IMethodCoverage methodCoverage,
+            Func<IEventListener, IMethodCoverage> coverageAnalyserFactory,
             IOutputWriter outputWriter)
         {
             try
@@ -48,16 +53,17 @@ namespace Fettle.Console
                 {
                     return ExitCodes.ConfigOrArgsAreInvalid;
                 }
+                
+                var eventListener = parsedArgs.ConsoleOptions.Quiet
+                    ? (IEventListener) new QuietEventListener(outputWriter)
+                    : (IEventListener) new VerboseEventListener(outputWriter);
 
-                var coverageResult = AnalyseCoverage(methodCoverage, outputWriter, parsedArgs.Config);
+                var analyser = coverageAnalyserFactory(eventListener);
+                var coverageResult = AnalyseCoverage(analyser, outputWriter, parsedArgs.Config);
                 if (coverageResult.ErrorDescription != null)
                 {
                     return ExitCodes.ConfigOrArgsAreInvalid;
                 }
-
-                var eventListener = parsedArgs.ConsoleOptions.Quiet
-                    ? (IEventListener) new QuietEventListener(outputWriter)
-                    : (IEventListener) new VerboseEventListener(outputWriter);
 
                 outputWriter.WriteLine("Mutation testing starting...");
                 var runner = mutationTestRunnerFactory(eventListener, coverageResult.MethodsAndTheirCoveringTests);

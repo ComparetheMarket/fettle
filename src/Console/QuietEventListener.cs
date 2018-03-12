@@ -13,6 +13,10 @@ namespace Fettle.Console
             this.outputWriter = outputWriter;
         }
 
+        public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
+        {
+        }
+
         public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total)
         {
             if (isFirstFile)

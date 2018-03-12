@@ -17,15 +17,18 @@ namespace Fettle.Core
 {
     public class MethodCoverage : IMethodCoverage
     {
+        private readonly IEventListener eventListener;
         private readonly ITestFinder testFinder;
         private readonly ITestRunner testRunner;
 
-        public MethodCoverage() : this(new NUnitTestEngine(), new NUnitTestEngine())
+        public MethodCoverage(IEventListener eventListener) : 
+            this(eventListener, new NUnitTestEngine(), new NUnitTestEngine())
         {
         }
 
-        internal MethodCoverage(ITestFinder testFinder, ITestRunner testRunner)
+        internal MethodCoverage(IEventListener eventListener, ITestFinder testFinder, ITestRunner testRunner)
         {
+            this.eventListener = eventListener;
             this.testFinder = testFinder;
             this.testRunner = testRunner;
         }
@@ -86,7 +89,11 @@ namespace Fettle.Core
             IDictionary<string, ImmutableHashSet<string>> methodsAndCoveringTests)
         {
             var runResult = testRunner.RunTestsAndCollectExecutedMethods(
-                new [] { copiedTestAssemblyFilePath }, tests, methodIdsToNames, methodsAndCoveringTests);
+                testAssemblyFilePaths: new [] { copiedTestAssemblyFilePath }, 
+                testMethodNames: tests, 
+                methodIdsToNames: methodIdsToNames, 
+                onAnalysingTestCase: (test, index) => eventListener.BeginCoverageAnalysisOfTestCase(test, index, tests.Count()),
+                methodsAndCoveringTests: methodsAndCoveringTests);
 
             if (runResult.Status != TestRunStatus.AllTestsPassed)
             {

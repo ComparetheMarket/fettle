@@ -21,6 +21,7 @@ namespace Fettle.Tests.Core.Contexts
 
         protected CoverageAnalysisResult Result { get; private set;}
         protected Exception ThrownException { get; private set; }
+        protected Mock<IEventListener> MockEventListener { get; } = new Mock<IEventListener>();
 
         protected void Given_an_app_with_tests()
         {
@@ -60,6 +61,7 @@ namespace Fettle.Tests.Core.Contexts
                     It.IsAny<IEnumerable<string>>(),
                     It.IsAny<IEnumerable<string>>(),
                     It.IsAny<IDictionary<string,string>>(),
+                    It.IsAny<Action<string,int>>(),
                     It.IsAny<IDictionary<string, ImmutableHashSet<string>>>()))
                 .Returns(new TestRunResult{ Status = TestRunStatus.SomeTestsFailed });
 
@@ -76,6 +78,7 @@ namespace Fettle.Tests.Core.Contexts
             try
             {
                 var methodCoverage = new Fettle.Core.MethodCoverage(
+                    eventListener: MockEventListener.Object,
                     testFinder: new NUnitTestEngine(), 
                     testRunner: testRunner);
 

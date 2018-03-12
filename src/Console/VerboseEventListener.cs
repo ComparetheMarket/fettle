@@ -15,6 +15,21 @@ namespace Fettle.Console
             this.outputWriter = outputWriter;
         }
 
+        public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
+        {
+            var progress = Math.Floor(((decimal)index / total) * 100);
+            if (progress % 5 == 0)
+            {
+                outputWriter.Write(".");
+            }
+
+            var isLastOne = index == total - 1;
+            if (isLastOne)
+            {
+                outputWriter.Write(Environment.NewLine);
+            }
+        }
+
         public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total)
         {
             baseSourceDir = baseSourceDirectory;

@@ -24,7 +24,7 @@ namespace Fettle.Tests.Console.Contexts
         {
             var emptyCoverageResult = CoverageAnalysisResult.Success(new Dictionary<string, ImmutableHashSet<string>>());
             mockCoverage
-                .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))
+                .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))            
                 .Returns(
                     Task.FromResult(emptyCoverageResult));
         }
@@ -99,6 +99,22 @@ namespace Fettle.Tests.Console.Contexts
                 .Returns(Task.FromResult(new MutationTestResult().WithSurvivingMutants(new []{ survivingMutant })));
         }
 
+        protected void Given_coverage_analysis_runs_successfully()
+        {
+            var emptyCoverageResult = CoverageAnalysisResult.Success(new Dictionary<string, ImmutableHashSet<string>>());
+            mockCoverage
+                .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))
+                .Callback(() =>
+                {
+                    for (var i = 0; i < 10; ++i)
+                    {
+                        eventListener.BeginCoverageAnalysisOfTestCase($"Test{i}", i, 10);
+                    }
+                })
+                .Returns(
+                    Task.FromResult(emptyCoverageResult));
+        }
+
         protected void Given_no_mutants_will_survive()
         {
             MockMutationTestRunner
@@ -122,18 +138,23 @@ namespace Fettle.Tests.Console.Contexts
 
         protected void When_running_the_fettle_console_app()
         {
+            IMethodCoverage CreateMockCoverageAnalyser(IEventListener eventListenerIn)
+            {
+                eventListener = eventListenerIn;
+                return mockCoverage.Object;
+            }
+
             IMutationTestRunner CreateMockMutationTestRunner(
                 IEventListener eventListenerIn, 
                 IReadOnlyDictionary<string, ImmutableHashSet<string>> _)
             {
-                eventListener = eventListenerIn;
                 return MockMutationTestRunner.Object;
             }
-
+            
             ExitCode = Program.InternalEntryPoint(
                 args: commandLineArgs.ToArray(),
                 mutationTestRunnerFactory: CreateMockMutationTestRunner,
-                methodCoverage: mockCoverage.Object,
+                coverageAnalyserFactory: CreateMockCoverageAnalyser,
                 outputWriter: SpyOutputWriter);
         }
 

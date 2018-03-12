@@ -28,9 +28,17 @@ namespace Fettle.Core.Internal.NUnit
             IEnumerable<string> testAssemblyFilePaths,
             IEnumerable<string> testMethodNames,
             IDictionary<string, string> methodIdsToNames,
+            Action<string, int> onAnalysingTestCase,
             IDictionary<string, ImmutableHashSet<string>> methodsAndCoveringTests)
         {
+            var numTestCasesExecuted = 0;
+
             var testEventListener = new EventListener(
+                onTestStarting: testMethodName =>
+                {
+                    onAnalysingTestCase(testMethodName, numTestCasesExecuted);
+                    numTestCasesExecuted++;
+                },
                 onTestComplete: (testMethodName, executedMethodIds) =>
                 {
                     foreach (var executedMethodId in executedMethodIds)
@@ -46,8 +54,6 @@ namespace Fettle.Core.Internal.NUnit
                 },
                 onTestFixtureComplete: (testMethodsInFixture, executedMethodIds) =>
                 {
-                    Console.Write(".");
-
                     foreach (var executedMethodId in executedMethodIds)
                     {
                         var executedMethodName = methodIdsToNames[executedMethodId];
@@ -127,28 +133,39 @@ namespace Fettle.Core.Internal.NUnit
 
         private class EventListener : ITestEventListener
         {
+            private readonly Action<string> onTestStarting;
             private readonly Action<string, IEnumerable<string>> onTestComplete;
             private readonly Action<IEnumerable<string>, IEnumerable<string>> onTestFixtureComplete;
 
             private readonly List<string> testCasesWithinFixture = new List<string>();
 
             public EventListener(
+                Action<string> onTestStarting,
                 Action<string, IEnumerable<string>> onTestComplete,
                 Action<IEnumerable<string>, IEnumerable<string>> onTestFixtureComplete)
             {
+                this.onTestStarting = onTestStarting;
                 this.onTestComplete = onTestComplete;
                 this.onTestFixtureComplete = onTestFixtureComplete;
             }
 
             public void OnTestEvent(string report)
             {
-                if (report.StartsWith("<test-case"))
+                if (report.StartsWith("<start-test"))
                 {
                     var doc = XDocument.Parse(report);
-                    
+
+                    var testName = doc.Root.Attribute("fullname").Value;
+
+                    onTestStarting(testName);
+                }
+                else if (report.StartsWith("<test-case"))
+                {
+                    var doc = XDocument.Parse(report);
+
                     var testName = doc.Root.Attribute("fullname").Value;
                     testCasesWithinFixture.Add(testName);
-                    
+
                     var calledMethodIds = ParseExecutedMethodIdsFromOutput(doc);
 
                     onTestComplete(testName, calledMethodIds);
@@ -156,7 +173,7 @@ namespace Fettle.Core.Internal.NUnit
                 else if (report.StartsWith("<test-suite"))
                 {
                     var doc = XDocument.Parse(report);
-                    
+
                     var calledMethodIds = ParseExecutedMethodIdsFromOutput(doc);
                     onTestFixtureComplete(testCasesWithinFixture, calledMethodIds);
 
