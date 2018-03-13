@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OtherMethods.cs" />
     <Compile Include="UntestedNumberComparison.cs" />
     <Compile Include="PartiallyTestedNumberComparison.cs" />
     <Compile Include="ProducesInvalidMutation.cs" />

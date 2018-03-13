@@ -32,6 +32,13 @@ namespace Fettle.Tests.Core.Coverage
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.PositiveOrNegative"
             }));
         }
+        
+        [Test]
+        public void Then_methods_that_are_not_called_are_recognised_as_not_covered_by_any_tests()
+        {
+            const string methodName = "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AddNumbers_should_be_ignored(System.Int32)";
+            Assert.That(Result.MethodsAndTheirCoveringTests.ContainsKey(methodName), Is.False);
+        }
 
         [Test]
         public void Then_methods_are_covered_by_the_test_cases_that_call_them_during_testing_even_if_they_are_empty()
@@ -70,12 +77,29 @@ namespace Fettle.Tests.Core.Coverage
                 "HasSurvivingMutants.MoreTests.MoreTests.PostIncrement2"
             }));
         }
+        
+        [Test]
+        public void Then_methods_can_be_covered_by_parameterised_tests()
+        {
+            const string methodName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Preincrement(System.Int32)";
+            var coveringTests = Result.MethodsAndTheirCoveringTests[methodName];
+            Assert.That(coveringTests, Is.EquivalentTo(new[]
+            {
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Preincrement",
+                "HasSurvivingMutants.MoreTests.MoreTests.PreIncrement2(1,2)",
+                "HasSurvivingMutants.MoreTests.MoreTests.PreIncrement2(4,5)",
+            }));
+        }
 
         [Test]
-        public void Then_methods_that_are_not_called_are_recognised_as_not_covered_by_any_tests()
+        public void Then_methods_that_throw_an_exception_can_be_covered_by_tests()
         {
-            const string methodName = "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AddNumbers_should_be_ignored(System.Int32)";
-            Assert.That(Result.MethodsAndTheirCoveringTests.ContainsKey(methodName), Is.False);
+            const string methodName = "System.Void HasSurvivingMutants.Implementation.OtherMethods::ThrowingMethod()";
+            var coveringTests = Result.MethodsAndTheirCoveringTests[methodName];
+            Assert.That(coveringTests, Is.EquivalentTo(new[]
+            {
+                "HasSurvivingMutants.MoreTests.MoreTests.ThrowingMethod"
+            }));
         }
 
         [Test]
@@ -117,7 +141,10 @@ namespace Fettle.Tests.Core.Coverage
                 new []
                 {
                     "HasSurvivingMutants.MoreTests.MoreTests.DummyTest",
-                    "HasSurvivingMutants.MoreTests.MoreTests.PostIncrement2"
+                    "HasSurvivingMutants.MoreTests.MoreTests.PostIncrement2",
+                    "HasSurvivingMutants.MoreTests.MoreTests.PreIncrement2(1,2)",
+                    "HasSurvivingMutants.MoreTests.MoreTests.PreIncrement2(4,5)",
+                    "HasSurvivingMutants.MoreTests.MoreTests.ThrowingMethod"
                 }
             };
 

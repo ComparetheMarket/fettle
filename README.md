@@ -5,7 +5,7 @@ Fettle is an experimental mutation testing tool for C#.
 Right now it supports projects that:
 * Run on Windows
 * Use .NET Framework 4.x
-* Are tested using NUnit
+* Are tested using NUnit 3 (version 3.10 or higher recommended)
 
 ...but the plan is to support more platforms and test frameworks in the future.
 
