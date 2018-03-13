@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Fettle.Tests.Core.MethodCoverage
+namespace Fettle.Tests.Core.Coverage
 {
     class Compilation_fails : Contexts.Coverage
     {

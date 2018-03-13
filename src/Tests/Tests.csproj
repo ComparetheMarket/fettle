@@ -71,9 +71,9 @@
     <Compile Include="Core\Contexts\Default.cs" />
     <Compile Include="Core\Contexts\InvalidConfig.cs" />
     <Compile Include="Core\Contexts\SpyEventListener.cs" />
-    <Compile Include="Core\MethodCoverage\Compilation_fails.cs" />
-    <Compile Include="Core\MethodCoverage\Happy_path.cs" />
-    <Compile Include="Core\MethodCoverage\Tests_fail.cs" />
+    <Compile Include="Core\Coverage\Compilation_fails.cs" />
+    <Compile Include="Core\Coverage\Happy_path.cs" />
+    <Compile Include="Core\Coverage\Tests_fail.cs" />
     <Compile Include="Core\Method_coverage.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered_with_multiple_filters.cs" />

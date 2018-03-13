@@ -3,7 +3,7 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 
-namespace Fettle.Tests.Core.MethodCoverage
+namespace Fettle.Tests.Core.Coverage
 {
     class Happy_path : Contexts.Coverage
     {
@@ -60,6 +60,18 @@ namespace Fettle.Tests.Core.MethodCoverage
         }
 
         [Test]
+        public void Then_methods_can_be_covered_by_tests_from_multiple_projects()
+        {
+            const string methodName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Postincrement(System.Int32)";
+            var coveringTests = Result.MethodsAndTheirCoveringTests[methodName];
+            Assert.That(coveringTests, Is.EquivalentTo(new[]
+            {
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Postincrement",
+                "HasSurvivingMutants.MoreTests.MoreTests.PostIncrement2"
+            }));
+        }
+
+        [Test]
         public void Then_methods_that_are_not_called_are_recognised_as_not_covered_by_any_tests()
         {
             const string methodName = "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AddNumbers_should_be_ignored(System.Int32)";
@@ -81,38 +93,48 @@ namespace Fettle.Tests.Core.MethodCoverage
         [Test]
         public void Then_events_are_raised_when_the_analysis_of_tests_begins()
         {
-            var expectedAnalysedTests = new[]
+            var expectedAnalysedTestsForAllAssemblies = new[]
             {
-                "HasSurvivingMutants.Tests.CalledByTestFixture_Constructor.TestCase",
-                "HasSurvivingMutants.Tests.CalledByTestFixture_OneTimeSetup.TestCase",
-                "HasSurvivingMutants.Tests.CalledByTestFixture_OneTimeTeardown.TestCase",
-                "HasSurvivingMutants.Tests.CalledByTestFixture_Setup.TestCase",
-                "HasSurvivingMutants.Tests.CalledByTestFixture_Teardown.TestCase",
-                "HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred",
-                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.AreBothZero",
-                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.EmptyMethod",
-                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsNegative",
-                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsPositive",
-                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsZero",
-                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Methods_with_ignored_statements",
-                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.PositiveOrNegative",
-                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Postincrement",
-                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Preincrement",
-                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Sum"
+                new [] 
+                {
+                    "HasSurvivingMutants.Tests.CalledByTestFixture_Constructor.TestCase",
+                    "HasSurvivingMutants.Tests.CalledByTestFixture_OneTimeSetup.TestCase",
+                    "HasSurvivingMutants.Tests.CalledByTestFixture_OneTimeTeardown.TestCase",
+                    "HasSurvivingMutants.Tests.CalledByTestFixture_Setup.TestCase",
+                    "HasSurvivingMutants.Tests.CalledByTestFixture_Teardown.TestCase",
+                    "HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred",
+                    "HasSurvivingMutants.Tests.PartialNumberComparisonTests.AreBothZero",
+                    "HasSurvivingMutants.Tests.PartialNumberComparisonTests.EmptyMethod",
+                    "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsNegative",
+                    "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsPositive",
+                    "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsZero",
+                    "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Methods_with_ignored_statements",
+                    "HasSurvivingMutants.Tests.PartialNumberComparisonTests.PositiveOrNegative",
+                    "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Postincrement",
+                    "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Preincrement",
+                    "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Sum"
+                },
+                new []
+                {
+                    "HasSurvivingMutants.MoreTests.MoreTests.DummyTest",
+                    "HasSurvivingMutants.MoreTests.MoreTests.PostIncrement2"
+                }
             };
 
             MockEventListener.Verify(
                 el => el.BeginCoverageAnalysisOfTestCase(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()),
-                    Times.Exactly(expectedAnalysedTests.Length));
+                Times.Exactly(expectedAnalysedTestsForAllAssemblies.SelectMany(x => x).Count()));
 
-            var index = 0;
-            foreach (var testName in expectedAnalysedTests)
+            foreach (var expectedAnalysedTests in expectedAnalysedTestsForAllAssemblies)
             {
-                MockEventListener.Verify(el => 
-                    el.BeginCoverageAnalysisOfTestCase(testName, index, expectedAnalysedTests.Length));
-                index++;
+                var index = 0;
+                foreach (var testName in expectedAnalysedTests)
+                {
+                    MockEventListener.Verify(el => 
+                        el.BeginCoverageAnalysisOfTestCase(testName, index, expectedAnalysedTests.Length));
+                    index++;
+                }    
             }
-            
         }
     }
 }
