@@ -72,6 +72,7 @@
     <Compile Include="Core\Contexts\InvalidConfig.cs" />
     <Compile Include="Core\Contexts\SpyEventListener.cs" />
     <Compile Include="Core\Coverage\Compilation_fails.cs" />
+    <Compile Include="Core\Coverage\Source_file_filters.cs" />
     <Compile Include="Core\Coverage\Happy_path.cs" />
     <Compile Include="Core\Coverage\Tests_fail.cs" />
     <Compile Include="Core\Method_coverage.cs" />

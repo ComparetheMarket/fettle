@@ -54,6 +54,7 @@ namespace Fettle.Core
 
                     await InstrumentThenCompileMultipleProjects(
                         solution.Projects.Where(p => Filtering.ShouldMutateProject(p, config)),
+                        config,
                         baseTempDirectory,
                         copiedTestAssemblyFilePaths,
                         methodIdsToNames);
@@ -106,6 +107,7 @@ namespace Fettle.Core
 
         private static async Task InstrumentThenCompileMultipleProjects(
             IEnumerable<Project> projects,
+            Config config,
             string baseTempDirectory,
             IList<string> copiedTestAssemblyFilePaths,
             IDictionary<string, string> methodIdsToNames)
@@ -114,7 +116,7 @@ namespace Fettle.Core
             {
                 var outputFilePath = Path.Combine(baseTempDirectory, $@"{project.AssemblyName}.dll");
 
-                await InstrumentThenCompileProject(project, outputFilePath, methodIdsToNames);
+                await InstrumentThenCompileProject(project, config, outputFilePath, methodIdsToNames);
 
                 CopyInstrumentedAssemblyIntoTempTestAssemblyDirectories(
                     outputFilePath, 
@@ -123,14 +125,16 @@ namespace Fettle.Core
         }
 
         private static async Task InstrumentThenCompileProject(
-            Project project, 
+            Project project,
+            Config config,            
             string outputFilePath,
             IDictionary<string, string> methodIdsToNames)
         {
             var originalSyntaxTrees = new List<SyntaxTree>();
             var modifiedSyntaxTrees = new List<SyntaxTree>();
 
-            foreach (var originalClass in project.Documents)
+            var classesToInstrument = project.Documents.Where(d => Filtering.ShouldMutateClass(d, config));
+            foreach (var originalClass in classesToInstrument)
             {
                 var originalSyntaxTree = await originalClass.GetSyntaxTreeAsync().ConfigureAwait(false);
                 originalSyntaxTrees.Add(originalSyntaxTree);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using Fettle.Core;
 using Fettle.Core.Internal;
@@ -79,6 +78,11 @@ namespace Fettle.Tests.Core.Contexts
         protected void Given_project_filters(params string[] projectFilters)
         {
             config.ProjectFilters = projectFilters;
+        }
+
+        protected void Given_source_file_filters(params string[] sourceFileFilters)
+        {
+            config.SourceFileFilters = sourceFileFilters;
         }
 
         protected void When_analysing_method_coverage(bool catchExceptions = false)
