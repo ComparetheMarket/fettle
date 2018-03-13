@@ -29,7 +29,7 @@ namespace Fettle.Core.Internal.NUnit
         {
             if (report.StartsWith("<test-suite"))
             {
-                HandleTestFixtureStarting(report);
+                HandleTestFixtureComplete(report);
             }
             else if (report.StartsWith("<start-test"))
             {
@@ -62,7 +62,7 @@ namespace Fettle.Core.Internal.NUnit
             onTestComplete(testName, calledMethodIds);
         }
 
-        private void HandleTestFixtureStarting(string report)
+        private void HandleTestFixtureComplete(string report)
         {
             var doc = XDocument.Parse(report);
 
