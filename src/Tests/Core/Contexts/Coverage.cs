@@ -31,7 +31,8 @@ namespace Fettle.Tests.Core.Contexts
                 SourceFileFilters = new string[0],
                 TestAssemblyFilePaths = new[]
                 {
-                    Path.Combine(baseExampleDir, "HasSurvivingMutants", "Tests", "bin", BuildConfig.AsString, "HasSurvivingMutants.Tests.dll")
+                    Path.Combine(baseExampleDir, "HasSurvivingMutants", "Tests", "bin", BuildConfig.AsString, "HasSurvivingMutants.Tests.dll"),
+                    Path.Combine(baseExampleDir, "HasSurvivingMutants", "MoreTests", "bin", BuildConfig.AsString, "HasSurvivingMutants.MoreTests.dll")
                 }
             };
         }

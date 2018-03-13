@@ -58,7 +58,7 @@ namespace Fettle.Core
                         copiedTestAssemblyFilePaths,
                         methodIdsToNames);
 
-                    var allMethodsAndCoveringTests = new Dictionary<string, ImmutableHashSet<string>>();
+                    var allMethodsAndCoveringTests = ImmutableDictionary<string, ImmutableHashSet<string>>.Empty;
 
                     foreach (var copiedTestAssemblyFilePath in copiedTestAssemblyFilePaths)
                     {
@@ -75,9 +75,7 @@ namespace Fettle.Core
                             return CoverageAnalysisResult.Error(runResult.Error);
                         }
 
-                        allMethodsAndCoveringTests = allMethodsAndCoveringTests
-                            .Union(runResult.MethodsAndCoveringTests)
-                            .ToDictionary(e => e.Key, e => e.Value);
+                        allMethodsAndCoveringTests = MergeDictionaryValues(runResult.MethodsAndCoveringTests, allMethodsAndCoveringTests);
                     }
 
                     return CoverageAnalysisResult.Success(allMethodsAndCoveringTests);
@@ -88,7 +86,24 @@ namespace Fettle.Core
                 Directory.Delete(baseTempDirectory, recursive: true);
             }
         }
-        
+
+        private static ImmutableDictionary<string, ImmutableHashSet<string>> MergeDictionaryValues(
+            IDictionary<string, ImmutableHashSet<string>> a,
+            IDictionary<string, ImmutableHashSet<string>> b)
+        {
+            var result = a.ToDictionary(x => x.Key, x => x.Value);
+
+            foreach (var entryToMerge in b)
+            {
+                if (result.ContainsKey(entryToMerge.Key))
+                    result[entryToMerge.Key] = result[entryToMerge.Key].Union(entryToMerge.Value);
+                else
+                    result.Add(entryToMerge.Key, entryToMerge.Value);
+            }
+
+            return result.ToImmutableDictionary();
+        }
+
         private static async Task InstrumentThenCompileMultipleProjects(
             IEnumerable<Project> projects,
             string baseTempDirectory,
