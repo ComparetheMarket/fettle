@@ -1,37 +1,25 @@
 # Fettle
 
-Fettle is an experimental mutation testing tool for C#.
+Fettle is an experimental [mutation testing](https://github.com/ComparetheMarket/fettle/wiki/What-Is-Mutation-Testing) tool for C#.   
 
-Right now it supports projects that:
-* Run on Windows
-* Use .NET Framework 4.x
-* Are tested using NUnit 3 (version 3.10 or higher recommended)
+## Getting Started
 
-...but the plan is to support more platforms and test frameworks in the future.
+Currently the only way to run Fettle is to build it from source first.   
+See the [developer guide](https://github.com/ComparetheMarket/fettle/wiki/Developer-Guide) for instructions.
 
-## What is Mutation Testing?
+## Running
 
-Mutation testing can highlight gaps in your tests which test coverage tools cannot. At its heart is the premise that if your code's behaviour changes, then at least one test should fail.
+### Prerequisites
 
-Mutation testing involves artificially inserting bugs (or "mutants") into your code and seeing if your tests pick up on them. If a mutant is introduced but no tests fail, then the mutant is said to "survive", indicating a gap in your tests.
-
-You can read more about mutation testing in [this post](https://medium.com/comparethemarket/who-will-test-the-tests-bd8c491e5205).
-
-## Getting Started
-
-### Building
-
-To build locally, clone the repository and `cd` to the cloned location. You can then build/test Fettle like so:
-
-```
-$ fake.bat
-```
-
-The built console runner will be available in `./src/Console/bin/Release`.
+Right now Fettle can mutation-test your project if you use:
+* .NET Framework 4.x
+* NUnit framework 3.x (version 3.10 or higher recommended)
 
 ### Configuration
 
-You'll need a configuration YAML file to tell Fettle what it should mutate, and how it should do it:
+You'll also need a configuration file (in YAML format) to tell Fettle what it should mutate.
+
+Here's an example:
 
 ```
 # Note: all paths are relative to this config file's location.
@@ -57,21 +45,19 @@ sourceFileFilters:
 
 ### Running
 
-Use the console runner to do some mutation testing like so:
+Use the console runner to start a mutation test:
 
 ```
 $ Fettle.console.exe --config <path-to-your-config-file> [--quiet]
 ```
 
-Once complete it will output information about any mutants that survived.
+Fettle will output information about any mutants that survived to the console.
 
-Fettle has an example project you can use to get an idea of how it works. It's setup to deliberately have gaps in its testing to produce some surviving mutants when run through Fettle.
+When mutants survive, Fettle outputs the source file and line number of the code that was mutated. It also shows what the line was originally, and what it was mutated to.
 
-The config file is in the root of the Fettle repository, and will produce output like this.
+For example:
+
 ```
-$ Fettle.Console.exe --config .\fettle.config.example.yml --quiet
-....
-
 Mutation testing complete.
 9 mutant(s) survived!
 
@@ -87,4 +73,33 @@ Mutation testing complete.
 
 ```
 
-When mutants survive, Fettle outputs the source file and line number of the code that was mutated. It also shows what the line was originally, and what it was mutated to.
+## Built With
+
+Fettle relies on some awesome .NET projects which include:
+* [Roslyn](https://github.com/dotnet/roslyn)
+* [NUnit](https://github.com/nunit/)
+* [Paket](https://github.com/fsprojects/Paket)
+* [FAKE](https://github.com/fsharp/FAKE)
+
+## Contributing
+
+Please read [CONTRIBUTING.md](https://github.com/ComparetheMarket/fettle/blob/master/CCONTRIBUTING.md) for how to contribute.   
+We have [a code of conduct](https://github.com/ComparetheMarket/fettle/blob/master/CODE_OF_CONDUCT.md).
+
+## Authors
+
+* [Oli Wennell](https://github.com/oliwennell) - _Initial work_
+* [Raghav Suryanarayanan](https://github.com/ragsurya)
+
+Plus [other contributors](https://github.com/ComparetheMarket/fettle/graphs/contributors).
+
+## License
+
+TODO
+
+## Acknowledgements
+
+Thanks to:
+* The authors of the other mutation testing tools out there for inspiration.
+* [PurpleBooth](https://github.com/PurpleBooth) for their [README template](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2).
+* [Contributor covenant](https://www.contributor-covenant.org/) for their code of conduct.
