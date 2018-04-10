@@ -95,7 +95,7 @@ Plus [other contributors](https://github.com/ComparetheMarket/fettle/graphs/cont
 
 ## License
 
-TODO
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/ComparetheMarket/fettle/blob/master/LICENSE) file for details
 
 ## Acknowledgements
 
