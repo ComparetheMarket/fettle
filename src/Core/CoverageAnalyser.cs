@@ -146,8 +146,9 @@ namespace Fettle.Core
             }
 
             var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
-                .RemoveSyntaxTrees(originalSyntaxTrees)
-                .AddSyntaxTrees(modifiedSyntaxTrees);
+                    .RemoveSyntaxTrees(originalSyntaxTrees)
+                    .AddSyntaxTrees(modifiedSyntaxTrees)
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
 
             var compilationResult = ProjectCompilation.CompileProject(
                 outputFilePath,
@@ -173,24 +174,28 @@ namespace Fettle.Core
             {
                 foreach (var methodNode in classNode.DescendantNodes().OfType<MethodDeclarationSyntax>())
                 {
-                    var fullMethodName = methodNode.ChildNodes().First().NameOfContainingMethod(semanticModel);
-                    var methodId = Guid.NewGuid().ToString();
-                    methodIdsToNames.Add(methodId, fullMethodName);
-
-                    var newNode = SyntaxFactory.ParseStatement(
-                        $"System.Console.WriteLine(\"{CoverageOutputLinePrefix}{methodId}\");");
-
-                    var firstChildNode = methodNode.Body.ChildNodes().FirstOrDefault();
-                    if (firstChildNode != null)
+                    var methodSymbol = semanticModel.GetDeclaredSymbol(methodNode);
+                    if (!methodSymbol.IsAbstract)
                     {
-                        documentEditor.InsertBefore(firstChildNode, newNode);
-                    }
-                    else
-                    {
-                        // the method is empty
-                        documentEditor.ReplaceNode(
-                            methodNode, 
-                            methodNode.WithBody(SyntaxFactory.Block(newNode)));
+                        var fullMethodName = methodNode.ChildNodes().First().NameOfContainingMethod(semanticModel);
+                        var methodId = Guid.NewGuid().ToString();
+                        methodIdsToNames.Add(methodId, fullMethodName);
+
+                        var newNode = SyntaxFactory.ParseStatement(
+                            $"System.Console.WriteLine(\"{CoverageOutputLinePrefix}{methodId}\");");
+
+                        var firstChildNode = methodNode.Body.ChildNodes().FirstOrDefault();
+                        if (firstChildNode != null)
+                        {
+                            documentEditor.InsertBefore(firstChildNode, newNode);
+                        }
+                        else
+                        {
+                            // the method is empty
+                            documentEditor.ReplaceNode(
+                                methodNode,
+                                methodNode.WithBody(SyntaxFactory.Block(newNode)));
+                        }
                     }
                 }
             }

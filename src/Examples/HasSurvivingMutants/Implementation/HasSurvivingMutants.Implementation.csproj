@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OtherMethods.cs" />
+    <Compile Include="SkipAbstractMethodMutation.cs" />
     <Compile Include="UntestedNumberComparison.cs" />
     <Compile Include="PartiallyTestedNumberComparison.cs" />
     <Compile Include="ProducesInvalidMutation.cs" />
