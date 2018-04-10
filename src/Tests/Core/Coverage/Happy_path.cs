@@ -163,5 +163,12 @@ namespace Fettle.Tests.Core.Coverage
                 }    
             }
         }
+
+        [Test]
+        public void Then_abstract_methods_are_ignored()
+        {
+            const string methodName = "System.Void HasSurvivingMutants.Implementation.SkipAbstractMethodMutation::BuildSomething()";
+            Assert.That(Result.MethodsAndTheirCoveringTests.ContainsKey(methodName), Is.False);
+        }
     }
 }
