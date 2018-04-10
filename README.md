@@ -1,8 +1,8 @@
 # Fettle
 
-Fettle is an experimental [mutation testing](https://github.com/ComparetheMarket/fettle/wiki/What-Is-Mutation-Testing) tool for C#.   
+Fettle is an experimental [mutation testing](https://github.com/ComparetheMarket/fettle/wiki/What-Is-Mutation-Testing) tool for C#.  
 
-## Getting Started
+## Getting Started
 
 Currently the only way to run Fettle is to build it from source first.   
 See the [developer guide](https://github.com/ComparetheMarket/fettle/wiki/Developer-Guide) for instructions.
