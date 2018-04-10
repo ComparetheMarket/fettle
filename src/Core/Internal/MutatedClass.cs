@@ -25,6 +25,7 @@ namespace Fettle.Core.Internal
             MutatedClass mutatedClass,
             Config config,
             ITestRunner testRunner,
+            string[] testsToRun,
             string tempDirectory)
         {
             var compilationResult = await mutatedClass.CompileContainingProject(tempDirectory);
@@ -39,9 +40,9 @@ namespace Fettle.Core.Internal
 
             var tempTestAssemblyFilePaths = TempTestAssemblyFilePaths(config, tempDirectory);
 
-            var result = testRunner.RunTests(tempTestAssemblyFilePaths);
+            var result = testRunner.RunTests(tempTestAssemblyFilePaths, testsToRun);
 
-            return result == TestRunnerResult.AllTestsPassed ?
+            return result.Status == TestRunStatus.AllTestsPassed ?
                 await SurvivingMutant.CreateFrom(mutatedClass) :
                 null;
         }
@@ -52,7 +53,8 @@ namespace Fettle.Core.Internal
 
             var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
                 .RemoveSyntaxTrees(await OriginalClass.GetSyntaxTreeAsync().ConfigureAwait(false))
-                .AddSyntaxTrees(MutatedClassRoot.SyntaxTree);
+                .AddSyntaxTrees(MutatedClassRoot.SyntaxTree)
+                .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
 
             var mutatedAssemblyFilePath = Path.Combine(outputDirectory, $"{project.AssemblyName}.dll");
 

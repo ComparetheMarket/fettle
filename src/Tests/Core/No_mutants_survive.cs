@@ -14,7 +14,7 @@ namespace Fettle.Tests.Core
         [Test]
         public void Then_no_surviving_mutants_are_returned()
         {
-            Assert.That(Result.SurvivingMutants.Count, Is.EqualTo(0));
+            Assert.That(MutationTestResult.SurvivingMutants.Count, Is.EqualTo(0));
         }
     }
 }

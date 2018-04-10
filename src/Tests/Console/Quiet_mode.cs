@@ -8,6 +8,8 @@ namespace Fettle.Tests.Console
         public Quiet_mode_enabled()
         {
             Given_a_valid_config_file();
+
+            Given_coverage_analysis_runs_successfully();
             Given_some_mutants_will_survive();
 
             Given_additional_command_line_arguments("--quiet");
@@ -22,11 +24,17 @@ namespace Fettle.Tests.Console
         }
 
         [Test]
-        public void Then_progress_is_not_output()
+        public void Then_mutation_testing_progress_is_not_output()
         {
             Assert.That(SpyOutputWriter.WrittenNormalLines.Concat(SpyOutputWriter.WrittenLineSegments)
                     .Any(l => l.Contains("someclass.cs")),
                 Is.False);
+        }
+
+        [Test]
+        public void Then_coverage_analysis_progress_is_not_output()
+        {
+            Assert.That(string.Join("", SpyOutputWriter.WrittenLineSegments), Does.Not.Contain(".........."));
         }
     }
     
@@ -35,8 +43,10 @@ namespace Fettle.Tests.Console
         public Quiet_mode_disabled()
         {
             Given_a_valid_config_file();
+
+            Given_coverage_analysis_runs_successfully();
             Given_some_mutants_will_survive();
-            
+
             When_running_the_fettle_console_app();
         }
 
@@ -47,11 +57,17 @@ namespace Fettle.Tests.Console
         }
 
         [Test]
-        public void Then_progress_is_output()
+        public void Then_mutation_testing_progress_is_output()
         {
             Assert.That(SpyOutputWriter.WrittenNormalLines.Concat(SpyOutputWriter.WrittenLineSegments)
                     .Any(l => l.Contains("someclass.cs")),
                 Is.True);
+        }
+
+        [Test]
+        public void Then_coverage_analysis_progress_is_output()
+        {
+            Assert.That(string.Join("", SpyOutputWriter.WrittenLineSegments), Does.Contain("..."));
         }
     }
 }

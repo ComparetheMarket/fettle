@@ -32,36 +32,11 @@ let watch() =
     printfn ">>>>> Watching the file-system for changes..."
     System.Console.ReadLine() |> ignore
     watcher.Dispose() 
-
-let coverExample() =
-    let nunitArgs = [
-                        sprintf "src/Examples/HasSurvivingMutants/Tests/bin/%s/HasSurvivingMutants.Tests.dll" mode;
-                        "--trace=Off";
-                        "--output=./nunit-output.log"
-                    ] |> String.concat " "
-    let allArgs = [ 
-                    "-register:path64"; 
-                    "-output:\"opencover.xml\"";
-                    "-target:\"./Tools/Nunit/nunit3-console.exe\"";
-                    "-returntargetcode:1";
-                    "-filter:+[HasSurvivingMutants.Implementation]*";
-                    "-hideskipped:All"
-                    sprintf "-targetargs:\"%s\"" nunitArgs
-                  ]|> String.concat " "
-    let result = 
-        ExecProcess (fun info ->
-            info.FileName <- "./tools/OpenCover.4.6.519/tools/OpenCover.Console.exe"
-            info.Arguments <- allArgs
-        )(System.TimeSpan.FromMinutes 7.0)
-
-    if result <> 0 then failwith "Test coverage via OpenCover failed or timed-out"
-
+    
 Target "Build" build
 Target "Test" test
 "Build" ==> "Test"
 
 Target "Watch" watch
-Target "CoverExample" coverExample    
-"Build" ==> "CoverExample"
 
 RunTargetOrDefault "Test"

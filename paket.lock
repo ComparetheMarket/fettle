@@ -92,7 +92,7 @@ NUGET
       Castle.Core (>= 4.2.1)
     NETStandard.Library (2.0.1)
       Microsoft.NETCore.Platforms (>= 1.1)
-    NUnit (3.8.1)
+    NUnit (3.10.1)
     NUnit.Console (3.8)
       NUnit.ConsoleRunner (>= 3.8)
       NUnit.Extension.NUnitProjectLoader (>= 3.5)

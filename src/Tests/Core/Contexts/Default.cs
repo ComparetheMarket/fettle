@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Fettle.Core;
@@ -11,13 +12,15 @@ namespace Fettle.Tests.Core.Contexts
 {
     class Default
     {
-        private Mock<ITestRunner> mockTestRunner;
+        private readonly Dictionary<string, ImmutableHashSet<string>> methodsAndTheirCoveringTests;
 
         private readonly string baseExampleDir = Path.Combine(TestContext.CurrentContext.TestDirectory,
             "..", "..", "..", "Examples", "HasSurvivingMutants");
 
+        protected Mock<ITestRunner> MockTestRunner { get; }
+
         protected SpyEventListener SpyEventListener { get; } = new SpyEventListener();
-        protected Result Result { get; private set; }
+        protected MutationTestResult MutationTestResult { get; private set; }
         protected Config Config { get; private set; }
         protected Exception Exception { get; private set; }
 
@@ -35,45 +38,62 @@ namespace Fettle.Tests.Core.Contexts
                     Path.Combine(baseExampleDir, "Tests", "bin", BuildConfig.AsString, "HasSurvivingMutants.Tests.dll")
                 }
             };
+
+            MockTestRunner = new Mock<ITestRunner>();
+
+            var methodNames = new []
+            {
+                "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IsPositive(System.Int32)",
+                "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IsNegative(System.Int32)",
+                "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IsZero(System.Int32)",
+                "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AreBothZero(System.Int32,System.Int32)",
+                "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Sum(System.Int32,System.Int32)",
+                "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Preincrement(System.Int32)",
+                "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Postincrement(System.Int32)",
+                "System.String HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::PositiveOrNegative(System.Int32)",
+                "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AddNumbers_should_be_ignored(System.Int32)"
+            };
+            methodsAndTheirCoveringTests = new Dictionary<string, ImmutableHashSet<string>>();
+            foreach (var methodName in methodNames)
+            {
+                methodsAndTheirCoveringTests.Add(methodName, ImmutableHashSet<string>.Empty.Add("example.test.one"));
+            }
         }
         
         protected void Given_a_partially_tested_app_in_which_a_mutant_will_survive()
         {
-            mockTestRunner = new Mock<ITestRunner>();
             var wasCalled = false;
 
-            mockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>()))
+            MockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
                           .Returns(() =>
                           {
                               if (!wasCalled)
                               {
                                   wasCalled = true;
-                                  return TestRunnerResult.AllTestsPassed;
+                                  return new TestRunResult { Status = TestRunStatus.AllTestsPassed };
                               }
 
-                              return TestRunnerResult.SomeTestsFailed;
+                              return new TestRunResult { Status = TestRunStatus.SomeTestsFailed };
                           });
         }
         
         protected void Given_a_partially_tested_app_in_which_multiple_mutants_survive_for_a_syntax_node()
         {
-            mockTestRunner = new Mock<ITestRunner>();
-            mockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>()))
-                          .Returns(TestRunnerResult.AllTestsPassed);
+            MockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
+                          .Returns(new TestRunResult { Status = TestRunStatus.AllTestsPassed });
         }
 
         protected void Given_a_fully_tested_app_in_which_no_mutants_will_survive()
         {
-            mockTestRunner = new Mock<ITestRunner>();
-            mockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>()))
-                          .Returns(TestRunnerResult.SomeTestsFailed);
+            MockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
+                          .Returns(new TestRunResult { Status = TestRunStatus.SomeTestsFailed });
         }
         
         protected void Given_an_app_to_be_mutation_tested()
         {
             Given_a_partially_tested_app_in_which_a_mutant_will_survive();
         }
-
+        
         protected void Given_project_filters(params string[] filters)
         {
             Config.ProjectFilters = filters;
@@ -83,19 +103,7 @@ namespace Fettle.Tests.Core.Contexts
         {
             Config.SourceFileFilters = filters;
         }
-
-        protected void Given_a_coverage_report(string coveragereportFilename)
-        {
-            if (coveragereportFilename != null)
-            {
-                Config.CoverageReportFilePath =
-                    Path.Combine(
-                        TestContext.CurrentContext.TestDirectory,
-                        "Core", "CoverageReport", "TestData",
-                        coveragereportFilename);
-            }
-        }
-
+        
         protected void Given_there_are_no_pre_existing_temporary_files()
         {
             TempDirectories.ToList().ForEach(d => Directory.Delete(d, recursive: true));
@@ -110,8 +118,11 @@ namespace Fettle.Tests.Core.Contexts
         {
             try
             {
-                Result = new MutationTestRunner(mockTestRunner.Object, SpyEventListener)
-                    .Run(Config).Result;
+                MutationTestResult = new MutationTestRunner(
+                            MockTestRunner.Object, 
+                            methodsAndTheirCoveringTests, 
+                            SpyEventListener)
+                        .Run(Config).Result;
             }
             catch (Exception e)
             {
