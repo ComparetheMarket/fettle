@@ -12,7 +12,7 @@ namespace Fettle.Tests.Core.Contexts
 {
     class Default
     {
-        private readonly Dictionary<string, ImmutableHashSet<string>> methodsAndTheirCoveringTests;
+        private readonly CoverageAnalysisResult coverageAnalysisResult = new CoverageAnalysisResult();
 
         private readonly string baseExampleDir = Path.Combine(TestContext.CurrentContext.TestDirectory,
             "..", "..", "..", "Examples", "HasSurvivingMutants");
@@ -53,11 +53,12 @@ namespace Fettle.Tests.Core.Contexts
                 "System.String HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::PositiveOrNegative(System.Int32)",
                 "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AddNumbers_should_be_ignored(System.Int32)"
             };
-            methodsAndTheirCoveringTests = new Dictionary<string, ImmutableHashSet<string>>();
+            var methodsAndTheirCoveringTests = new Dictionary<string, ImmutableHashSet<string>>();
             foreach (var methodName in methodNames)
             {
                 methodsAndTheirCoveringTests.Add(methodName, ImmutableHashSet<string>.Empty.Add("example.test.one"));
             }
+            coverageAnalysisResult = coverageAnalysisResult.WithCoveredMethods(methodsAndTheirCoveringTests, Config.TestAssemblyFilePaths.Single());
         }
         
         protected void Given_a_partially_tested_app_in_which_a_mutant_will_survive()
@@ -120,7 +121,7 @@ namespace Fettle.Tests.Core.Contexts
             {
                 MutationTestResult = new MutationTestRunner(
                             MockTestRunner.Object, 
-                            methodsAndTheirCoveringTests, 
+                            coverageAnalysisResult, 
                             SpyEventListener)
                         .Run(Config).Result;
             }

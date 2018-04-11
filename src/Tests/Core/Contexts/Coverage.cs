@@ -16,7 +16,7 @@ namespace Fettle.Tests.Core.Contexts
 
         private ITestRunner testRunner = new NUnitTestEngine();
 
-        private Config config;
+        protected Config Config { get; private set; }
 
         protected CoverageAnalysisResult Result { get; private set;}
         protected Exception ThrownException { get; private set; }
@@ -24,7 +24,7 @@ namespace Fettle.Tests.Core.Contexts
 
         protected void Given_an_app_with_tests()
         {
-            config = new Config
+            Config = new Config
             {
                 SolutionFilePath = Path.Combine(baseExampleDir, "HasSurvivingMutants", "HasSurvivingMutants.sln"),
                 SourceFileFilters = new string[0],
@@ -38,7 +38,7 @@ namespace Fettle.Tests.Core.Contexts
 
         protected void Given_an_app_that_does_not_compile()
         {
-            config = new Config
+            Config = new Config
             {
                 SolutionFilePath = Path.Combine(baseExampleDir, "DoesNotCompile", "DoesNotCompile.sln"),
                 SourceFileFilters = new string[0],
@@ -77,12 +77,12 @@ namespace Fettle.Tests.Core.Contexts
 
         protected void Given_project_filters(params string[] projectFilters)
         {
-            config.ProjectFilters = projectFilters;
+            Config.ProjectFilters = projectFilters;
         }
 
         protected void Given_source_file_filters(params string[] sourceFileFilters)
         {
-            config.SourceFileFilters = sourceFileFilters;
+            Config.SourceFileFilters = sourceFileFilters;
         }
 
         protected void When_analysing_method_coverage(bool catchExceptions = false)
@@ -94,7 +94,7 @@ namespace Fettle.Tests.Core.Contexts
                     testFinder: new NUnitTestEngine(), 
                     testRunner: testRunner);
 
-                Result = methodCoverage.AnalyseMethodCoverage(config).Result;
+                Result = methodCoverage.AnalyseMethodCoverage(Config).Result;
             }
             catch (Exception e)
             {

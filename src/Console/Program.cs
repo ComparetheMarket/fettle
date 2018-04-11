@@ -13,10 +13,10 @@ namespace Fettle.Console
         {
             IMutationTestRunner CreateRealMutationTestRunner(
                 IEventListener eventListener,
-                IReadOnlyDictionary<string, ImmutableHashSet<string>> methodsAndTheirCoveringTests)
+                CoverageAnalysisResult coverageAnalysisResult)
             {
                 return new MutationTestRunner(
-                    methodsAndTheirCoveringTests, 
+                    coverageAnalysisResult, 
                     eventListener);
             }
 
@@ -42,7 +42,7 @@ namespace Fettle.Console
         
         internal static int InternalEntryPoint(
             string[] args,
-            Func<IEventListener, IReadOnlyDictionary<string, ImmutableHashSet<string>>, IMutationTestRunner> mutationTestRunnerFactory,
+            Func<IEventListener, CoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
             Func<IEventListener, ICoverageAnalyser> coverageAnalyserFactory,
             IOutputWriter outputWriter)
         {
@@ -66,7 +66,7 @@ namespace Fettle.Console
                 }
 
                 outputWriter.WriteLine("Mutation testing starting...");
-                var runner = mutationTestRunnerFactory(eventListener, coverageResult.MethodsAndTheirCoveringTests);
+                var runner = mutationTestRunnerFactory(eventListener, coverageResult);
                 var result = runner.Run(parsedArgs.Config).Result;
                 
                 if (result.Errors.Any())

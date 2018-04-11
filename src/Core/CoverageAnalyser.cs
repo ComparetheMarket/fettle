@@ -59,10 +59,12 @@ namespace Fettle.Core
                         copiedTestAssemblyFilePaths,
                         methodIdsToNames);
 
-                    var allMethodsAndCoveringTests = ImmutableDictionary<string, ImmutableHashSet<string>>.Empty;
+                    var result = new CoverageAnalysisResult();
 
-                    foreach (var copiedTestAssemblyFilePath in copiedTestAssemblyFilePaths)
+                    for (int testAssemblyIndex = 0; testAssemblyIndex < config.TestAssemblyFilePaths.Length; ++testAssemblyIndex)
                     {
+                        var copiedTestAssemblyFilePath = copiedTestAssemblyFilePaths[testAssemblyIndex];
+
                         var tests = testFinder.FindTests(new [] { copiedTestAssemblyFilePath });
 
                         var runResult = testRunner.RunTestsAndAnalyseCoverage(
@@ -76,10 +78,11 @@ namespace Fettle.Core
                             return CoverageAnalysisResult.Error(runResult.Error);
                         }
 
-                        allMethodsAndCoveringTests = MergeDictionaryValues(runResult.MethodsAndCoveringTests, allMethodsAndCoveringTests);
+                        var originalTestAssemblyFilePath = config.TestAssemblyFilePaths[testAssemblyIndex];
+                        result = result.WithCoveredMethods(runResult.MethodsAndCoveringTests, originalTestAssemblyFilePath);
                     }
 
-                    return CoverageAnalysisResult.Success(allMethodsAndCoveringTests);
+                    return result;
                 }
             }
             finally

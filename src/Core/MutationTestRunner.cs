@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,23 +12,23 @@ namespace Fettle.Core
     public class MutationTestRunner : IMutationTestRunner
     {
         private readonly ITestRunner testRunner;
-        private readonly IReadOnlyDictionary<string, ImmutableHashSet<string>> methodsAndTheirCoveringTests;
+        private readonly CoverageAnalysisResult coverageAnalysisResult;
         private readonly IEventListener eventListener;
 
         public MutationTestRunner(
-            IReadOnlyDictionary<string, ImmutableHashSet<string>> methodsAndTheirCoveringTests,
+            CoverageAnalysisResult coverageAnalysisResult,
             IEventListener eventListener = null) :
-            this(new NUnitTestEngine(), methodsAndTheirCoveringTests, eventListener)
+            this(new NUnitTestEngine(), coverageAnalysisResult, eventListener)
         {
         }
 
         internal MutationTestRunner(
             ITestRunner testRunner,
-            IReadOnlyDictionary<string, ImmutableHashSet<string>> methodsAndTheirCoveringTests,
+            CoverageAnalysisResult coverageAnalysisResult,
             IEventListener eventListener = null)
         {
             this.testRunner = testRunner;
-            this.methodsAndTheirCoveringTests = methodsAndTheirCoveringTests;
+            this.coverageAnalysisResult = coverageAnalysisResult;
             this.eventListener = eventListener ?? new NullEventListener();
         }
 
@@ -113,11 +111,6 @@ namespace Fettle.Core
                     continue;
                 }
 
-                if (!methodsAndTheirCoveringTests.TryGetValue(methodName, out var testsToRun))
-                {
-                    continue;
-                }
-
                 if (Ignoring.NodeHasBeginIgnoreComment(nodeToMutate)) isIgnoring = true;
                 else if (Ignoring.NodeHasEndIgnoreComment(nodeToMutate)) isIgnoring = false;
                 
@@ -132,6 +125,11 @@ namespace Fettle.Core
                     continue;
                 }
 
+                if (!coverageAnalysisResult.IsMethodCovered(methodName))
+                {
+                    continue;
+                }
+
                 if (!reportedMethods.Contains(methodName))
                 {
                     eventListener.MethodMutating(methodName);
@@ -139,8 +137,9 @@ namespace Fettle.Core
                 }
                 
                 eventListener.SyntaxNodeMutating(nodeIndex, nodesToMutate.Length);
-                var survivor = await MutateSyntaxNode(config, classToMutate, nodeToMutate, classRoot, mutators,
-                    testsToRun.ToArray(), tempDirectory);
+
+                var survivor = await MutateSyntaxNode(
+                    config, methodName, classToMutate, nodeToMutate, classRoot, mutators, tempDirectory);
 
                 if (survivor != null)
                 {
@@ -153,12 +152,12 @@ namespace Fettle.Core
         }
 
         private async Task<SurvivingMutant> MutateSyntaxNode(
-            Config config, 
+            Config config,
+            string methodName,
             Document classToMutate,
             SyntaxNode nodeToMutate,
             SyntaxNode classRoot,
             IEnumerable<IMutator> mutators,
-            string[] testsToRun,
             string tempDirectory)
         {
             MutatedClass CreateMutant(IMutator mutator)
@@ -176,7 +175,7 @@ namespace Fettle.Core
                 var mutant = CreateMutant(mutator);
                 
                 var survivor = await mutant
-                    .Test(mutant, config, testRunner, testsToRun, tempDirectory)
+                    .Test(mutant, methodName, config, testRunner, tempDirectory, coverageAnalysisResult)
                     .ConfigureAwait(false);
                 
                 if (survivor != null)

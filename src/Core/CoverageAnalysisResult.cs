@@ -1,15 +1,35 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using MethodsAndTheirCoveringTests =
+    System.Collections.Generic.IDictionary<string, System.Collections.Immutable.ImmutableHashSet<string>>;
 
 namespace Fettle.Core
 {
     public class CoverageAnalysisResult
     {
-        public IReadOnlyDictionary<string,ImmutableHashSet<string>> MethodsAndTheirCoveringTests { get; private set; } =
-            new ConcurrentDictionary<string, ImmutableHashSet<string>>();
-            
+        private Dictionary<string, MethodsAndTheirCoveringTests> coverageByTestAssembly = 
+            new Dictionary<string, MethodsAndTheirCoveringTests>();
+
         public string ErrorDescription { get; private set; }
+
+        public string[] AllAnalysedMethods =>
+            coverageByTestAssembly
+                .Select(x => x.Value)
+                .SelectMany(x => x.Keys)
+                .ToArray();
+        
+        public string[] TestsThatCoverMethod(string method, string testAssemblyFilePath)
+        {
+            var coverageForTestAssembly = coverageByTestAssembly[testAssemblyFilePath];
+            return coverageForTestAssembly.TryGetValue(method, out var tests) ? tests.ToArray() : new string[0];
+        }
+
+        public bool IsMethodCovered(string method)
+        {
+            var testAssemblies = coverageByTestAssembly.Keys;
+            return testAssemblies.Any(x => TestsThatCoverMethod(method, x).Any());
+        }
 
         internal static CoverageAnalysisResult Error(string errorDescription)
         {
@@ -19,12 +39,13 @@ namespace Fettle.Core
             };
         }
 
-        internal static CoverageAnalysisResult Success(IDictionary<string,ImmutableHashSet<string>> methodsAndTheirCoveringTests)
+        internal CoverageAnalysisResult WithCoveredMethods(
+            IDictionary<string,ImmutableHashSet<string>> methodsAndTheirCoveringTests,
+            string testAssemblyFilePath)
         {
-            return new CoverageAnalysisResult
-            {
-                MethodsAndTheirCoveringTests = new Dictionary<string, ImmutableHashSet<string>>(methodsAndTheirCoveringTests)
-            };
+            var result = new CoverageAnalysisResult{ coverageByTestAssembly = coverageByTestAssembly };
+            result.coverageByTestAssembly.Add(testAssemblyFilePath, methodsAndTheirCoveringTests);
+            return result;
         }
     }
 }

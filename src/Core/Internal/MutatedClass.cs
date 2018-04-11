@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 
@@ -23,10 +24,11 @@ namespace Fettle.Core.Internal
 
         public async Task<SurvivingMutant> Test(
             MutatedClass mutatedClass,
+            string methodName,
             Config config,
             ITestRunner testRunner,
-            string[] testsToRun,
-            string tempDirectory)
+            string tempDirectory,
+            CoverageAnalysisResult coverageAnalysisResult)
         {
             var compilationResult = await mutatedClass.CompileContainingProject(tempDirectory);
             if (!compilationResult.Success)
@@ -37,14 +39,29 @@ namespace Fettle.Core.Internal
             }
 
             CopyMutatedAssemblyIntoTempTestAssemblyDirectories(compilationResult.OutputFilePath, tempDirectory, config);
+            var copiedTempTestAssemblyFilePaths = TempTestAssemblyFilePaths(config, tempDirectory).ToArray();
 
-            var tempTestAssemblyFilePaths = TempTestAssemblyFilePaths(config, tempDirectory);
+            var ranAnyTests = false;
 
-            var result = testRunner.RunTests(tempTestAssemblyFilePaths, testsToRun);
+            for (var testAssemblyIndex = 0; testAssemblyIndex < config.TestAssemblyFilePaths.Length; ++testAssemblyIndex)
+            {
+                var originalTestAssemblyFilePath = config.TestAssemblyFilePaths[testAssemblyIndex];
+                var tempTestAssemblyFilePath = copiedTempTestAssemblyFilePaths[testAssemblyIndex];
 
-            return result.Status == TestRunStatus.AllTestsPassed ?
-                await SurvivingMutant.CreateFrom(mutatedClass) :
-                null;
+                var testsToRun = coverageAnalysisResult.TestsThatCoverMethod(methodName, originalTestAssemblyFilePath);
+                if (testsToRun.Any())
+                {
+                    ranAnyTests = true;
+
+                    var result = testRunner.RunTests(new[] {tempTestAssemblyFilePath}, testsToRun);
+                    if (result.Status == TestRunStatus.SomeTestsFailed)
+                    {
+                        return null;
+                    }
+                }
+            }
+
+            return ranAnyTests ? await SurvivingMutant.CreateFrom(mutatedClass) : null;
         }
 
         private async Task<(bool Success, string OutputFilePath)> CompileContainingProject(string outputDirectory)

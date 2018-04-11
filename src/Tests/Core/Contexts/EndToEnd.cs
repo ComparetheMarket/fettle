@@ -34,7 +34,7 @@ namespace Fettle.Tests.Core.Contexts
             var coverageAnalysisResult = new Fettle.Core.CoverageAnalyser(new SpyEventListener())
                 .AnalyseMethodCoverage(config).Result;
 
-            MutationTestResult = new MutationTestRunner(coverageAnalysisResult.MethodsAndTheirCoveringTests)
+            MutationTestResult = new MutationTestRunner(coverageAnalysisResult)
                 .Run(config)
                 .Result;
         }

@@ -22,7 +22,7 @@ namespace Fettle.Tests.Console.Contexts
 
         public Default()
         {
-            var emptyCoverageResult = CoverageAnalysisResult.Success(new Dictionary<string, ImmutableHashSet<string>>());
+            var emptyCoverageResult = new CoverageAnalysisResult();
             mockCoverage
                 .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))            
                 .Returns(
@@ -101,7 +101,7 @@ namespace Fettle.Tests.Console.Contexts
 
         protected void Given_coverage_analysis_runs_successfully()
         {
-            var emptyCoverageResult = CoverageAnalysisResult.Success(new Dictionary<string, ImmutableHashSet<string>>());
+            var emptyCoverageResult = new CoverageAnalysisResult();
             mockCoverage
                 .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))
                 .Callback(() =>
@@ -146,7 +146,7 @@ namespace Fettle.Tests.Console.Contexts
 
             IMutationTestRunner CreateMockMutationTestRunner(
                 IEventListener eventListenerIn, 
-                IReadOnlyDictionary<string, ImmutableHashSet<string>> _)
+                CoverageAnalysisResult _)
             {
                 return MockMutationTestRunner.Object;
             }

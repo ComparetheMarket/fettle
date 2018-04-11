@@ -24,8 +24,10 @@ namespace Fettle.Tests.Core.Coverage
         public void Then_methods_are_covered_by_the_tests_that_call_them_during_testing()
         {
             const string methodName = "System.Void HasSurvivingMutants.Implementation.OtherMethods::ThrowingMethod()";
-            var coveringTests = Result.MethodsAndTheirCoveringTests[methodName];
-            Assert.That(coveringTests, Is.EquivalentTo(new[]
+            
+            Assert.That(Config.TestAssemblyFilePaths, Has.Length.EqualTo(2));
+            Assert.That(Result.TestsThatCoverMethod(methodName, Config.TestAssemblyFilePaths[0]), Has.Length.Zero);
+            Assert.That(Result.TestsThatCoverMethod(methodName, Config.TestAssemblyFilePaths[1]), Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.MoreTests.MoreTests.ThrowingMethod"
             }));
@@ -34,7 +36,7 @@ namespace Fettle.Tests.Core.Coverage
         [Test]
         public void Then_only_files_that_match_the_filters_are_analysed()
         {
-            Assert.That(Result.MethodsAndTheirCoveringTests.Keys, Is.EquivalentTo(new[]
+            Assert.That(Result.AllAnalysedMethods, Is.EquivalentTo(new[]
             {
                 "System.Void HasSurvivingMutants.Implementation.OtherMethods::ThrowingMethod()"
             }));
