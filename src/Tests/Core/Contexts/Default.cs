@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Fettle.Core;
@@ -12,12 +11,11 @@ namespace Fettle.Tests.Core.Contexts
 {
     class Default
     {
-        private readonly CoverageAnalysisResult coverageAnalysisResult = new CoverageAnalysisResult();
-
         private readonly string baseExampleDir = Path.Combine(TestContext.CurrentContext.TestDirectory,
             "..", "..", "..", "Examples", "HasSurvivingMutants");
 
         protected Mock<ITestRunner> MockTestRunner { get; }
+        private readonly Mock<ICoverageAnalysisResult> mockCoverageAnalysisResult = new Mock<ICoverageAnalysisResult>();
 
         protected SpyEventListener SpyEventListener { get; } = new SpyEventListener();
         protected MutationTestResult MutationTestResult { get; private set; }
@@ -41,24 +39,11 @@ namespace Fettle.Tests.Core.Contexts
 
             MockTestRunner = new Mock<ITestRunner>();
 
-            var methodNames = new []
-            {
-                "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IsPositive(System.Int32)",
-                "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IsNegative(System.Int32)",
-                "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IsZero(System.Int32)",
-                "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AreBothZero(System.Int32,System.Int32)",
-                "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Sum(System.Int32,System.Int32)",
-                "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Preincrement(System.Int32)",
-                "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Postincrement(System.Int32)",
-                "System.String HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::PositiveOrNegative(System.Int32)",
-                "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AddNumbers_should_be_ignored(System.Int32)"
-            };
-            var methodsAndTheirCoveringTests = new Dictionary<string, ImmutableHashSet<string>>();
-            foreach (var methodName in methodNames)
-            {
-                methodsAndTheirCoveringTests.Add(methodName, ImmutableHashSet<string>.Empty.Add("example.test.one"));
-            }
-            coverageAnalysisResult = coverageAnalysisResult.WithCoveredMethods(methodsAndTheirCoveringTests, Config.TestAssemblyFilePaths.Single());
+            mockCoverageAnalysisResult
+                .Setup(x => x.TestsThatCoverMethod(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new[]{"example.test.one"});
+
+            mockCoverageAnalysisResult.Setup(x => x.IsMethodCovered(It.IsAny<string>())).Returns(true);
         }
         
         protected void Given_a_partially_tested_app_in_which_a_mutant_will_survive()
@@ -121,7 +106,7 @@ namespace Fettle.Tests.Core.Contexts
             {
                 MutationTestResult = new MutationTestRunner(
                             MockTestRunner.Object, 
-                            coverageAnalysisResult, 
+                            mockCoverageAnalysisResult.Object, 
                             SpyEventListener)
                         .Run(Config).Result;
             }

@@ -8,7 +8,7 @@ namespace Fettle.Tests.Core.Filtering
     {
         public Source_files_are_not_filtered()
         {
-            Given_a_partially_tested_app_in_which_a_mutant_will_survive();
+            Given_a_partially_tested_app_in_which_a_mutant_will_survive();            
             Given_project_filters(new string[0]);
             
             Given_source_file_filters(new string[0]);

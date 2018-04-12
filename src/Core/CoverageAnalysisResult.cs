@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using MethodsAndTheirCoveringTests =
-    System.Collections.Generic.IDictionary<string, System.Collections.Immutable.ImmutableHashSet<string>>;
 
 namespace Fettle.Core
 {
-    public class CoverageAnalysisResult
+    public class CoverageAnalysisResult : ICoverageAnalysisResult
     {
-        private Dictionary<string, MethodsAndTheirCoveringTests> coverageByTestAssembly = 
-            new Dictionary<string, MethodsAndTheirCoveringTests>();
+        private Dictionary<string, IDictionary<string, ImmutableHashSet<string>>> coverageByTestAssembly = 
+            new Dictionary<string, IDictionary<string, ImmutableHashSet<string>>>();
 
         public string ErrorDescription { get; private set; }
 
@@ -31,7 +29,7 @@ namespace Fettle.Core
             return testAssemblies.Any(x => TestsThatCoverMethod(method, x).Any());
         }
 
-        internal static CoverageAnalysisResult Error(string errorDescription)
+        internal static ICoverageAnalysisResult Error(string errorDescription)
         {
             return new CoverageAnalysisResult
             {

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Fettle.Core.Internal;
 using Fettle.Core.Internal.NUnit;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Fettle.Core
@@ -12,11 +11,11 @@ namespace Fettle.Core
     public class MutationTestRunner : IMutationTestRunner
     {
         private readonly ITestRunner testRunner;
-        private readonly CoverageAnalysisResult coverageAnalysisResult;
+        private readonly ICoverageAnalysisResult coverageAnalysisResult;
         private readonly IEventListener eventListener;
 
         public MutationTestRunner(
-            CoverageAnalysisResult coverageAnalysisResult,
+            ICoverageAnalysisResult coverageAnalysisResult,
             IEventListener eventListener = null) :
             this(new NUnitTestEngine(), coverageAnalysisResult, eventListener)
         {
@@ -24,7 +23,7 @@ namespace Fettle.Core
 
         internal MutationTestRunner(
             ITestRunner testRunner,
-            CoverageAnalysisResult coverageAnalysisResult,
+            ICoverageAnalysisResult coverageAnalysisResult,
             IEventListener eventListener = null)
         {
             this.testRunner = testRunner;
@@ -44,8 +43,10 @@ namespace Fettle.Core
             try
             {
                 CreateTempDirectories(baseTempDirectory, config);
-
-                var survivingMutants = await MutateSolution(config, baseTempDirectory);
+            
+                var mutationJobs = await CreateMutationJobs(config);
+                var survivingMutants = await mutationJobs.RunAll(config, testRunner, baseTempDirectory, eventListener);
+                
                 return new MutationTestResult().WithSurvivingMutants(survivingMutants);
             }
             finally
@@ -54,135 +55,79 @@ namespace Fettle.Core
             }
         }
 
-        private async Task<IEnumerable<SurvivingMutant>> MutateSolution(
-            Config config, 
-            string tempDirectory)
+        private async Task<MutationJobList> CreateMutationJobs(Config config)
         {
-            var survivingMutants = new List<SurvivingMutant>();
+            var jobs = new MutationJobList();
 
             using (var workspace = MSBuildWorkspace.Create())
             {
                 var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
 
                 var classesToMutate = solution.MutatableClasses(config);
-
-                for (int classIndex = 0; classIndex < classesToMutate.Length; ++classIndex)
+                for (var classIndex = 0; classIndex < classesToMutate.Length; classIndex++)
                 {
                     var classToMutate = classesToMutate[classIndex];
+                    var classRoot = await classToMutate.GetSyntaxRootAsync();
+                    var documentSemanticModel = await classToMutate.GetSemanticModelAsync();
 
-                    eventListener.BeginMutationOfFile(classToMutate.FilePath,
-                        Path.GetDirectoryName(config.SolutionFilePath), classIndex, classesToMutate.Length);
+                    var nodesToMutate = classRoot.DescendantNodes().ToArray();
+                    var isIgnoring = false;
 
-                    var survivorsInClass = await MutateClass(config, classToMutate, tempDirectory)
-                        .ConfigureAwait(false);
+                    for (var nodeIndex = 0; nodeIndex < nodesToMutate.Length; nodeIndex++)
+                    {
+                        var nodeToMutate = nodesToMutate[nodeIndex];
 
-                    eventListener.EndMutationOfFile(classToMutate.FilePath);
+                        var methodName = nodeToMutate.NameOfContainingMethod(documentSemanticModel);
+                        if (methodName == null)
+                        {
+                            // The node is not within a method, e.g. it's a class or namespace declaration.
+                            // Therefore there is no code to mutate.
+                            continue;
+                        }
 
-                    survivingMutants.AddRange(survivorsInClass);
+                        if (!coverageAnalysisResult.IsMethodCovered(methodName))
+                        {
+                            continue;
+                        }
+
+                        if (Ignoring.NodeHasBeginIgnoreComment(nodeToMutate)) isIgnoring = true;
+                        else if (Ignoring.NodeHasEndIgnoreComment(nodeToMutate)) isIgnoring = false;
+
+                        if (isIgnoring)
+                        {
+                            continue;
+                        }
+
+                        foreach (var mutator in nodeToMutate.SupportedMutators())
+                        {
+                            var job = new MutationJob(
+                                classRoot,
+                                nodeToMutate,
+                                classToMutate,
+                                methodName,
+                                config,
+                                mutator,
+                                coverageAnalysisResult);
+
+                            var jobMetadata = new MutationJobMetadata
+                            {
+                                SourceFilePath = classToMutate.FilePath,
+                                SourceFileIndex = classIndex,
+                                SourceFilesTotal = classesToMutate.Length,
+
+                                MethodName = methodName,
+                                
+                                SyntaxNodeIndex = nodeIndex,
+                                SyntaxNodesTotal = nodesToMutate.Length
+                            };
+
+                            jobs.AddJob(job, jobMetadata);
+                        }
+                    }
                 }
             }
 
-            return survivingMutants;
-        }
-
-        private async Task<IEnumerable<SurvivingMutant>> MutateClass(
-            Config config, 
-            Document classToMutate, 
-            string tempDirectory)
-        {
-            var survivors = new List<SurvivingMutant>();
-            var classRoot = await classToMutate.GetSyntaxRootAsync();
-            var documentSemanticModel = await classToMutate.GetSemanticModelAsync();
-
-            var nodesToMutate = classRoot.DescendantNodes().ToArray();
-            var reportedMethods = new HashSet<string>();
-
-            var isIgnoring = false;
-
-            for (var nodeIndex = 0; nodeIndex < nodesToMutate.Length; ++nodeIndex)
-            {
-                var nodeToMutate = nodesToMutate[nodeIndex];
-
-                var methodName = nodeToMutate.NameOfContainingMethod(documentSemanticModel);
-                if (methodName == null)
-                {
-                    // The node is not within a method, e.g. it's a class or namespace declaration.
-                    // Therefore there is no code to mutate.
-                    continue;
-                }
-
-                if (Ignoring.NodeHasBeginIgnoreComment(nodeToMutate)) isIgnoring = true;
-                else if (Ignoring.NodeHasEndIgnoreComment(nodeToMutate)) isIgnoring = false;
-                
-                if (isIgnoring)
-                {
-                    continue;
-                }
-
-                var mutators = nodeToMutate.SupportedMutators();
-                if (!mutators.Any())
-                {
-                    continue;
-                }
-
-                if (!coverageAnalysisResult.IsMethodCovered(methodName))
-                {
-                    continue;
-                }
-
-                if (!reportedMethods.Contains(methodName))
-                {
-                    eventListener.MethodMutating(methodName);
-                    reportedMethods.Add(methodName);
-                }
-                
-                eventListener.SyntaxNodeMutating(nodeIndex, nodesToMutate.Length);
-
-                var survivor = await MutateSyntaxNode(
-                    config, methodName, classToMutate, nodeToMutate, classRoot, mutators, tempDirectory);
-
-                if (survivor != null)
-                {
-                    survivors.Add(survivor);
-                    eventListener.MutantSurvived(survivor);
-                }
-            }
-
-            return survivors;
-        }
-
-        private async Task<SurvivingMutant> MutateSyntaxNode(
-            Config config,
-            string methodName,
-            Document classToMutate,
-            SyntaxNode nodeToMutate,
-            SyntaxNode classRoot,
-            IEnumerable<IMutator> mutators,
-            string tempDirectory)
-        {
-            MutatedClass CreateMutant(IMutator mutator)
-            {
-                var mutatedNode = mutator.Mutate(nodeToMutate);
-                
-                return new MutatedClass(
-                    mutatedClassRoot: classRoot.ReplaceNode(nodeToMutate, mutatedNode),
-                    originalNode: nodeToMutate,
-                    originalClass: classToMutate);
-            }
-
-            foreach (var mutator in mutators)
-            {
-                var mutant = CreateMutant(mutator);
-                
-                var survivor = await mutant
-                    .Test(mutant, methodName, config, testRunner, tempDirectory, coverageAnalysisResult)
-                    .ConfigureAwait(false);
-                
-                if (survivor != null)
-                    return survivor;
-            }
-
-            return null;
+            return jobs;
         }
 
         private static void CreateTempDirectories(string baseTempDirectory, Config config)
@@ -197,4 +142,3 @@ namespace Fettle.Core
         }
     }
 }
-

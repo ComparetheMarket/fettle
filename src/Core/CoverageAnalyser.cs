@@ -34,7 +34,7 @@ namespace Fettle.Core
             this.testRunner = testRunner;
         }
 
-        public async Task<CoverageAnalysisResult> AnalyseMethodCoverage(Config config)
+        public async Task<ICoverageAnalysisResult> AnalyseMethodCoverage(Config config)
         {
             var methodIdsToNames = new Dictionary<string, string>();
             

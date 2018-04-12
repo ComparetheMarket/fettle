@@ -13,7 +13,7 @@ namespace Fettle.Console
         {
             IMutationTestRunner CreateRealMutationTestRunner(
                 IEventListener eventListener,
-                CoverageAnalysisResult coverageAnalysisResult)
+                ICoverageAnalysisResult coverageAnalysisResult)
             {
                 return new MutationTestRunner(
                     coverageAnalysisResult, 
@@ -42,7 +42,7 @@ namespace Fettle.Console
         
         internal static int InternalEntryPoint(
             string[] args,
-            Func<IEventListener, CoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
+            Func<IEventListener, ICoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
             Func<IEventListener, ICoverageAnalyser> coverageAnalyserFactory,
             IOutputWriter outputWriter)
         {
@@ -103,7 +103,7 @@ namespace Fettle.Console
             }
         }
 
-        private static CoverageAnalysisResult AnalyseCoverage(
+        private static ICoverageAnalysisResult AnalyseCoverage(
             ICoverageAnalyser coverageAnalyser, 
             IOutputWriter outputWriter,
             Config config)

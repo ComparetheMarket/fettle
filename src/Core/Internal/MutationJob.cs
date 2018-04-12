@@ -5,32 +5,44 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 
 namespace Fettle.Core.Internal
-{    
-    internal class MutatedClass
+{
+    internal class MutationJob
     {
-        public SyntaxNode MutatedClassRoot { get; }
+        private readonly SyntaxNode originalClassRoot;
+        private readonly string methodName;
+        private readonly Config config;
+        private readonly IMutator mutator;
+        private readonly ICoverageAnalysisResult coverageAnalysisResult;
+        
+        public SyntaxNode MutatedClassRoot { get; private set; }
         public SyntaxNode OriginalNode { get; }
         public Document OriginalClass { get;  }
         
-        public MutatedClass(
-            SyntaxNode mutatedClassRoot,
+        public MutationJob(
+            SyntaxNode originalClassRoot,
             SyntaxNode originalNode,
-            Document originalClass)
-        {
-            MutatedClassRoot = mutatedClassRoot;
-            OriginalNode = originalNode;
-            OriginalClass = originalClass;
-        }
-
-        public async Task<SurvivingMutant> Test(
-            MutatedClass mutatedClass,
+            Document originalClass,
             string methodName,
             Config config,
-            ITestRunner testRunner,
-            string tempDirectory,
-            CoverageAnalysisResult coverageAnalysisResult)
+            IMutator mutator,
+            ICoverageAnalysisResult coverageAnalysisResult)
         {
-            var compilationResult = await mutatedClass.CompileContainingProject(tempDirectory);
+            OriginalNode = originalNode;
+            OriginalClass = originalClass;
+
+            this.originalClassRoot = originalClassRoot;
+            this.methodName = methodName;
+            this.config = config;
+            this.mutator = mutator;
+            this.coverageAnalysisResult = coverageAnalysisResult;
+        }
+
+        public async Task<SurvivingMutant> Run(ITestRunner testRunner, string tempDirectory, IEventListener eventListener)
+        {
+            var mutatedNode = mutator.Mutate(OriginalNode);
+            MutatedClassRoot = originalClassRoot.ReplaceNode(OriginalNode, mutatedNode);
+
+            var compilationResult = await CompileContainingProject(tempDirectory);
             if (!compilationResult.Success)
             {
                 // Not all mutations are valid in all circumstances, and therefore may not compile.
@@ -61,7 +73,7 @@ namespace Fettle.Core.Internal
                 }
             }
 
-            return ranAnyTests ? await SurvivingMutant.CreateFrom(mutatedClass) : null;
+            return ranAnyTests ? await SurvivingMutant.CreateFrom(this) : null;
         }
 
         private async Task<(bool Success, string OutputFilePath)> CompileContainingProject(string outputDirectory)

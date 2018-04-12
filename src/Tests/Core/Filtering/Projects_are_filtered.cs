@@ -18,6 +18,7 @@ namespace Fettle.Tests.Core.Filtering
         [Test]
         public void Then_only_files_matching_filter_are_candidates_for_mutation()
         {
+            Assert.That(SpyEventListener.BegunFiles.Any());
             Assert.That(SpyEventListener.BegunFiles.All(f => f.Contains(@"\MoreImplementation\")));
         }
     }

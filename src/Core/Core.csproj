@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="CoverageAnalysisResult.cs" />
+    <Compile Include="ICoverageAnalysisResult.cs" />
     <Compile Include="ICoverageAnalyser.cs" />
     <Compile Include="IMutationTestRunner.cs" />
     <Compile Include="Internal\CoverageTestRunResult.cs" />
@@ -60,7 +61,9 @@
     <Compile Include="Internal\Filtering.cs" />
     <Compile Include="Internal\IgnoreComments.cs" />
     <Compile Include="Internal\ITestFinder.cs" />
-    <Compile Include="Internal\MutatedClass.cs" />
+    <Compile Include="Internal\MutationJob.cs" />
+    <Compile Include="Internal\MutationJobList.cs" />
+    <Compile Include="Internal\MutationJobMetadata.cs" />
     <Compile Include="Internal\Mutators\SwapChildExpressionsMutator.cs" />
     <Compile Include="Internal\Mutators\SwapOperatorMutator.cs" />
     <Compile Include="Internal\NUnit\NUnitEventListener.cs" />

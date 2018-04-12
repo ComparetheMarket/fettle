@@ -11,22 +11,22 @@ namespace Fettle.Core
         public string OriginalLine { get; set; }
         public string MutatedLine { get; set; }
         
-        internal static async Task<SurvivingMutant> CreateFrom(MutatedClass mutatedClass)
+        internal static async Task<SurvivingMutant> CreateFrom(MutationJob mutationJob)
         {
-            var originalClassRoot = await mutatedClass.OriginalClass.GetSyntaxRootAsync();
+            var originalClassRoot = await mutationJob.OriginalClass.GetSyntaxRootAsync();
 
-            var originalLineNumber = originalClassRoot.SyntaxTree.GetLineSpan(mutatedClass.OriginalNode.Span)
+            var originalLineNumber = originalClassRoot.SyntaxTree.GetLineSpan(mutationJob.OriginalNode.Span)
                 .StartLinePosition.Line;
 
-            var mutatedLineNumber = mutatedClass.MutatedClassRoot.SyntaxTree.GetLineSpan(mutatedClass.OriginalNode.Span)
+            var mutatedLineNumber = mutationJob.MutatedClassRoot.SyntaxTree.GetLineSpan(mutationJob.OriginalNode.Span)
                 .StartLinePosition.Line;
 
             var originalSource = SourceText.From(originalClassRoot.GetText().ToString());
-            var mutatedSource = SourceText.From(mutatedClass.MutatedClassRoot.GetText().ToString());
+            var mutatedSource = SourceText.From(mutationJob.MutatedClassRoot.GetText().ToString());
 
             return new SurvivingMutant
             {
-                SourceFilePath = mutatedClass.OriginalClass.FilePath,
+                SourceFilePath = mutationJob.OriginalClass.FilePath,
                 SourceLine = originalLineNumber + 1,
                 OriginalLine = originalSource.Lines[originalLineNumber].ToString(),
                 MutatedLine = mutatedSource.Lines[mutatedLineNumber].ToString()

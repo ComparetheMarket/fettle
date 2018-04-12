@@ -18,7 +18,7 @@ namespace Fettle.Tests.Core.Contexts
 
         protected Config Config { get; private set; }
 
-        protected CoverageAnalysisResult Result { get; private set;}
+        protected ICoverageAnalysisResult Result { get; private set;}
         protected Exception ThrownException { get; private set; }
         protected Mock<IEventListener> MockEventListener { get; } = new Mock<IEventListener>();
 
