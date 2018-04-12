@@ -13,6 +13,8 @@ nuget Microsoft.Build 15.5.180
 nuget Microsoft.Build.Framework 15.5.180
 nuget Microsoft.Build.Tasks.Core 15.5.180
 
+nuget System.ValueTuple 4.4.0
+
 nuget DotNet.Glob
 nuget YamlDotNet
 nuget CommandLineParser

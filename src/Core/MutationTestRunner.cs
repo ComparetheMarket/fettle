@@ -59,7 +59,11 @@ namespace Fettle.Core
         {
             var jobs = new MutationJobList();
 
-            using (var workspace = MSBuildWorkspace.Create())
+            using (var workspace = MSBuildWorkspace.Create(
+                new Dictionary<string, string>
+                {
+                    { "CheckForSystemRuntimeDependency", "true" }
+                }))
             {
                 var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
 

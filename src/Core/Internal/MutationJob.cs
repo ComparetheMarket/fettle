@@ -82,8 +82,7 @@ namespace Fettle.Core.Internal
 
             var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
                 .RemoveSyntaxTrees(await OriginalClass.GetSyntaxTreeAsync().ConfigureAwait(false))
-                .AddSyntaxTrees(MutatedClassRoot.SyntaxTree)
-                .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
+                .AddSyntaxTrees(MutatedClassRoot.SyntaxTree);
 
             var mutatedAssemblyFilePath = Path.Combine(outputDirectory, $"{project.AssemblyName}.dll");
 

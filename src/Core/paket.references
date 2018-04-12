@@ -6,3 +6,5 @@ Microsoft.CodeAnalysis
 Microsoft.Build
 Microsoft.Build.Framework
 Microsoft.Build.Tasks.Core
+
+System.ValueTuple

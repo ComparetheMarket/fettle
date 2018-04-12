@@ -47,7 +47,11 @@ namespace Fettle.Core
                         baseTempDirectory)
                     .ToList();
 
-                using (var workspace = MSBuildWorkspace.Create())
+                using (var workspace = MSBuildWorkspace.Create(
+                    new Dictionary<string, string>
+                    {
+                        { "CheckForSystemRuntimeDependency", "true" }
+                    }))
                 {
                     var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
 
@@ -132,9 +136,8 @@ namespace Fettle.Core
 
             var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
                     .RemoveSyntaxTrees(originalSyntaxTrees)
-                    .AddSyntaxTrees(modifiedSyntaxTrees)
-                    .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-
+                    .AddSyntaxTrees(modifiedSyntaxTrees);
+            
             var compilationResult = ProjectCompilation.CompileProject(
                 outputFilePath,
                 compilation);
