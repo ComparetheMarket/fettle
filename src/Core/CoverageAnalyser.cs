@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -90,24 +89,7 @@ namespace Fettle.Core
                 Directory.Delete(baseTempDirectory, recursive: true);
             }
         }
-
-        private static ImmutableDictionary<string, ImmutableHashSet<string>> MergeDictionaryValues(
-            IDictionary<string, ImmutableHashSet<string>> a,
-            IDictionary<string, ImmutableHashSet<string>> b)
-        {
-            var result = a.ToDictionary(x => x.Key, x => x.Value);
-
-            foreach (var entryToMerge in b)
-            {
-                if (result.ContainsKey(entryToMerge.Key))
-                    result[entryToMerge.Key] = result[entryToMerge.Key].Union(entryToMerge.Value);
-                else
-                    result.Add(entryToMerge.Key, entryToMerge.Value);
-            }
-
-            return result.ToImmutableDictionary();
-        }
-
+        
         private static async Task InstrumentThenCompileMultipleProjects(
             IEnumerable<Project> projects,
             Config config,
