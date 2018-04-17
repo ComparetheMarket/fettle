@@ -9,7 +9,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
-using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Fettle.Core
 {
@@ -47,11 +46,7 @@ namespace Fettle.Core
                         baseTempDirectory)
                     .ToList();
 
-                using (var workspace = MSBuildWorkspace.Create(
-                    new Dictionary<string, string>
-                    {
-                        { "CheckForSystemRuntimeDependency", "true" }
-                    }))
+                using (var workspace = MSBuildWorkspaceFactory.Create())
                 {
                     var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
 

@@ -19,6 +19,7 @@ NUGET
       System.Threading (>= 4.0.11)
       System.Threading.Tasks.Parallel (>= 4.0.1)
       System.Threading.Thread (>= 4.0)
+    Microsoft.Build.Locator (1.0.13)
     Microsoft.Build.Tasks.Core (15.5.180)
       Microsoft.Build.Framework (15.5.180)
       Microsoft.Build.Utilities.Core (15.5.180)

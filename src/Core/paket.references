@@ -6,5 +6,6 @@ Microsoft.CodeAnalysis
 Microsoft.Build
 Microsoft.Build.Framework
 Microsoft.Build.Tasks.Core
+Microsoft.Build.Locator
 
 System.ValueTuple
