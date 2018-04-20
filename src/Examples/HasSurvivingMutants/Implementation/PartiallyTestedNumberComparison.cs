@@ -63,5 +63,16 @@
         public static void EmptyMethod()
         {
         }
+
+        //
+        // This exists to show that Fettle can compile projects that use the new tuples syntax.
+        //
+        // In .NET <= 4.7 this requires an additional reference (System.ValueTuple) which is also present in Fettle itself.
+        // There was an issue where Fettle picked its own version instead of the project's one, causing a compilation error
+        // during coverage analysis.
+        public static (int, string) MethodThatReturnsATuple()
+        {
+            return (0, "");
+        }
     }
 }

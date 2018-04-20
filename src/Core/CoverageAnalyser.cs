@@ -9,7 +9,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
-using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Fettle.Core
 {
@@ -47,7 +46,7 @@ namespace Fettle.Core
                         baseTempDirectory)
                     .ToList();
 
-                using (var workspace = MSBuildWorkspace.Create())
+                using (var workspace = MSBuildWorkspaceFactory.Create())
                 {
                     var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
 
@@ -131,9 +130,8 @@ namespace Fettle.Core
             }
 
             var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
-                    .RemoveSyntaxTrees(originalSyntaxTrees)
-                    .AddSyntaxTrees(modifiedSyntaxTrees)
-                    .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
+                .RemoveSyntaxTrees(originalSyntaxTrees)
+                .AddSyntaxTrees(modifiedSyntaxTrees);
 
             var compilationResult = ProjectCompilation.CompileProject(
                 outputFilePath,

@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Fettle.Core.Internal;
 using Fettle.Core.Internal.NUnit;
-using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Fettle.Core
 {
@@ -59,7 +57,7 @@ namespace Fettle.Core
         {
             var jobs = new MutationJobList();
 
-            using (var workspace = MSBuildWorkspace.Create())
+            using (var workspace = MSBuildWorkspaceFactory.Create())
             {
                 var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
 
