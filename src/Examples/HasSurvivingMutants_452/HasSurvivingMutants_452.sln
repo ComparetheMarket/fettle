@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2002
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HasSurvivingMutants_452.Implementation", "Implementation\HasSurvivingMutants_452.Implementation.csproj", "{99CC3D62-1845-4BD6-9D52-2D368AEA13C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HasSurvivingMutants_452.Tests", "Tests\HasSurvivingMutants_452.Tests.csproj", "{4ED19D82-1000-4854-9060-56EA1B5D6D61}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{99CC3D62-1845-4BD6-9D52-2D368AEA13C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99CC3D62-1845-4BD6-9D52-2D368AEA13C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99CC3D62-1845-4BD6-9D52-2D368AEA13C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99CC3D62-1845-4BD6-9D52-2D368AEA13C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4ED19D82-1000-4854-9060-56EA1B5D6D61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4ED19D82-1000-4854-9060-56EA1B5D6D61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4ED19D82-1000-4854-9060-56EA1B5D6D61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4ED19D82-1000-4854-9060-56EA1B5D6D61}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EC70015B-72DF-4E65-92E2-53F7247C42A0}
+	EndGlobalSection
+EndGlobal
