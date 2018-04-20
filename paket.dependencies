@@ -9,9 +9,6 @@ nuget Moq
 
 nuget Microsoft.Net.Compilers 2.6.1
 nuget Microsoft.CodeAnalysis 2.6.1
-nuget Microsoft.Build 15.5.180
-nuget Microsoft.Build.Framework 15.5.180
-nuget Microsoft.Build.Tasks.Core 15.5.180
 nuget Microsoft.Build.Locator 1.0.13
 
 nuget System.ValueTuple 4.4.0

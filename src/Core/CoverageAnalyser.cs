@@ -130,9 +130,9 @@ namespace Fettle.Core
             }
 
             var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
-                    .RemoveSyntaxTrees(originalSyntaxTrees)
-                    .AddSyntaxTrees(modifiedSyntaxTrees);
-            
+                .RemoveSyntaxTrees(originalSyntaxTrees)
+                .AddSyntaxTrees(modifiedSyntaxTrees);
+
             var compilationResult = ProjectCompilation.CompileProject(
                 outputFilePath,
                 compilation);

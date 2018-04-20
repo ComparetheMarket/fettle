@@ -3,6 +3,3 @@ Moq
 
 Microsoft.Net.Compilers
 Microsoft.CodeAnalysis
-Microsoft.Build
-Microsoft.Build.Framework
-Microsoft.Build.Tasks.Core
