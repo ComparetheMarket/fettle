@@ -1,6 +1,6 @@
 ﻿namespace HasSurvivingMutants_452.Implementation
 {
-    public class PartiallyTestedValueTupleComparison
+    public static class PartiallyTestedValueTupleComparison
     {
         public static (int, string) TupleExistsAndHasAValue((bool Exists, string Value) tuple)
         {
