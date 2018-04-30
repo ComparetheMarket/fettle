@@ -6,3 +6,4 @@ Microsoft.CodeAnalysis
 Microsoft.Build.Locator
 
 System.ValueTuple
+System.Runtime.Loader

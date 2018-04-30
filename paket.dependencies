@@ -12,6 +12,7 @@ nuget Microsoft.CodeAnalysis 2.6.1
 nuget Microsoft.Build.Locator 1.0.13
 
 nuget System.ValueTuple 4.4.0
+nuget System.Runtime.Loader
 
 nuget DotNet.Glob
 nuget YamlDotNet
