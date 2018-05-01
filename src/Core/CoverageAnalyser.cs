@@ -110,7 +110,7 @@ namespace Fettle.Core
 
         private static async Task InstrumentThenCompileProject(
             Project project,
-            Config config,            
+            Config config,
             string outputFilePath,
             IDictionary<string, string> methodIdsToNames)
         {
@@ -164,26 +164,49 @@ namespace Fettle.Core
                         var methodId = Guid.NewGuid().ToString();
                         methodIdsToNames.Add(methodId, fullMethodName);
 
-                        var newNode = SyntaxFactory.ParseStatement(
-                            $"System.Console.WriteLine(\"{CoverageOutputLinePrefix}{methodId}\");");
-
-                        var firstChildNode = methodNode.Body.ChildNodes().FirstOrDefault();
-                        if (firstChildNode != null)
-                        {
-                            documentEditor.InsertBefore(firstChildNode, newNode);
-                        }
-                        else
-                        {
-                            // the method is empty
-                            documentEditor.ReplaceNode(
-                                methodNode,
-                                methodNode.WithBody(SyntaxFactory.Block(newNode)));
-                        }
+                        InstrumentMethod(methodId, methodNode, documentEditor);
                     }
                 }
             }
 
             return await documentEditor.GetChangedDocument().GetSyntaxTreeAsync();
+        }
+
+        private static void InstrumentMethod(string methodId, MethodDeclarationSyntax methodNode, DocumentEditor documentEditor)
+        {
+            var instrumentationNode = SyntaxFactory.ParseStatement(
+                $"System.Console.WriteLine(\"{CoverageOutputLinePrefix}{methodId}\");");
+
+            var isMethodExpressionBodied = methodNode.ExpressionBody != null;
+
+            if (isMethodExpressionBodied)
+            {
+                // Replace expression body (which can only have one statement) with a normal method body
+                // so that we can add the extra instrumentation statement.
+                var newMethodNode = methodNode
+                    .WithExpressionBody(null)
+                    .WithBody(
+                        SyntaxFactory.Block(
+                            instrumentationNode,
+                            SyntaxFactory.ReturnStatement(methodNode.ExpressionBody.Expression)));
+
+                documentEditor.ReplaceNode(methodNode, newMethodNode);
+            }
+            else
+            {
+                var firstChildNode = methodNode.Body.ChildNodes().FirstOrDefault();
+                var isMethodEmpty = firstChildNode == null;
+                if (isMethodEmpty)
+                {
+                    documentEditor.ReplaceNode(
+                        methodNode,
+                        methodNode.WithBody(SyntaxFactory.Block(instrumentationNode)));
+                }
+                else
+                {
+                    documentEditor.InsertBefore(firstChildNode, instrumentationNode);
+                }
+            }
         }
 
         private static void CopyInstrumentedAssemblyIntoTempTestAssemblyDirectories(

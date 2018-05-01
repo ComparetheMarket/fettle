@@ -58,6 +58,12 @@ namespace HasSurvivingMutants.Tests
         }
 
         [Test]
+        public void PositiveOrNegativeAsExpressionBody()
+        {
+            PartiallyTestedNumberComparison.PositiveOrNegativeAsExpressionBody(1);
+        }
+
+        [Test]
         public void Methods_with_ignored_statements()
         {
             PartiallyTestedNumberComparison.AddNumbers_should_be_ignored(5);

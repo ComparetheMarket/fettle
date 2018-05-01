@@ -29,7 +29,8 @@ namespace Fettle.Tests.Core.Coverage
             Assert.That(coveringTests, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsPositive",
-                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.PositiveOrNegative"
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.PositiveOrNegative",
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.PositiveOrNegativeAsExpressionBody"
             }));
         }
         
@@ -132,7 +133,7 @@ namespace Fettle.Tests.Core.Coverage
                 el => el.BeginCoverageAnalysisOfTestCase(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()),
                 Times.AtLeastOnce);
         }
-
+        
         [Test]
         public void Then_abstract_methods_are_ignored()
         {

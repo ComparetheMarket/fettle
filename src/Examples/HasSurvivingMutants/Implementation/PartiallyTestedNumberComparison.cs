@@ -74,5 +74,8 @@
         {
             return (0, "");
         }
+
+        // This exists to test that Fettle can handle expression body methods
+        public static string PositiveOrNegativeAsExpressionBody(int n) => IsPositive(n) ? "positive" : "negative";
     }
 }
