@@ -13,7 +13,8 @@ namespace Fettle.Core
             var registeredInstance = MSBuildLocator.QueryVisualStudioInstances().FirstOrDefault();
             if (registeredInstance == null)
             {
-                throw new Exception("No Visual Studio instances found.");
+                MSBuildLocator.RegisterDefaults();
+                return;
             }
 
             MSBuildLocator.RegisterInstance(registeredInstance);
