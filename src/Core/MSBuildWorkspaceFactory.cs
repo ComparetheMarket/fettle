@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
@@ -10,14 +9,7 @@ namespace Fettle.Core
     {
         static MSBuildWorkspaceFactory()
         {
-            var registeredInstance = MSBuildLocator.QueryVisualStudioInstances().FirstOrDefault();
-            if (registeredInstance == null)
-            {
-                MSBuildLocator.RegisterDefaults();
-                return;
-            }
-
-            MSBuildLocator.RegisterInstance(registeredInstance);
+            MSBuildLocator.RegisterDefaults();
         }
 
         public static MSBuildWorkspace Create()
@@ -25,7 +17,7 @@ namespace Fettle.Core
             return MSBuildWorkspace.Create(
                 new Dictionary<string, string>
                 {
-                    {"CheckForSystemRuntimeDependency", "true"}
+                    { "CheckForSystemRuntimeDependency", "true" }
                 });
         }
     }

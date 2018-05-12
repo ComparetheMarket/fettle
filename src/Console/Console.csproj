@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\packages\Microsoft.Net.Compilers\build\Microsoft.Net.Compilers.props" Condition="Exists('..\..\packages\Microsoft.Net.Compilers\build\Microsoft.Net.Compilers.props')" Label="Paket" />
+  <Import Project="..\..\packages\Microsoft.Build.Locator\build\Microsoft.Build.Locator.props" Condition="Exists('..\..\packages\Microsoft.Build.Locator\build\Microsoft.Build.Locator.props')" Label="Paket" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -67,6 +68,11 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <Target Name="DoNotCopyMSBuildDependencies" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)%(Extension)' == 'Microsoft.Build.dll'&#xD;&#xA;                                       OR '%(Filename)%(Extension)' == 'Microsoft.Build.Framework.dll'&#xD;&#xA;                                       OR '%(Filename)%(Extension)' == 'Microsoft.Build.Tasks.Core.dll'&#xD;&#xA;                                       OR '%(Filename)%(Extension)' == 'Microsoft.Build.Utilities.Core.dll'" />
+    </ItemGroup>
+  </Target>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
@@ -78,6 +84,18 @@
       </ItemGroup>
     </When>
   </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
+      <ItemGroup>
+        <Reference Include="Microsoft.Build.Locator">
+          <HintPath>..\..\packages\Microsoft.Build.Locator\lib\net46\Microsoft.Build.Locator.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Import Project="..\..\packages\Microsoft.Build.Locator\build\Microsoft.Build.Locator.targets" Condition="Exists('..\..\packages\Microsoft.Build.Locator\build\Microsoft.Build.Locator.targets')" Label="Paket" />
   <ItemGroup>
     <Analyzer Include="..\..\packages\Microsoft.CodeAnalysis.Analyzers\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll">
       <Paket>True</Paket>
@@ -465,13 +483,4 @@
     </When>
   </Choose>
   <Import Project="..\..\packages\NETStandard.Library\build\NETStandard.Library.targets" Condition="Exists('..\..\packages\NETStandard.Library\build\NETStandard.Library.targets')" Label="Paket" />
-  <Target Name="DoNotCopyMSBuildDependencies" AfterTargets="ResolveAssemblyReferences">
-    <ItemGroup>
-      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
-                               Condition="'%(Filename)%(Extension)' == 'Microsoft.Build.dll'
-                                       OR '%(Filename)%(Extension)' == 'Microsoft.Build.Framework.dll'
-                                       OR '%(Filename)%(Extension)' == 'Microsoft.Build.Tasks.Core.dll'
-                                       OR '%(Filename)%(Extension)' == 'Microsoft.Build.Utilities.Core.dll'" />
-    </ItemGroup>
-  </Target>
 </Project>
