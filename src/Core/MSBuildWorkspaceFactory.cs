@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
 
@@ -8,7 +10,13 @@ namespace Fettle.Core
     {
         static MSBuildWorkspaceFactory()
         {
-            MSBuildLocator.RegisterDefaults();
+            var registeredInstance = MSBuildLocator.QueryVisualStudioInstances().FirstOrDefault();
+            if (registeredInstance == null)
+            {
+                throw new Exception("No Visual Studio instances found.");
+            }
+
+            MSBuildLocator.RegisterInstance(registeredInstance);
         }
 
         public static MSBuildWorkspace Create()

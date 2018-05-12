@@ -493,4 +493,13 @@
     </When>
   </Choose>
   <Import Project="..\..\packages\NETStandard.Library\build\NETStandard.Library.targets" Condition="Exists('..\..\packages\NETStandard.Library\build\NETStandard.Library.targets')" Label="Paket" />
+  <Target Name="DoNotCopyMSBuildDependencies" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
+                               Condition="'%(Filename)%(Extension)' == 'Microsoft.Build.dll'
+                                       OR '%(Filename)%(Extension)' == 'Microsoft.Build.Framework.dll'
+                                       OR '%(Filename)%(Extension)' == 'Microsoft.Build.Tasks.Core.dll'
+                                       OR '%(Filename)%(Extension)' == 'Microsoft.Build.Utilities.Core.dll'" />
+    </ItemGroup>
+  </Target>
 </Project>
