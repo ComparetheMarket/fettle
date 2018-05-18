@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
 
@@ -16,7 +17,7 @@ namespace Fettle.Core
             return MSBuildWorkspace.Create(
                 new Dictionary<string, string>
                 {
-                    {"CheckForSystemRuntimeDependency", "true"}
+                    { "CheckForSystemRuntimeDependency", "true" }
                 });
         }
     }

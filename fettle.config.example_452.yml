@@ -1,0 +1,8 @@
+﻿
+solution: .\src\Examples\HasSurvivingMutants_452\HasSurvivingMutants_452.sln
+
+testAssemblies:
+    - .\src\Examples\HasSurvivingMutants_452\Tests\bin\Debug\HasSurvivingMutants_452.Tests.dll
+
+projectFilters:
+    - HasSurvivingMutants_452.Implementation

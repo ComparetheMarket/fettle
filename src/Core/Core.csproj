@@ -94,6 +94,11 @@
     <None Include="paket.references" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="DoNotCopyMSBuildDependencies" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)%(Extension)' == 'Microsoft.Build.dll'&#xD;&#xA;                                       OR '%(Filename)%(Extension)' == 'Microsoft.Build.Framework.dll'&#xD;&#xA;                                       OR '%(Filename)%(Extension)' == 'Microsoft.Build.Tasks.Core.dll'&#xD;&#xA;                                       OR '%(Filename)%(Extension)' == 'Microsoft.Build.Utilities.Core.dll'" />
+    </ItemGroup>
+  </Target>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
