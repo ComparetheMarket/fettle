@@ -88,10 +88,8 @@ Note that we have [a code of conduct](https://github.com/ComparetheMarket/fettle
 
 ## Authors
 
-* [Oli Wennell](https://github.com/oliwennell) - _Initial work_
-* [Raghav Suryanarayanan](https://github.com/ragsurya)
-
-Plus [other contributors](https://github.com/ComparetheMarket/fettle/graphs/contributors).
+[Oli Wennell](https://github.com/oliwennell) did the initial work and is the project's maintainer.  
+[Other people](https://github.com/ComparetheMarket/fettle/graphs/contributors) have also contributed.
 
 ## License
 
