@@ -1,4 +1,4 @@
-#r "./tools/FAKE.4.61.2/tools/FakeLib.dll" 
+#r "./packages/FAKE/tools/FakeLib.dll" 
 
 open Fake
 open Fake.Testing.NUnit3
@@ -15,7 +15,12 @@ let buildTarget() =
 
 let testTarget() =
     let testAssemblies = !! (sprintf "./src/**/bin/%s/*Tests.dll" mode)
-    let nUnitParams _ = { NUnit3Defaults with Workers = Some(1) }
+    let nUnitParams _ = 
+        {
+            NUnit3Defaults with 
+                Workers = Some(1) 
+                Labels = LabelsLevel.Off
+        }
     testAssemblies |> NUnit3 nUnitParams
 
 let coverageTarget() =
@@ -36,12 +41,12 @@ let coverageTarget() =
                     // Workaround for issue where opencover tries to cover some dependencies
                     "-filter:\"+[*]* -[*.Tests]* -[Moq*]* -[nunit.framework*]*\""; 
 
-                    "-target:\"./tools/NUnit/nunit3-console.exe\"";
+                    "-target:\"./packages/NUnit.ConsoleRunner/tools/nunit3-console.exe\"";
                     sprintf "-targetargs:\"%s\"" nunitArgs
                   ]
     let result = 
         ExecProcess (fun info ->
-            info.FileName <- "./tools/OpenCover.4.6.519/tools/OpenCover.Console.exe"
+            info.FileName <- "./packages/OpenCover/tools/OpenCover.Console.exe"
             info.Arguments <- allArgs |> String.concat " "
         )(System.TimeSpan.FromMinutes 7.0)
 
@@ -55,7 +60,7 @@ let coverageReportTarget() =
                ]
     let result = 
         ExecProcess (fun info ->
-            info.FileName <- "./tools/reportgenerator.3.1.2/tools/ReportGenerator.exe"
+            info.FileName <- "./packages/reportgenerator/tools/ReportGenerator.exe"
             info.Arguments <- args |> String.concat " "
         )(System.TimeSpan.FromMinutes 7.0)
 
