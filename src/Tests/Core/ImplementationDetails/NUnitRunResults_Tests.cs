@@ -1,5 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.IO.MemoryMappedFiles;
+using System.Text;
 using System.Xml;
+using Fettle.Core;
 using Fettle.Core.Internal;
 using Fettle.Core.Internal.NUnit;
 using NUnit.Framework;
@@ -8,6 +13,81 @@ namespace Fettle.Tests.Core.ImplementationDetails
 {
     class NUnitRunResults_Tests
     {
+        [Test]
+        public void blurgh()
+        {
+            using (var stream = File.Create(@"C:\temp\fettle_methods_2.bin"))
+            {
+                var buffer = new byte[1024 * 1024];
+                stream.Write(buffer, 0, buffer.Length);   
+            }
+            using (var memoryMappedFile =
+                MemoryMappedFile.CreateFromFile(@"c:\temp\fettle_methods_2.bin", FileMode.Open, @"fettle_methods"))
+            {
+                Process.Start(@"c:\dev\fettle\src\Console\bin\Debug\fettle.console.exe").WaitForExit();
+
+                //using (var stream = File.OpenRead(filePath))
+                using (var file = MemoryMappedFile.OpenExisting(@"fettle_methods"))
+                using (var accessor = file.CreateViewAccessor())
+                {
+                    long loc = 0;
+                    while (loc < accessor.Capacity)
+                    {
+                        var value = accessor.ReadByte(loc);
+                        if (value == 0xFF)
+                        {
+                            System.Console.WriteLine($"method {loc}: CALLED");
+                        }
+                        else
+                        {
+                            //System.Console.WriteLine($"method {loc}: not called");
+                        }
+
+                        //loc += sizeof(byte) * 4;
+                        loc++;
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void blah()
+        {
+//            using (var mmf =
+//                MemoryMappedFile.CreateNew("fettle_methods", 1024, MemoryMappedFileAccess.ReadWrite))
+            using (var memoryMappedFile = MemoryMappedFile.CreateNew("fettle_coverage", 1024*1024))
+            {
+                //using (var stream = File.Create(@"C:\temp\fettle_methods"))
+                //{
+                //    var buffer = new byte[1024 * 1024];
+                //    stream.Write(buffer, 0, buffer.Length);   
+                //}
+
+                CoverageAnalyser.Collector.MethodCalled(10, "10");
+                CoverageAnalyser.Collector.MethodCalled(1, "1");
+                CoverageAnalyser.Collector.MethodCalled(3, "3");
+                CoverageAnalyser.Collector.MethodCalled(3, "3");
+                CoverageAnalyser.Collector.MethodCalled(3, "3");
+                CoverageAnalyser.Collector.MethodCalled(1, "1");
+                CoverageAnalyser.Collector.MethodCalled(2, "2");
+
+                using (var file = MemoryMappedFile.OpenExisting("fettle_coverage"))
+                {
+                    using (var accessor = file.CreateViewAccessor())
+                    {
+                        long loc = 0;
+                        for (int i = 0; i < 15; ++i)
+                        {
+                            var thing = accessor.ReadByte(loc);
+                            loc++;
+                            System.Console.WriteLine($"{i} => {thing:X}");
+                        }
+
+                    }
+                }
+            }
+        }
+
         [Test]
         public void When_results_xml_indicates_that_all_tests_passed_Then_status_is_AllTestsPass()
         {

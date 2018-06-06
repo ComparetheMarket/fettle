@@ -16,7 +16,7 @@ namespace Fettle.Tests.Core.Contexts
 
         private ITestRunner testRunner = new NUnitTestEngine();
 
-        protected Config Config { get; private set; }
+        protected Config Config { get; set; }
 
         protected ICoverageAnalysisResult Result { get; private set;}
         protected Exception ThrownException { get; private set; }
@@ -64,7 +64,7 @@ namespace Fettle.Tests.Core.Contexts
                 .Setup(x => x.RunTestsAndAnalyseCoverage(
                     It.IsAny<IEnumerable<string>>(),
                     It.IsAny<IEnumerable<string>>(),
-                    It.IsAny<IDictionary<string,string>>(),
+                    It.IsAny<IDictionary<long,string>>(),
                     It.IsAny<Action<string,int>>()))
                 .Returns(new CoverageTestRunResult
                 {

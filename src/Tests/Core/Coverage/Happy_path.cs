@@ -1,10 +1,40 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using Fettle.Core;
 using Moq;
 using NUnit.Framework;
 
 namespace Fettle.Tests.Core.Coverage
 {
+    class Wibble : Contexts.Coverage
+    {
+        public Wibble()
+        {
+            var baseExampleDir = Path.Combine(TestContext.CurrentContext.TestDirectory,
+                "..", "..", "..", "Examples");
+
+            Config = new Config
+            {
+                SolutionFilePath = Path.Combine(baseExampleDir, "HasSurvivingMutants", "HasSurvivingMutants.sln"),
+                SourceFileFilters = new string[]{@"Implementation\PartiallyTestedNumberComparison.cs"},
+                TestAssemblyFilePaths = new[]
+                {
+                    Path.Combine(baseExampleDir, "HasSurvivingMutants", "Tests", "bin", BuildConfig.AsString, "HasSurvivingMutants.Tests.dll"),
+                }
+            };
+            Given_project_filters("HasSurvivingMutants.Implementation");
+
+            When_analysing_method_coverage();
+        }
+
+        [Test]
+        public void wiiiible()
+        {
+            Assert.That(1+1, Is.EqualTo(2));            
+        }
+    }
+
     class Happy_path : Contexts.Coverage
     {
         public Happy_path()

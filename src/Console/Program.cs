@@ -11,6 +11,13 @@ namespace Fettle.Console
     {
         public static int Main(string[] args)
         {
+            for (int i = 0; i < 100; ++i)
+            {
+                CoverageAnalyser.Collector.MethodCalled(100-i, "");                    
+            }
+
+            return 0;
+                
             IMutationTestRunner CreateRealMutationTestRunner(
                 IEventListener eventListener,
                 ICoverageAnalysisResult coverageAnalysisResult)

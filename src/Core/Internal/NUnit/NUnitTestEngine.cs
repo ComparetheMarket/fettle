@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using NUnit.Engine;
 using NUnit.Engine.Services;
 
@@ -28,21 +29,36 @@ namespace Fettle.Core.Internal.NUnit
         public CoverageTestRunResult RunTestsAndAnalyseCoverage(
             IEnumerable<string> testAssemblyFilePaths,
             IEnumerable<string> testMethodNames,
-            IDictionary<string, string> methodIdsToNames,
+            IDictionary<long, string> methodIdsToNames,
             Action<string, int> onAnalysingTestCase)
         {
-            var coverageCollector = new NUnitCoverageCollector(methodIdsToNames, onAnalysingTestCase);
-            
-            var runTestsResult = RunTests(testAssemblyFilePaths, testMethodNames, coverageCollector);
-
-            return new CoverageTestRunResult
+            using (var coverageCollector = new NUnitCoverageCollector(methodIdsToNames, onAnalysingTestCase))
             {
-                Status = runTestsResult.Status,
-                Error = runTestsResult.Error,
-                ConsoleOutput = runTestsResult.ConsoleOutput,
+                var runTestsResult = RunTests(testAssemblyFilePaths, testMethodNames, coverageCollector);
 
-                MethodsAndCoveringTests = coverageCollector.MethodsAndCoveringTests.ToDictionary(x => x.Key, x => x.Value)
-            };
+                /////////////////////////////
+                var s = new StringBuilder();
+                foreach (var entry in coverageCollector.MethodsAndCoveringTests)
+                {
+                    s.AppendLine(entry.Key);
+                    foreach (var value in entry.Value)
+                    {
+                        s.AppendLine("\t" + value);
+                    }
+                }
+                Console.WriteLine(s.ToString());
+                /// ////////////////////////
+
+                return new CoverageTestRunResult
+                {
+                    Status = runTestsResult.Status,
+                    Error = runTestsResult.Error,
+                    ConsoleOutput = runTestsResult.ConsoleOutput,
+
+                    MethodsAndCoveringTests =
+                        coverageCollector.MethodsAndCoveringTests.ToDictionary(x => x.Key, x => x.Value)
+                };
+            }
         }
 
         private static TestRunResult RunTests(

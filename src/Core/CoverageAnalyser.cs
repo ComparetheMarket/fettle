@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Threading.Tasks;
 using Fettle.Core.Internal;
@@ -34,7 +36,7 @@ namespace Fettle.Core
 
         public async Task<ICoverageAnalysisResult> AnalyseMethodCoverage(Config config)
         {
-            var methodIdsToNames = new Dictionary<string, string>();
+            var methodIdsToNames = new Dictionary<long, string>();
             
             var baseTempDirectory = TempDirectory.Create();
 
@@ -49,9 +51,10 @@ namespace Fettle.Core
                 using (var workspace = MSBuildWorkspaceFactory.Create())
                 {
                     var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
+                    var projects = solution.Projects.Where(p => Filtering.ShouldMutateProject(p, config));
 
                     await InstrumentThenCompileMultipleProjects(
-                        solution.Projects.Where(p => Filtering.ShouldMutateProject(p, config)),
+                        projects,
                         config,
                         baseTempDirectory,
                         copiedTestAssemblyFilePaths,
@@ -94,13 +97,13 @@ namespace Fettle.Core
             Config config,
             string baseTempDirectory,
             IList<string> copiedTestAssemblyFilePaths,
-            IDictionary<string, string> methodIdsToNames)
+            IDictionary<long, string> methodIdsToNames)
         {
             foreach (var project in projects)
             {
                 var outputFilePath = Path.Combine(baseTempDirectory, $@"{project.AssemblyName}.dll");
-
-                await InstrumentThenCompileProject(project, config, outputFilePath, methodIdsToNames);
+                
+                InstrumentThenCompileProject(project, config, outputFilePath, methodIdsToNames);
 
                 CopyInstrumentedAssemblyIntoTempTestAssemblyDirectories(
                     outputFilePath, 
@@ -108,11 +111,11 @@ namespace Fettle.Core
             }
         }
 
-        private static async Task InstrumentThenCompileProject(
+        private static void InstrumentThenCompileProject(
             Project project,
             Config config,
             string outputFilePath,
-            IDictionary<string, string> methodIdsToNames)
+            IDictionary<long, string> methodIdsToNames)
         {
             var originalSyntaxTrees = new List<SyntaxTree>();
             var modifiedSyntaxTrees = new List<SyntaxTree>();
@@ -120,18 +123,19 @@ namespace Fettle.Core
             var classesToInstrument = project.Documents
                 .Where(d => Filtering.ShouldMutateClass(d, config))
                 .Where(d => !d.IsAutomaticallyGenerated());
-
+            
             foreach (var originalClass in classesToInstrument)
             {
-                var originalSyntaxTree = await originalClass.GetSyntaxTreeAsync().ConfigureAwait(false);
+                var originalSyntaxTree = originalClass.GetSyntaxTreeAsync().Result;
                 originalSyntaxTrees.Add(originalSyntaxTree);
                 modifiedSyntaxTrees.Add(
-                    await InstrumentDocument(originalSyntaxTree, originalClass, methodIdsToNames));
+                    InstrumentDocument(originalSyntaxTree, originalClass, methodIdsToNames));
             }
 
-            var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
+            var compilation = (project.GetCompilationAsync().Result)
                 .RemoveSyntaxTrees(originalSyntaxTrees)
-                .AddSyntaxTrees(modifiedSyntaxTrees);
+                .AddSyntaxTrees(modifiedSyntaxTrees)
+                .AddSyntaxTrees(CreateCollectorClass());
 
             var compilationResult = ProjectCompilation.CompileProject(
                 outputFilePath,
@@ -144,13 +148,79 @@ namespace Fettle.Core
             }
         }
 
-        private static async Task<SyntaxTree> InstrumentDocument(
+        public static class Collector
+        {
+            public static void MethodCalled(long methodId, string fullMethodName)
+            {
+                using (var mutex = new System.Threading.Mutex(false, "Global\\fettle_coverage_741CBFBB-EEB3-4E4B-88F9-E885F0EE8ADA"))
+                {
+                    try
+                    {
+                        mutex.WaitOne();
+
+                        using (var file = MemoryMappedFile.OpenExisting("fettle_coverage"))
+                        //using (var accessor = file.CreateViewAccessor(methodId*4, 4))
+                        //{
+                        //    accessor.Write(0, (byte)0xFF);
+                        //    Console.WriteLine($"Fettle method exec: {fullMethodName}");
+                        //}
+                        using (var accessor = file.CreateViewStream(methodId, 0))
+                        {
+                            accessor.WriteByte(0xFF);
+                        }
+                    }
+                    finally
+                    {
+                        mutex.ReleaseMutex();
+                    }
+                }
+            }
+        }
+
+        private static SyntaxTree CreateCollectorClass()
+        {
+            return SyntaxFactory.ParseSyntaxTree($@"
+using System;
+using System.IO;
+using System.IO.MemoryMappedFiles;
+
+namespace ___FettleAutoGenerated
+{{
+    internal static class Collector
+    {{
+        public static void MethodCalled(long methodId, string fullMethodName)
+        {{
+            using (var mutex = new System.Threading.Mutex(false, ""Global\\fettle_coverage_741CBFBB-EEB3-4E4B-88F9-E885F0EE8ADA""))
+            {{
+                try
+                {{
+                    mutex.WaitOne();
+
+                    using (var file = MemoryMappedFile.OpenExisting(""fettle_coverage""))
+                    using (var accessor = file.CreateViewAccessor(methodId, 0))
+                    {{
+                        accessor.Write(0, (byte)0xAA);
+                        Console.WriteLine($""Fettle method exec: {{fullMethodName}} ({{methodId}})"");
+                    }}
+                }}
+                finally
+                {{
+                    mutex.ReleaseMutex();
+                }}
+            }}
+        }}
+    }}
+}}"
+                );
+        }
+
+        private static SyntaxTree InstrumentDocument(
             SyntaxTree originalSyntaxTree,
             Document document,
-            IDictionary<string,string> methodIdsToNames)
+            IDictionary<long,string> methodIdsToNames)
         {
-            var root = await originalSyntaxTree.GetRootAsync();
-            var semanticModel = await document.GetSemanticModelAsync();
+            var root = originalSyntaxTree.GetRootAsync().Result;
+            var semanticModel = document.GetSemanticModelAsync().Result;
             var documentEditor = DocumentEditor.CreateAsync(document).Result;
 
             foreach (var classNode in root.DescendantNodes().OfType<ClassDeclarationSyntax>())
@@ -161,21 +231,21 @@ namespace Fettle.Core
                     if (!methodSymbol.IsAbstract)
                     {
                         var fullMethodName = methodNode.ChildNodes().First().NameOfContainingMethod(semanticModel);
-                        var methodId = Guid.NewGuid().ToString();
+                        var methodId = methodIdsToNames.LongCount();
                         methodIdsToNames.Add(methodId, fullMethodName);
-
-                        InstrumentMethod(methodId, methodNode, documentEditor);
+                        
+                        InstrumentMethod(methodNode, methodId, fullMethodName, documentEditor);
                     }
                 }
             }
 
-            return await documentEditor.GetChangedDocument().GetSyntaxTreeAsync();
+            return documentEditor.GetChangedDocument().GetSyntaxTreeAsync().Result;
         }
 
-        private static void InstrumentMethod(string methodId, MethodDeclarationSyntax methodNode, DocumentEditor documentEditor)
+        private static void InstrumentMethod(MethodDeclarationSyntax methodNode, long methodId, string fullMethodName, DocumentEditor documentEditor)
         {
             var instrumentationNode = SyntaxFactory.ParseStatement(
-                $"System.Console.WriteLine(\"{CoverageOutputLinePrefix}{methodId}\");");
+                $@"___FettleAutoGenerated.Collector.MethodCalled({methodId}, ""{fullMethodName}"");");
 
             var isMethodExpressionBodied = methodNode.ExpressionBody != null;
 
