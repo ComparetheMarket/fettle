@@ -84,7 +84,7 @@ namespace Fettle.Core.Internal.NUnit
         {
             var testPackage = new TestPackage(testAssemblyFilePaths.ToList());
             testPackage.AddSetting("StopOnError", true);
-            testPackage.AddSetting("ShadowCopyFiles", true);
+            testPackage.AddSetting("ShadowCopyFiles", false);
             testPackage.AddSetting("DomainUsage", "Single");
             testPackage.AddSetting("ProcessModel", "Separate");
             return testPackage;
