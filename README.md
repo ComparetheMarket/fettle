@@ -83,7 +83,8 @@ Fettle relies on some awesome .NET projects which include:
 
 ## Contributing
 
-If you would like to contribute then thanks very much! Please see [this guide](https://github.com/ComparetheMarket/fettle/blob/master/CCONTRIBUTING.md).   
+This is an experimental project run within [comparethemarket](https://techjobs.comparethemarket.com/?) / [BGL Group](https://www.bglgroup.co.uk/) and we're not actively seeking contributions from the public. But if you are stuck, or really keen to help, then please get in touch on the [gitter page]() or open an issue.
+   
 Note that we have [a code of conduct](https://github.com/ComparetheMarket/fettle/blob/master/CODE_OF_CONDUCT.md).
 
 ## Authors
