@@ -83,7 +83,6 @@ let watchTarget() =
     
 let packageTarget() =
     let buildVersion = "0.1.0"
-    let accessKey = "todo"
     let outputDir = "."
     CreateDir outputDir
     NuGetPack (fun p ->
@@ -92,7 +91,6 @@ let packageTarget() =
             WorkingDir = "."
             Files = [ (sprintf @"src\Console\bin\%s\*.*" mode, None, None) ]
             OutputPath = outputDir
-            AccessKey = accessKey
             Publish = false
         })
         "./Console.nuspec"
