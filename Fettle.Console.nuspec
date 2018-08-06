@@ -10,7 +10,13 @@
     <licenseUrl>https://github.com/ComparetheMarket/fettle/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/ComparetheMarket/fettle</projectUrl>  
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>An experimental mutation testing tool for C# code</description>
+    <description>
+      An experimental mutation testing tool for C# code
+      
+      Right now Fettle can mutation-test your project if you use:
+      * .NET Framework 4.x
+      * NUnit framework 3.x (version 3.10 or higher recommended)
+    </description>
     <!--<releaseNotes>@releaseNotes@</releaseNotes>-->
     <copyright>Copyright CompareTheMarket 2018</copyright>
     <tags>test testing mutation-testing</tags>
