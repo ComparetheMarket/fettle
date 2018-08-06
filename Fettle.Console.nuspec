@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>Fettle.Console</id>
+    <title>Fettle.Console</title>
+    <version>@build.number@</version>
+    <authors>Oli Wennell and contributors</authors>
+    <owners>CompareTheMarket</owners>
+    <summary>Console runner for Fettle, an experimental mutation testing tool for C# code.</summary>
+    <licenseUrl>https://github.com/ComparetheMarket/fettle/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/ComparetheMarket/fettle</projectUrl>
+    <iconUrl>https://avatars2.githubusercontent.com/u/1951126?s=64</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+An experimental mutation testing tool for C# code.
+      
+Fettle currently supports project that use:
+* .NET Framework 4.x
+* NUnit framework 3.x (version 3.10 or higher recommended)
+    </description>
+    <!--<releaseNotes>@releaseNotes@</releaseNotes>-->
+    <copyright>Copyright CompareTheMarket 2018</copyright>
+    <tags>test testing mutation-testing</tags>
+    @dependencies@
+    @references@
+  </metadata>
+  @files@
+</package>

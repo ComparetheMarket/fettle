@@ -81,13 +81,29 @@ let watchTarget() =
     System.Console.ReadLine() |> ignore
     watcher.Dispose() 
     
+let packageTarget() =
+    let buildVersion = "0.1.0"
+    let outputDir = "."
+    CreateDir outputDir
+    NuGetPack (fun p ->
+        {p with
+            Version = buildVersion
+            WorkingDir = "."
+            Files = [ (sprintf @"src\Console\bin\%s\*.*" mode, Some "tools", None) ]
+            OutputPath = outputDir
+            Publish = false
+        })
+        "./Fettle.Console.nuspec"
+
 Target "Build" buildTarget
 Target "Test" testTarget
 Target "Coverage" coverageTarget
 Target "CoverageReport" coverageReportTarget
+Target "Package" packageTarget
 
 "Build" ==> "Test"
 "Build" ==> "Coverage" ==> "CoverageReport"
+"Test" ==> "Package" 
 
 Target "Watch" watchTarget
 

@@ -1,19 +1,28 @@
-.fake
 
+.fake
+*.tmp
+InternalTrace.*.log
+
+# Visual Studio / MSBuild
 .vs
 *.user
 *.DotSettings
 **/bin/
 **/obj/
 
+# paket
 packages/
 paket-files/
 
-*.tmp
-
+# open cover
 /opencover.xml
 coverage-report/
+
+# NUnit
 TestResult.xml
 nunit-output.log
 nunit-agent_*.log
-InternalTrace.*.log
+
+# NuGet packaging
+Fettle.Console.*.nupkg
+Fettle.Console.*.nuspec
