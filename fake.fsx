@@ -93,7 +93,7 @@ let packageTarget() =
             OutputPath = outputDir
             Publish = false
         })
-        "./Console.nuspec"
+        "./Fettle.Console.nuspec"
 
 Target "Build" buildTarget
 Target "Test" testTarget

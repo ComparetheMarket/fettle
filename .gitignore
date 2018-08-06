@@ -24,5 +24,5 @@ nunit-output.log
 nunit-agent_*.log
 
 # NuGet packaging
-Console.*.nupkg
-src/Console/Console.*.nuspec
+Fettle.Console.*.nupkg
+Fettle.Console.*.nuspec
