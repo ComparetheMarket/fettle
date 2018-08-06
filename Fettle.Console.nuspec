@@ -2,6 +2,7 @@
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>Fettle.Console</id>
+    <title>Fettle.Console</title>
     <version>@build.number@</version>
     <authors>Oli Wennell</authors>
     <owners>CompareTheMarket</owners>
@@ -12,7 +13,7 @@
     <description>An experimental mutation testing tool for C# code</description>
     <!--<releaseNotes>@releaseNotes@</releaseNotes>-->
     <copyright>Copyright CompareTheMarket 2018</copyright>
-    <tags>testing mutation-testing</tags>
+    <tags>test testing mutation-testing</tags>
     @dependencies@
     @references@
   </metadata>
