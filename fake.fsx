@@ -81,13 +81,31 @@ let watchTarget() =
     System.Console.ReadLine() |> ignore
     watcher.Dispose() 
     
+let packageTarget() =
+    let buildVersion = "0.1.0"
+    let accessKey = "todo"
+    let outputDir = "."
+    CreateDir outputDir
+    NuGetPack (fun p ->
+        {p with
+            Version = buildVersion
+            WorkingDir = "."
+            Files = [ (sprintf @"src\Console\bin\%s\*.*" mode, None, None) ]
+            OutputPath = outputDir
+            AccessKey = accessKey
+            Publish = false
+        })
+        "./Console.nuspec"
+
 Target "Build" buildTarget
 Target "Test" testTarget
 Target "Coverage" coverageTarget
 Target "CoverageReport" coverageReportTarget
+Target "Package" packageTarget
 
 "Build" ==> "Test"
 "Build" ==> "Coverage" ==> "CoverageReport"
+"Test" ==> "Package" 
 
 Target "Watch" watchTarget
 

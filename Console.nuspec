@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>Console</id>
+    <version>@build.number@</version>
+    <authors>Oli Wennell</authors>
+    <owners>CompareTheMarket</owners>
+    <summary>Fettle console runner</summary>
+    <licenseUrl>https://github.com/ComparetheMarket/fettle/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/ComparetheMarket/fettle</projectUrl>  
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>An experimental mutation testing tool for C# code</description>
+    <!--<releaseNotes>@releaseNotes@</releaseNotes>-->
+    <copyright>Copyright CompareTheMarket 2018</copyright>
+    <tags>testing mutation-testing</tags>
+    @dependencies@
+    @references@
+  </metadata>
+  @files@
+</package>
