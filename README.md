@@ -6,8 +6,9 @@ Fettle is an experimental [mutation testing](https://github.com/ComparetheMarket
 
 ## Getting Started
 
-Currently the only way to run Fettle is to build it from source first.   
-See the [developer guide](https://github.com/ComparetheMarket/fettle/wiki/Developer-Guide) for instructions.
+The Fettle console application is [available on NuGet](https://www.nuget.org/packages/Fettle.Console/).
+
+To build from source, see the [developer guide](https://github.com/ComparetheMarket/fettle/wiki/Developer-Guide).
 
 ## Running
 
