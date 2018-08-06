@@ -89,7 +89,7 @@ let packageTarget() =
         {p with
             Version = buildVersion
             WorkingDir = "."
-            Files = [ (sprintf @"src\Console\bin\%s\*.*" mode, None, None) ]
+            Files = [ (sprintf @"src\Console\bin\%s\*.*" mode, Some "tools", None) ]
             OutputPath = outputDir
             Publish = false
         })
