@@ -18,6 +18,7 @@ nuget YamlDotNet
 nuget CommandLineParser
 nuget NUnit.Console 3.8.0
 
+nuget NuGet.CommandLine 4.6.2
 nuget FAKE 4.61.2
 nuget NUnit.Console 3.8.0
 nuget OpenCover 4.6.519
