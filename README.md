@@ -10,8 +10,6 @@ The Fettle console application is [available on NuGet](https://www.nuget.org/pac
 
 To build from source, see the [developer guide](https://github.com/ComparetheMarket/fettle/wiki/Developer-Guide).
 
-## Running
-
 ### Prerequisites
 
 Right now Fettle can mutation-test your project if you use:
@@ -46,7 +44,7 @@ sourceFileFilters:
     - Implementation\*.cs
 ```
 
-### Running
+### Catching Mutants
 
 Use the console runner to start a mutation test:
 
@@ -61,9 +59,6 @@ When mutants survive, Fettle outputs the source file and line number of the code
 For example:
 
 ```
-Mutation testing complete.
-9 mutant(s) survived!
-
 (1) \Implementation\UntestedNumberComparison.cs:7
   original: return a == 42;
   mutated: return a != 42;
@@ -71,9 +66,23 @@ Mutation testing complete.
 (2) \Implementation\PartiallyTestedNumberComparison.cs:7
   original: return a > 0;
   mutated: return a >= 0;
+```
 
-  ... etc.
+## "Killing" Mutants
 
+To fix a gap in your tests that Fettle discovers (aka "killing a mutant") you can:
+1. *Improve the tests* 
+If at least one test fails when the mutation is made, then the mutant won't survive.  
+
+2. *Remove the mutated code*  
+Sometimes mutation testing highlights code that's not required and can be removed.  
+
+3. *Tell Fettle to ignore it*.  
+If you aren't able (or don't want to) do 1. or 2., you can mark lines to ignore via special comments. For example:
+```
+// fettle: begin ignore
+// <No code in-between these lines will be mutated by Fettle>
+// fettle: end ignore
 ```
 
 ## Built With
