@@ -71,14 +71,15 @@ For example:
 ## "Killing" Mutants
 
 To fix a gap in your tests that Fettle discovers (aka "killing a mutant") you can:
-1. *Improve the tests* 
+1. *Improve the tests*  
 If at least one test fails when the mutation is made, then the mutant won't survive.  
 
 2. *Remove the mutated code*  
 Sometimes mutation testing highlights code that's not required and can be removed.  
 
 3. *Tell Fettle to ignore it*.  
-If you aren't able (or don't want to) do 1. or 2., you can mark lines to ignore via special comments. For example:
+If you aren't able (or don't want to) do 1. or 2., you can mark lines to ignore via special comments.  
+For example:
 ```
 // fettle: begin ignore
 // <No code in-between these lines will be mutated by Fettle>
