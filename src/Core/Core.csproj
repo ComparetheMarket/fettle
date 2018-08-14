@@ -83,6 +83,7 @@
     <Compile Include="Internal\IMutator.cs" />
     <Compile Include="Internal\SyntaxNodeExtensionsForSupportedMutators.cs" />
     <Compile Include="CoverageAnalyser.cs" />
+    <Compile Include="Internal\TextSpanExtensions.cs" />
     <Compile Include="MSBuildWorkspaceFactory.cs" />
     <Compile Include="MutationTestRunner.cs" />
     <Compile Include="NullEventListener.cs" />

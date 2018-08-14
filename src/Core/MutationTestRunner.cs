@@ -61,14 +61,14 @@ namespace Fettle.Core
             {
                 var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
 
-                var classesToMutate = solution.MutatableClasses(config);
-                for (var classIndex = 0; classIndex < classesToMutate.Length; classIndex++)
+                var documentsToMutate = solution.MutatableClasses(config);
+                for (var classIndex = 0; classIndex < documentsToMutate.Length; classIndex++)
                 {
-                    var classToMutate = classesToMutate[classIndex];
-                    var classRoot = await classToMutate.GetSyntaxRootAsync();
-                    var documentSemanticModel = await classToMutate.GetSemanticModelAsync();
+                    var documentToMutate = documentsToMutate[classIndex];
+                    var documentSyntaxRoot = await documentToMutate.GetSyntaxRootAsync();
+                    var documentSemanticModel = await documentToMutate.GetSemanticModelAsync();
 
-                    var nodesToMutate = classRoot.DescendantNodes().ToArray();
+                    var nodesToMutate = documentSyntaxRoot.DescendantNodes().ToArray();
                     var isIgnoring = false;
 
                     for (var nodeIndex = 0; nodeIndex < nodesToMutate.Length; nodeIndex++)
@@ -99,9 +99,9 @@ namespace Fettle.Core
                         foreach (var mutator in nodeToMutate.SupportedMutators())
                         {
                             var job = new MutationJob(
-                                classRoot,
+                                documentSyntaxRoot,
                                 nodeToMutate,
-                                classToMutate,
+                                documentToMutate,
                                 methodName,
                                 config,
                                 mutator,
@@ -109,9 +109,9 @@ namespace Fettle.Core
 
                             var jobMetadata = new MutationJobMetadata
                             {
-                                SourceFilePath = classToMutate.FilePath,
+                                SourceFilePath = documentToMutate.FilePath,
                                 SourceFileIndex = classIndex,
-                                SourceFilesTotal = classesToMutate.Length,
+                                SourceFilesTotal = documentsToMutate.Length,
 
                                 MethodName = methodName,
                                 

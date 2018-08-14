@@ -76,6 +76,7 @@
     <Compile Include="Core\Coverage\Source_file_filters.cs" />
     <Compile Include="Core\Coverage\Happy_path.cs" />
     <Compile Include="Core\Coverage\Tests_fail.cs" />
+    <Compile Include="Core\ImplementationDetails\ExtractSourceTextFromClass_Tests.cs" />
     <Compile Include="Core\Method_coverage.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered_with_multiple_filters.cs" />

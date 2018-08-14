@@ -8,18 +8,18 @@ namespace Fettle.Core.Internal
 {
     internal class MutationJob
     {
-        private readonly SyntaxNode originalClassRoot;
+        private readonly SyntaxNode originalSyntaxRoot;
         private readonly string methodName;
         private readonly Config config;
         private readonly IMutator mutator;
         private readonly ICoverageAnalysisResult coverageAnalysisResult;
         
-        public SyntaxNode MutatedClassRoot { get; private set; }
+        public SyntaxNode MutatedSyntaxRoot { get; private set; }
         public SyntaxNode OriginalNode { get; }
         public Document OriginalClass { get;  }
         
         public MutationJob(
-            SyntaxNode originalClassRoot,
+            SyntaxNode originalSyntaxRoot,
             SyntaxNode originalNode,
             Document originalClass,
             string methodName,
@@ -30,7 +30,7 @@ namespace Fettle.Core.Internal
             OriginalNode = originalNode;
             OriginalClass = originalClass;
 
-            this.originalClassRoot = originalClassRoot;
+            this.originalSyntaxRoot = originalSyntaxRoot;
             this.methodName = methodName;
             this.config = config;
             this.mutator = mutator;
@@ -40,7 +40,7 @@ namespace Fettle.Core.Internal
         public async Task<SurvivingMutant> Run(ITestRunner testRunner, string tempDirectory, IEventListener eventListener)
         {
             var mutatedNode = mutator.Mutate(OriginalNode);
-            MutatedClassRoot = originalClassRoot.ReplaceNode(OriginalNode, mutatedNode);
+            MutatedSyntaxRoot = originalSyntaxRoot.ReplaceNode(OriginalNode, mutatedNode);
 
             var compilationResult = await CompileContainingProject(tempDirectory);
             if (!compilationResult.Success)
@@ -82,7 +82,7 @@ namespace Fettle.Core.Internal
 
             var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
                 .RemoveSyntaxTrees(await OriginalClass.GetSyntaxTreeAsync().ConfigureAwait(false))
-                .AddSyntaxTrees(MutatedClassRoot.SyntaxTree);
+                .AddSyntaxTrees(MutatedSyntaxRoot.SyntaxTree);
 
             var mutatedAssemblyFilePath = Path.Combine(outputDirectory, $"{project.AssemblyName}.dll");
 
