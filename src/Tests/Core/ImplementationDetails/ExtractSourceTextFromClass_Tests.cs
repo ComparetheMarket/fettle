@@ -42,7 +42,8 @@ namespace DummyNamespace
         public static bool AreBothZero(int a, int b)
         {
             return a == 0
-                   && b == 0;
+                   &&
+                   b == 0;
         }
     }
 }");
@@ -56,7 +57,8 @@ namespace DummyNamespace
 
             Assert.That(sourceText, Is.EqualTo(
 @"            return a == 0
-                   && b == 0;"));
+                   &&
+                   b == 0;"));
         }
     }
 }
