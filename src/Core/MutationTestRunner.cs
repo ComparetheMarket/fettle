@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Fettle.Core.Internal;
 using Fettle.Core.Internal.NUnit;
+using Fettle.Core.Internal.RoslynExtensions;
 
 namespace Fettle.Core
 {

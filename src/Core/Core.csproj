@@ -63,7 +63,7 @@
     <Compile Include="Internal\Filtering.cs" />
     <Compile Include="Internal\IgnoreComments.cs" />
     <Compile Include="Internal\ITestFinder.cs" />
-    <Compile Include="Internal\MethodDeclarationSyntaxExtensions.cs" />
+    <Compile Include="Internal\RoslynExtensions\MethodDeclarationSyntaxExtensions.cs" />
     <Compile Include="Internal\MutationJob.cs" />
     <Compile Include="Internal\MutationJobList.cs" />
     <Compile Include="Internal\MutationJobMetadata.cs" />
@@ -78,14 +78,14 @@
     <Compile Include="Internal\ITestRunner.cs" />
     <Compile Include="Internal\NUnit\NUnitRunResults.cs" />
     <Compile Include="Internal\NUnit\NUnitTestEngine.cs" />
-    <Compile Include="Internal\SolutionExtension.cs" />
-    <Compile Include="Internal\SyntaxNodeExtensions.cs" />
+    <Compile Include="Internal\RoslynExtensions\SolutionExtension.cs" />
+    <Compile Include="Internal\RoslynExtensions\SyntaxNodeExtensions.cs" />
     <Compile Include="Internal\TempDirectory.cs" />
     <Compile Include="Internal\TestRunnerResult.cs" />
     <Compile Include="Internal\IMutator.cs" />
-    <Compile Include="Internal\SyntaxNodeExtensionsForSupportedMutators.cs" />
+    <Compile Include="Internal\RoslynExtensions\SyntaxNodeExtensionsForSupportedMutators.cs" />
     <Compile Include="CoverageAnalyser.cs" />
-    <Compile Include="Internal\TextSpanExtensions.cs" />
+    <Compile Include="Internal\RoslynExtensions\TextSpanExtensions.cs" />
     <Compile Include="MSBuildWorkspaceFactory.cs" />
     <Compile Include="MutationTestRunner.cs" />
     <Compile Include="NullEventListener.cs" />

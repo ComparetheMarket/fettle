@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Fettle.Core.Internal
+namespace Fettle.Core.Internal.RoslynExtensions
 {
     internal static class MethodDeclarationSyntaxExtensions
     {

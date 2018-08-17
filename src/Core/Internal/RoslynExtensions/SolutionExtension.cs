@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Microsoft.CodeAnalysis;
 
-namespace Fettle.Core.Internal
+namespace Fettle.Core.Internal.RoslynExtensions
 {
     internal static class SolutionExtension
     {

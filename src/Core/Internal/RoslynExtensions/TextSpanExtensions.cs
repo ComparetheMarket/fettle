@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Fettle.Core.Internal
+namespace Fettle.Core.Internal.RoslynExtensions
 {
     internal static class TextSpanExtensions
     {

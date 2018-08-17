@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Fettle.Core.Internal;
+using Fettle.Core.Internal.RoslynExtensions;
 
 namespace Fettle.Core
 {

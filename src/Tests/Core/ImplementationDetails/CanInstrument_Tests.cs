@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Fettle.Core.Internal;
+using Fettle.Core.Internal.RoslynExtensions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Framework;
