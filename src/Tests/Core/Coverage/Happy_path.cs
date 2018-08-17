@@ -135,9 +135,9 @@ namespace Fettle.Tests.Core.Coverage
         }
         
         [Test]
-        public void Then_abstract_methods_are_ignored()
+        public void Then_methods_with_no_bodies_are_ignored()
         {
-            const string methodName = "System.Void HasSurvivingMutants.Implementation.SkipAbstractMethodMutation::BuildSomething()";
+            const string methodName = "System.Void HasSurvivingMutants.Implementation.AbstractClass::AbstractMethod()";
             Assert.That(Result.IsMethodCovered(methodName), Is.False);
         }
     }
