@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Linq;
 using NUnit.Engine;
 
 namespace Fettle.Core.Internal.NUnit
@@ -34,6 +35,8 @@ namespace Fettle.Core.Internal.NUnit
 
         private void OnTestFixtureComplete(IEnumerable<string> testMethodsInFixture, IEnumerable<string> executedMethodIds)
         {
+            var testMethodsInFixtureAsArray = testMethodsInFixture.ToArray();
+
             foreach (var executedMethodId in executedMethodIds)
             {
                 var executedMethodName = methodIdsToNames[executedMethodId];
@@ -41,7 +44,7 @@ namespace Fettle.Core.Internal.NUnit
                 if (!methodsAndCoveringTests.ContainsKey(executedMethodName))
                     methodsAndCoveringTests.Add(executedMethodName, ImmutableHashSet<string>.Empty);
 
-                foreach (var testMethodName in testMethodsInFixture)
+                foreach (var testMethodName in testMethodsInFixtureAsArray)
                 {
                     methodsAndCoveringTests[executedMethodName] =
                         methodsAndCoveringTests[executedMethodName].Add(testMethodName);

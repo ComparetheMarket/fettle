@@ -34,7 +34,7 @@ namespace HasSurvivingMutants.MoreTests
         {
             // This test exists to show that coverage analysis handles methods
             // that throw exceptions being covered by tests.
-            Assert.Throws<InvalidOperationException>(() => OtherMethods.ThrowingMethod());
+            Assert.Throws<InvalidOperationException>(OtherMethods.ThrowingMethod);
         }
     }
 }

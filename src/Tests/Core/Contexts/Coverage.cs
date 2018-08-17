@@ -89,7 +89,7 @@ namespace Fettle.Tests.Core.Contexts
         {
             try
             {
-                var methodCoverage = new Fettle.Core.CoverageAnalyser(
+                var methodCoverage = new CoverageAnalyser(
                     eventListener: MockEventListener.Object,
                     testFinder: new NUnitTestEngine(), 
                     testRunner: testRunner);

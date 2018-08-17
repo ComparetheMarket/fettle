@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Fettle.Core.Internal;
 using Fettle.Core.Internal.RoslynExtensions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,7 +12,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Mutation
         public void Expressions_are_swappable()
         {
             var rootNode = CSharpSyntaxTree.ParseText(
-                $@"public class ExampleClass
+                @"public class ExampleClass
                 {{
                     public bool IsPositive(int n)
                     {{

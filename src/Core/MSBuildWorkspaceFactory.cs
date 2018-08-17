@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
 

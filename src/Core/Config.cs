@@ -19,23 +19,19 @@ namespace Fettle.Core
  
         public Config WithPathsRelativeTo(string baseDirectory)
         {
-            var result = new Config();
-
-            result.SolutionFilePath = SolutionFilePath != null
-                ? Path.Combine(baseDirectory, SolutionFilePath)
-                : null;
-
-            if (TestAssemblyFilePaths != null)
+            return new Config
             {
-                result.TestAssemblyFilePaths = TestAssemblyFilePaths
-                    .Select(x => x != null ? Path.Combine(baseDirectory, x) : null)
-                    .ToArray();
-            }
+                SolutionFilePath = SolutionFilePath != null
+                    ? Path.Combine(baseDirectory, SolutionFilePath)
+                    : null,
 
-            result.ProjectFilters = ProjectFilters?.ToArray();
-            result.SourceFileFilters = SourceFileFilters?.ToArray();
- 
-            return result;
+                TestAssemblyFilePaths = TestAssemblyFilePaths?
+                    .Select(x => x != null ? Path.Combine(baseDirectory, x) : null)
+                    .ToArray(),
+
+                ProjectFilters = ProjectFilters?.ToArray(),
+                SourceFileFilters = SourceFileFilters?.ToArray()
+            };
         }
 
         public IEnumerable<string> Validate()
