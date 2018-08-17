@@ -76,6 +76,7 @@
     <Compile Include="Core\Coverage\Source_file_filters.cs" />
     <Compile Include="Core\Coverage\Happy_path.cs" />
     <Compile Include="Core\Coverage\Tests_fail.cs" />
+    <Compile Include="Core\ImplementationDetails\CanInstrument_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\ExtractSourceTextFromClass_Tests.cs" />
     <Compile Include="Core\Method_coverage.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered.cs" />
@@ -122,6 +123,22 @@
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{68E9EC27-04AA-4967-94D5-B1CA2992A55B}</Project>
       <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Examples\HasSurvivingMutants\Implementation\HasSurvivingMutants.Implementation.csproj">
+      <Project>{79ebcf73-afc0-45f4-b3a0-91adf1eb0edc}</Project>
+      <Name>HasSurvivingMutants.Implementation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Examples\HasSurvivingMutants\MoreImplementation\HasSurvivingMutants.MoreImplementation.csproj">
+      <Project>{f75582b2-6dc6-4a9f-94ea-92a28bb54620}</Project>
+      <Name>HasSurvivingMutants.MoreImplementation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Examples\HasSurvivingMutants\MoreTests\HasSurvivingMutants.MoreTests.csproj">
+      <Project>{34c25829-148f-4838-93d8-31f2f531ff2b}</Project>
+      <Name>HasSurvivingMutants.MoreTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Examples\HasSurvivingMutants\Tests\HasSurvivingMutants.Tests.csproj">
+      <Project>{38845271-3d17-45cf-ba6b-b9e0a2d7ab87}</Project>
+      <Name>HasSurvivingMutants.Tests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
