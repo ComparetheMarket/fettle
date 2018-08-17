@@ -155,17 +155,15 @@ namespace Fettle.Core
 
             foreach (var classNode in root.DescendantNodes().OfType<ClassDeclarationSyntax>())
             {
-                foreach (var methodNode in classNode.DescendantNodes().OfType<MethodDeclarationSyntax>())
+                foreach (var methodNode in classNode.DescendantNodes()
+                                                    .OfType<MethodDeclarationSyntax>()
+                                                    .Where(methodNode => methodNode.CanInstrument()))
                 {
-                    var methodSymbol = semanticModel.GetDeclaredSymbol(methodNode);
-                    if (!methodSymbol.IsAbstract)
-                    {
-                        var fullMethodName = methodNode.ChildNodes().First().NameOfContainingMethod(semanticModel);
-                        var methodId = Guid.NewGuid().ToString();
-                        methodIdsToNames.Add(methodId, fullMethodName);
+                    var fullMethodName = methodNode.ChildNodes().First().NameOfContainingMethod(semanticModel);
+                    var methodId = Guid.NewGuid().ToString();
+                    methodIdsToNames.Add(methodId, fullMethodName);
 
-                        InstrumentMethod(methodId, methodNode, documentEditor);
-                    }
+                    InstrumentMethod(methodId, methodNode, documentEditor);
                 }
             }
 

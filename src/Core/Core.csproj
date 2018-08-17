@@ -62,6 +62,7 @@
     <Compile Include="Internal\Filtering.cs" />
     <Compile Include="Internal\IgnoreComments.cs" />
     <Compile Include="Internal\ITestFinder.cs" />
+    <Compile Include="Internal\MethodDeclarationSyntaxExtensions.cs" />
     <Compile Include="Internal\MutationJob.cs" />
     <Compile Include="Internal\MutationJobList.cs" />
     <Compile Include="Internal\MutationJobMetadata.cs" />
