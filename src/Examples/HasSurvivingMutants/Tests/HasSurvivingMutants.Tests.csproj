@@ -45,7 +45,6 @@
     <Compile Include="MorePartialNumberComparisonTests.cs" />
     <Compile Include="PartialNumberComparisonTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SkipAbstractMethodMutationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
