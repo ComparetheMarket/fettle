@@ -2,6 +2,7 @@
 
 open Fake
 open Fake.Testing.NUnit3
+open System.IO
 
 let solutionFilePath = "./src/Fettle.sln"
 let mode = getBuildParamOrDefault "mode" "Release"
@@ -82,7 +83,7 @@ let watchTarget() =
     watcher.Dispose() 
     
 let packageTarget() =
-    let buildVersion = "0.1.0"
+    let buildVersion = File.ReadAllText("./VERSION")
     let outputDir = "."
     CreateDir outputDir
     NuGetPack (fun p ->
