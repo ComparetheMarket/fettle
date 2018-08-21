@@ -85,7 +85,7 @@ namespace Fettle.Core.Internal.NUnit
                 .ToString()
                 .Split(new[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries))
             {
-                const string prefix = CoverageAnalyser.CoverageOutputLinePrefix;
+                const string prefix = Instrumentation.CoverageOutputLinePrefix;
                 if (outputLine.StartsWith(prefix))
                 {
                     var method = outputLine.Substring(prefix.Length);
