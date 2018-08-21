@@ -5,11 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Fettle.Core.Internal;
 using Fettle.Core.Internal.NUnit;
-using Fettle.Core.Internal.RoslynExtensions;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Editing;
 
 namespace Fettle.Core
 {
@@ -18,8 +14,6 @@ namespace Fettle.Core
         private readonly IEventListener eventListener;
         private readonly ITestFinder testFinder;
         private readonly ITestRunner testRunner;
-
-        public const string CoverageOutputLinePrefix = "fettle_covered_method:";
 
         public CoverageAnalyser(IEventListener eventListener) : 
             this(eventListener, new NUnitTestEngine(), new NUnitTestEngine())
@@ -125,9 +119,13 @@ namespace Fettle.Core
             foreach (var originalClass in classesToInstrument)
             {
                 var originalSyntaxTree = await originalClass.GetSyntaxTreeAsync().ConfigureAwait(false);
+                var modifiedSyntaxTree = await Instrumentation.InstrumentDocument(
+                    originalSyntaxTree, 
+                    originalClass,
+                    methodIdsToNames.Add);
+
                 originalSyntaxTrees.Add(originalSyntaxTree);
-                modifiedSyntaxTrees.Add(
-                    await InstrumentDocument(originalSyntaxTree, originalClass, methodIdsToNames));
+                modifiedSyntaxTrees.Add(modifiedSyntaxTree);
             }
 
             var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
@@ -142,69 +140,6 @@ namespace Fettle.Core
                 var diagnostics = string.Join(Environment.NewLine, compilationResult.Diagnostics);
                 throw new Exception(
                     $"Failed to compile project {compilation.AssemblyName}{Environment.NewLine}{diagnostics}");
-            }
-        }
-
-        private static async Task<SyntaxTree> InstrumentDocument(
-            SyntaxTree originalSyntaxTree,
-            Document document,
-            IDictionary<string,string> methodIdsToNames)
-        {
-            var root = await originalSyntaxTree.GetRootAsync();
-            var semanticModel = await document.GetSemanticModelAsync();
-            var documentEditor = DocumentEditor.CreateAsync(document).Result;
-
-            foreach (var classNode in root.DescendantNodes().OfType<ClassDeclarationSyntax>())
-            {
-                foreach (var methodNode in classNode.DescendantNodes()
-                                                    .OfType<MethodDeclarationSyntax>()
-                                                    .Where(methodNode => methodNode.CanInstrument()))
-                {
-                    var fullMethodName = methodNode.ChildNodes().First().NameOfContainingMethod(semanticModel);
-                    var methodId = Guid.NewGuid().ToString();
-                    methodIdsToNames.Add(methodId, fullMethodName);
-
-                    InstrumentMethod(methodId, methodNode, documentEditor);
-                }
-            }
-
-            return await documentEditor.GetChangedDocument().GetSyntaxTreeAsync();
-        }
-
-        private static void InstrumentMethod(string methodId, MethodDeclarationSyntax methodNode, DocumentEditor documentEditor)
-        {
-            var instrumentationNode = SyntaxFactory.ParseStatement(
-                $"System.Console.WriteLine(\"{CoverageOutputLinePrefix}{methodId}\");");
-
-            var isMethodExpressionBodied = methodNode.ExpressionBody != null;
-
-            if (isMethodExpressionBodied)
-            {
-                // Replace expression body (which can only have one statement) with a normal method body
-                // so that we can add the extra instrumentation statement.
-                var newMethodNode = methodNode
-                    .WithExpressionBody(null)
-                    .WithBody(
-                        SyntaxFactory.Block(
-                            instrumentationNode,
-                            SyntaxFactory.ReturnStatement(methodNode.ExpressionBody.Expression)));
-
-                documentEditor.ReplaceNode(methodNode, newMethodNode);
-            }
-            else
-            {
-                var firstChildNode = methodNode.Body.ChildNodes().FirstOrDefault();
-                var isMethodEmpty = firstChildNode == null;
-                if (isMethodEmpty)
-                {
-                    documentEditor.ReplaceNode(
-                        methodNode,
-                        methodNode.WithBody(SyntaxFactory.Block(instrumentationNode)));
-                }
-                else
-                {
-                    documentEditor.InsertBefore(firstChildNode, instrumentationNode);
-                }
             }
         }
 
