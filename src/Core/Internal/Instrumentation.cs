@@ -16,7 +16,7 @@ namespace Fettle.Core.Internal
         public static async Task<SyntaxTree> InstrumentDocument(
             SyntaxTree originalSyntaxTree,
             Document document,
-            Action<string,string> onMethodInstrumented)
+            Action<string, string> onMethodInstrumented)
         {
             var root = await originalSyntaxTree.GetRootAsync();
             var semanticModel = await document.GetSemanticModelAsync();
@@ -76,7 +76,7 @@ namespace Fettle.Core.Internal
         }
 
         private static void InstrumentExpressionBodiedMethod(
-            MethodDeclarationSyntax methodNode, 
+            MethodDeclarationSyntax methodNode,
             DocumentEditor documentEditor,
             StatementSyntax instrumentationNode)
         {
@@ -96,7 +96,10 @@ namespace Fettle.Core.Internal
             //      }
 
             BlockSyntax newMethodBodyBlock;
-            var isVoidMethod = ((PredefinedTypeSyntax) methodNode.ReturnType).Keyword.Kind() == SyntaxKind.VoidKeyword;
+
+            var isVoidMethod = methodNode.ReturnType is PredefinedTypeSyntax typeSyntax &&
+                               typeSyntax.Keyword.Kind() == SyntaxKind.VoidKeyword;
+
             if (isVoidMethod)
             {
                 newMethodBodyBlock = SyntaxFactory.Block(
@@ -115,6 +118,7 @@ namespace Fettle.Core.Internal
                 .WithBody(newMethodBodyBlock);
 
             documentEditor.ReplaceNode(methodNode, newMethodNode);
+
         }
     }
 }

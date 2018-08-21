@@ -115,7 +115,32 @@ namespace DummyNamespace
             Assert.That(instrumentedMethodSource, Does.Contain("    System.Console.WriteLine(\"hello\");"));
             Assert.That(instrumentedMethodSource, Does.Contain("}"));
         }
-        
+
+        [Test(Description = "fix for regression of issue #27")]
+        public async Task Expression_bodied_methods_with_return_type_that_is_not_predefined_type_can_be_instrumented()
+        {
+            const string originalSource = @"
+namespace DummyNamespace
+{
+    public class DummyClass
+    {
+        public Task<System.Generic.List<int>> GetThings() => new[]{1,2,3}.ToList();
+    }
+}
+";
+            var originalDocument = SourceToDocument(originalSource);
+            var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync();
+
+            var instrumentedSyntaxTree = await Instrumentation.InstrumentDocument(originalSyntaxTree, originalDocument, (_, __) => {});
+            
+            var instrumentedMethodSource = InstrumentedMethodSource(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource, Does.Contain("public Task<System.Generic.List<int>> GetThings()"));
+            Assert.That(instrumentedMethodSource, Does.Contain("{"));
+            Assert.That(instrumentedMethodSource, Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource, Does.Contain("   return new[]{1, 2, 3}.ToList();"));
+            Assert.That(instrumentedMethodSource, Does.Contain("}"));
+        }
+
         [Test]
         public async Task The_callback_is_called_once_for_each_instrumented_method()
         {
