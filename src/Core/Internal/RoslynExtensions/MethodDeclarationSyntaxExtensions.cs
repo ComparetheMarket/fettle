@@ -4,9 +4,9 @@ namespace Fettle.Core.Internal.RoslynExtensions
 {
     internal static class MethodDeclarationSyntaxExtensions
     {
-        public static bool CanInstrument(this MethodDeclarationSyntax classDeclaration)
+        public static bool CanInstrument(this MethodDeclarationSyntax methodDeclaration)
         {
-            return classDeclaration.Body != null || classDeclaration.ExpressionBody != null;
+            return methodDeclaration.Body != null || methodDeclaration.ExpressionBody != null;
         }
     }
 }
