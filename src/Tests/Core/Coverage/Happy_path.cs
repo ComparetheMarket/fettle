@@ -12,7 +12,7 @@ namespace Fettle.Tests.Core.Coverage
             Given_an_app_with_tests();
             Given_project_filters("HasSurvivingMutants.Implementation", "HasSurvivingMutants.MoreImplementation");
 
-            When_analysing_method_coverage();
+            When_analysing_coverage();
         }
 
         [Test]
@@ -24,8 +24,8 @@ namespace Fettle.Tests.Core.Coverage
         [Test]
         public void Then_methods_are_covered_by_the_tests_that_call_them_during_testing()
         {
-            const string methodName = "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IsPositive(System.Int32)";
-            var coveringTests = Result.TestsThatCoverMethod(methodName, Config.TestAssemblyFilePaths.First());
+            const string memberName = "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IsPositive(System.Int32)";
+            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths.First());
             Assert.That(coveringTests, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsPositive",
@@ -37,19 +37,19 @@ namespace Fettle.Tests.Core.Coverage
         [Test]
         public void Then_methods_that_are_not_called_are_recognised_as_not_covered_by_any_tests()
         {
-            const string methodName = "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AddNumbers_should_be_ignored(System.Int32)";
+            const string memberName = "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AddNumbers_should_be_ignored(System.Int32)";
             foreach (var testAssemblyFilePath in Config.TestAssemblyFilePaths)
             {
-                var coveringTests = Result.TestsThatCoverMethod(methodName, testAssemblyFilePath);
-                Assert.That(coveringTests, Has.Length.Zero);    
+                var coveringTests = Result.TestsThatCoverMember(memberName, testAssemblyFilePath);
+                Assert.That(coveringTests, Has.Length.Zero);
             }
         }
 
         [Test]
         public void Then_methods_are_covered_by_the_test_cases_that_call_them_during_testing_even_if_they_are_empty()
         {
-            const string methodName = "System.Void HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::EmptyMethod()";
-            var coveringTests = Result.TestsThatCoverMethod(methodName, Config.TestAssemblyFilePaths.First());
+            const string memberName = "System.Void HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::EmptyMethod()";
+            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths.First());
             Assert.That(coveringTests, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.EmptyMethod",
@@ -59,8 +59,8 @@ namespace Fettle.Tests.Core.Coverage
         [Test]
         public void Then_methods_are_considered_to_be_covered_by_test_cases_if_their_fixture_setup_or_teardown_methods_call_them()
         {
-            const string methodName = "System.Boolean HasSurvivingMutants.MoreImplementation.CalledByTestFixture::IsFourtyTwo(System.Int32)";
-            var coveringTests = Result.TestsThatCoverMethod(methodName, Config.TestAssemblyFilePaths.First());            
+            const string memberName = "System.Boolean HasSurvivingMutants.MoreImplementation.CalledByTestFixture::IsFourtyTwo(System.Int32)";
+            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths.First());            
             Assert.That(coveringTests, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.CalledByTestFixture_Constructor.TestCase",
@@ -72,15 +72,15 @@ namespace Fettle.Tests.Core.Coverage
         }
 
         [Test]
-        public void Then_methods_can_be_covered_by_tests_from_multiple_projects()
+        public void Then_members_can_be_covered_by_tests_from_multiple_projects()
         {
-            const string methodName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Postincrement(System.Int32)";
-            var coveringTests1 = Result.TestsThatCoverMethod(methodName, Config.TestAssemblyFilePaths[0]);            
+            const string memberName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Postincrement(System.Int32)";
+            var coveringTests1 = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[0]);            
             Assert.That(coveringTests1, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Postincrement",
             }));
-            var coveringTests2 = Result.TestsThatCoverMethod(methodName, Config.TestAssemblyFilePaths[1]);
+            var coveringTests2 = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[1]);
             Assert.That(coveringTests2, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.MoreTests.MoreTests.PostIncrement2"
@@ -90,13 +90,13 @@ namespace Fettle.Tests.Core.Coverage
         [Test]
         public void Then_methods_can_be_covered_by_parameterised_tests()
         {
-            const string methodName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Preincrement(System.Int32)";
-            var coveringTests1 = Result.TestsThatCoverMethod(methodName, Config.TestAssemblyFilePaths[0]);            
+            const string memberName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Preincrement(System.Int32)";
+            var coveringTests1 = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[0]);            
             Assert.That(coveringTests1, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Preincrement",
             }));
-            var coveringTests2 = Result.TestsThatCoverMethod(methodName, Config.TestAssemblyFilePaths[1]);
+            var coveringTests2 = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[1]);
             Assert.That(coveringTests2, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.MoreTests.MoreTests.PreIncrement2(1,2)",
@@ -105,10 +105,10 @@ namespace Fettle.Tests.Core.Coverage
         }
 
         [Test]
-        public void Then_methods_that_throw_an_exception_can_be_covered_by_tests()
+        public void Then_members_that_throw_an_exception_can_be_covered_by_tests()
         {
-            const string methodName = "System.Void HasSurvivingMutants.Implementation.OtherMethods::ThrowingMethod()";
-            var coveringTests = Result.TestsThatCoverMethod(methodName, Config.TestAssemblyFilePaths[1]);
+            const string memberName = "System.Void HasSurvivingMutants.Implementation.OtherMethods::ThrowingMethod()";
+            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[1]);
             Assert.That(coveringTests, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.MoreTests.MoreTests.ThrowingMethod"
@@ -116,14 +116,14 @@ namespace Fettle.Tests.Core.Coverage
         }
 
         [Test]
-        public void Then_only_methods_that_match_the_configured_project_filters_are_analysed()
+        public void Then_only_members_that_match_the_configured_project_filters_are_analysed()
         {
-            var onlyContainsMethodsThatMatchFilter = Result.AllAnalysedMethods 
+            var onlyContainsMembersThatMatchFilter = Result.AllAnalysedMembers 
                 .All(method => method.Contains("HasSurvivingMutants.Implementation") ||
                                method.Contains("HasSurvivingMutants.MoreImplementation"));
 
-            Assert.That(onlyContainsMethodsThatMatchFilter, Is.True,
-                $"Actual keys: {string.Join(Environment.NewLine, Result.AllAnalysedMethods)}");
+            Assert.That(onlyContainsMembersThatMatchFilter, Is.True,
+                $"Actual keys: {string.Join(Environment.NewLine, Result.AllAnalysedMembers)}");
         }
 
         [Test]
@@ -137,8 +137,8 @@ namespace Fettle.Tests.Core.Coverage
         [Test]
         public void Then_methods_with_no_bodies_are_ignored()
         {
-            const string methodName = "System.Void HasSurvivingMutants.Implementation.AbstractClass::AbstractMethod()";
-            Assert.That(Result.IsMethodCovered(methodName), Is.False);
+            const string memberName = "System.Void HasSurvivingMutants.Implementation.AbstractClass::AbstractMethod()";
+            Assert.That(Result.IsMemberCovered(memberName), Is.False);
         }
     }
 }

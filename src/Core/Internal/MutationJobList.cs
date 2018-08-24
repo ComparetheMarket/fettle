@@ -24,7 +24,7 @@ namespace Fettle.Core.Internal
         {
             var survivingMutants = new List<SurvivingMutant>();
             var survivingSyntaxNodes = new HashSet<SyntaxNode>();
-            var reportedMethods = new HashSet<string>();
+            var reportedMembers = new HashSet<string>();
 
             var jobsBySourceFile = jobsWithMetadata.GroupBy(x => x.Key.SourceFilePath, x => x).ToArray();
 
@@ -47,10 +47,10 @@ namespace Fettle.Core.Internal
                         continue;
                     }
 
-                    if (!reportedMethods.Contains(metadata.MethodName))
+                    if (!reportedMembers.Contains(metadata.MemberName))
                     {
-                        eventListener.MethodMutating(metadata.MethodName);
-                        reportedMethods.Add(metadata.MethodName);
+                        eventListener.MemberMutating(metadata.MemberName);
+                        reportedMembers.Add(metadata.MemberName);
                     }
                     eventListener.SyntaxNodeMutating(metadata.SyntaxNodeIndex, metadata.SyntaxNodesTotal);
 

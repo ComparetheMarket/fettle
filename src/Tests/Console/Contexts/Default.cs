@@ -23,7 +23,7 @@ namespace Fettle.Tests.Console.Contexts
         {
             ICoverageAnalysisResult emptyCoverageResult = new CoverageAnalysisResult();
             mockCoverage
-                .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))            
+                .Setup(x => x.AnalyseCoverage(It.IsAny<Config>()))            
                 .Returns(
                     Task.FromResult(emptyCoverageResult));
         }
@@ -48,7 +48,7 @@ namespace Fettle.Tests.Console.Contexts
             Given_a_valid_config_file();
 
             mockCoverage
-                .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))
+                .Setup(x => x.AnalyseCoverage(It.IsAny<Config>()))
                 .Returns(
                     Task.FromResult(CoverageAnalysisResult.Error("an example coverage analysis error")));
         }
@@ -102,7 +102,7 @@ namespace Fettle.Tests.Console.Contexts
         {
             ICoverageAnalysisResult emptyCoverageResult = new CoverageAnalysisResult();
             mockCoverage
-                .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))
+                .Setup(x => x.AnalyseCoverage(It.IsAny<Config>()))
                 .Callback(() =>
                 {
                     for (var i = 0; i < 10; ++i)
@@ -131,7 +131,7 @@ namespace Fettle.Tests.Console.Contexts
         protected void Given_coverage_analysis_will_throw_an_exception(Exception ex)
         {
             mockCoverage
-                .Setup(r => r.AnalyseMethodCoverage(It.IsAny<Config>()))
+                .Setup(r => r.AnalyseCoverage(It.IsAny<Config>()))
                 .Throws(ex);
         }
 

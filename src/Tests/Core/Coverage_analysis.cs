@@ -5,9 +5,9 @@ using NUnit.Framework;
 
 namespace Fettle.Tests.Core
 {
-    class Method_coverage : Contexts.Default
+    class Coverage_analysis : Contexts.Default
     {
-        public Method_coverage()
+        public Coverage_analysis()
         {
             Given_an_app_to_be_mutation_tested();
 
@@ -15,7 +15,7 @@ namespace Fettle.Tests.Core
         }
 
         [Test]
-        public void Then_only_tests_that_cover_methods_are_run()
+        public void Then_only_tests_that_cover_members_are_run()
         {
             MockTestRunner.Verify(r => r.RunTests(
                 It.IsAny<IEnumerable<string>>(),

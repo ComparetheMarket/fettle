@@ -26,7 +26,7 @@ namespace Fettle.Console
             }
         }
 
-        public void MethodMutating(string name)
+        public void MemberMutating(string name)
         {            
         }
 

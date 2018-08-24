@@ -76,15 +76,15 @@ namespace Fettle.Core
                     {
                         var nodeToMutate = nodesToMutate[nodeIndex];
 
-                        var methodName = nodeToMutate.NameOfContainingMethod(documentSemanticModel);
-                        if (methodName == null)
+                        var memberName = nodeToMutate.NameOfContainingMember(documentSemanticModel);
+                        if (memberName == null)
                         {
-                            // The node is not within a method, e.g. it's a class or namespace declaration.
+                            // The node is not within a member, e.g. it's a class or namespace declaration.
                             // Therefore there is no code to mutate.
                             continue;
                         }
 
-                        if (!coverageAnalysisResult.IsMethodCovered(methodName))
+                        if (!coverageAnalysisResult.IsMemberCovered(memberName))
                         {
                             continue;
                         }
@@ -103,7 +103,7 @@ namespace Fettle.Core
                                 documentSyntaxRoot,
                                 nodeToMutate,
                                 documentToMutate,
-                                methodName,
+                                memberName,
                                 config,
                                 mutator,
                                 coverageAnalysisResult);
@@ -114,7 +114,7 @@ namespace Fettle.Core
                                 SourceFileIndex = classIndex,
                                 SourceFilesTotal = documentsToMutate.Length,
 
-                                MethodName = methodName,
+                                MemberName = memberName,
                                 
                                 SyntaxNodeIndex = nodeIndex,
                                 SyntaxNodesTotal = nodesToMutate.Length

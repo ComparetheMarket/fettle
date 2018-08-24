@@ -5,6 +5,6 @@ namespace Fettle.Core.Internal
 {
     internal class CoverageTestRunResult : TestRunResult
     {
-        public IDictionary<string, ImmutableHashSet<string>> MethodsAndCoveringTests { get; set; }
+        public IDictionary<string, ImmutableHashSet<string>> MembersAndCoveringTests { get; set; }
     }
 }

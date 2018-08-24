@@ -32,7 +32,7 @@ namespace Fettle.Tests.Core.Contexts
         protected void When_mutation_testing_the_app()
         {
             var coverageAnalysisResult = new CoverageAnalyser(new SpyEventListener())
-                .AnalyseMethodCoverage(config).Result;
+                .AnalyseCoverage(config).Result;
 
             MutationTestResult = new MutationTestRunner(coverageAnalysisResult)
                 .Run(config)

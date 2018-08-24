@@ -4,10 +4,10 @@
     {
         string ErrorDescription { get; }
         
-        string[] AllAnalysedMethods { get; }
+        string[] AllAnalysedMembers { get; }
 
-        string[] TestsThatCoverMethod(string method, string testAssemblyFilePath);
+        string[] TestsThatCoverMember(string member, string testAssemblyFilePath);
         
-        bool IsMethodCovered(string method);
+        bool IsMemberCovered(string member);
     }
 }

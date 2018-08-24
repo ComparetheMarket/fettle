@@ -40,7 +40,7 @@ namespace Fettle.Console
             anyEventsForFile = false;
         }
 
-        public void MethodMutating(string name)
+        public void MemberMutating(string name)
         {
             var shortName = Regex.Match(name, @"\s.*\.(.*)\(").Groups[1].Value.Replace("::", ".");
             outputWriter.Write(Environment.NewLine);

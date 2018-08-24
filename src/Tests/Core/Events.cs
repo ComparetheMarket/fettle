@@ -16,7 +16,7 @@ namespace Fettle.Tests.Core
         public void Then_event_listener_is_called_when_events_occur()
         {
             Assert.That(SpyEventListener.HaveAnyFilesBegun);
-            Assert.That(SpyEventListener.HaveAnyMethodsBegun);
+            Assert.That(SpyEventListener.HaveAnyMembersBegun);
             Assert.That(SpyEventListener.HaveAnySyntaxNodesBegun);
             Assert.That(SpyEventListener.HaveAnyFilesEnded);
             Assert.That(SpyEventListener.HaveAnyMutantsSurvived);
@@ -29,9 +29,9 @@ namespace Fettle.Tests.Core
         }
 
         [Test]
-        public void Then_each_method_is_reported_as_begin_once_only()
+        public void Then_each_member_is_reported_as_begin_once_only()
         {
-            Assert.That(SpyEventListener.BegunMethods, Is.EquivalentTo(SpyEventListener.BegunMethods.Distinct()));
+            Assert.That(SpyEventListener.BegunMembers, Is.EquivalentTo(SpyEventListener.BegunMembers.Distinct()));
         }
     }
 }

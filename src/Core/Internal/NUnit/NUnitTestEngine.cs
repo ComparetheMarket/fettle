@@ -28,10 +28,10 @@ namespace Fettle.Core.Internal.NUnit
         public CoverageTestRunResult RunTestsAndAnalyseCoverage(
             IEnumerable<string> testAssemblyFilePaths,
             IEnumerable<string> testMethodNames,
-            IDictionary<string, string> methodIdsToNames,
+            IDictionary<string, string> memberIdsToNames,
             Action<string, int> onAnalysingTestCase)
         {
-            var coverageCollector = new NUnitCoverageCollector(methodIdsToNames, onAnalysingTestCase);
+            var coverageCollector = new NUnitCoverageCollector(memberIdsToNames, onAnalysingTestCase);
             
             var runTestsResult = RunTests(testAssemblyFilePaths, testMethodNames, coverageCollector);
 
@@ -41,7 +41,7 @@ namespace Fettle.Core.Internal.NUnit
                 Error = runTestsResult.Error,
                 ConsoleOutput = runTestsResult.ConsoleOutput,
 
-                MethodsAndCoveringTests = coverageCollector.MethodsAndCoveringTests.ToDictionary(x => x.Key, x => x.Value)
+                MembersAndCoveringTests = coverageCollector.MembersAndCoveringTests.ToDictionary(x => x.Key, x => x.Value)
             };
         }
 

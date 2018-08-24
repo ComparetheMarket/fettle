@@ -85,16 +85,16 @@ namespace Fettle.Tests.Core.Contexts
             Config.SourceFileFilters = sourceFileFilters;
         }
 
-        protected void When_analysing_method_coverage(bool catchExceptions = false)
+        protected void When_analysing_coverage(bool catchExceptions = false)
         {
             try
             {
-                var methodCoverage = new CoverageAnalyser(
+                var analyser = new CoverageAnalyser(
                     eventListener: MockEventListener.Object,
                     testFinder: new NUnitTestEngine(), 
                     testRunner: testRunner);
 
-                Result = methodCoverage.AnalyseMethodCoverage(Config).Result;
+                Result = analyser.AnalyseCoverage(Config).Result;
             }
             catch (Exception e)
             {

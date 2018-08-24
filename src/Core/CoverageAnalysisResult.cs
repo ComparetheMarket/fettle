@@ -11,22 +11,22 @@ namespace Fettle.Core
 
         public string ErrorDescription { get; private set; }
 
-        public string[] AllAnalysedMethods =>
+        public string[] AllAnalysedMembers =>
             coverageByTestAssembly
                 .Select(x => x.Value)
                 .SelectMany(x => x.Keys)
                 .ToArray();
         
-        public string[] TestsThatCoverMethod(string method, string testAssemblyFilePath)
+        public string[] TestsThatCoverMember(string member, string testAssemblyFilePath)
         {
             var coverageForTestAssembly = coverageByTestAssembly[testAssemblyFilePath];
-            return coverageForTestAssembly.TryGetValue(method, out var tests) ? tests.ToArray() : new string[0];
+            return coverageForTestAssembly.TryGetValue(member, out var tests) ? tests.ToArray() : new string[0];
         }
 
-        public bool IsMethodCovered(string method)
+        public bool IsMemberCovered(string member)
         {
             var testAssemblies = coverageByTestAssembly.Keys;
-            return testAssemblies.Any(x => TestsThatCoverMethod(method, x).Any());
+            return testAssemblies.Any(x => TestsThatCoverMember(member, x).Any());
         }
 
         internal static ICoverageAnalysisResult Error(string errorDescription)
@@ -37,12 +37,12 @@ namespace Fettle.Core
             };
         }
 
-        internal CoverageAnalysisResult WithCoveredMethods(
-            IDictionary<string,ImmutableHashSet<string>> methodsAndTheirCoveringTests,
+        internal CoverageAnalysisResult WithCoveredMembers(
+            IDictionary<string,ImmutableHashSet<string>> membersAndTheirCoveringTests,
             string testAssemblyFilePath)
         {
             var result = new CoverageAnalysisResult{ coverageByTestAssembly = coverageByTestAssembly };
-            result.coverageByTestAssembly.Add(testAssemblyFilePath, methodsAndTheirCoveringTests);
+            result.coverageByTestAssembly.Add(testAssemblyFilePath, membersAndTheirCoveringTests);
             return result;
         }
     }

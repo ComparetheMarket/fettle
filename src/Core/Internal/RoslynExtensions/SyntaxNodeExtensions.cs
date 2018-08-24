@@ -6,31 +6,31 @@ namespace Fettle.Core.Internal.RoslynExtensions
 {
     internal static class SyntaxNodeExtensions
     {        
-        public static string NameOfContainingMethod(this SyntaxNode targetNode, SemanticModel semanticModel)
+        public static string NameOfContainingMember(this SyntaxNode targetNode, SemanticModel semanticModel)
         {
             NamespaceDeclarationSyntax foundNamespace = null;
             ClassDeclarationSyntax foundClass = null;
-            MethodDeclarationSyntax foundMethod = null;
+            MethodDeclarationSyntax foundMember = null;
 
             SyntaxNode node = targetNode.Parent;
             while (node != null)
             {
                 if (node is NamespaceDeclarationSyntax @namespace) foundNamespace = @namespace;
                 else if (node is ClassDeclarationSyntax @class) foundClass = @class;                
-                else if (node is MethodDeclarationSyntax method) foundMethod = method;
+                else if (node is MethodDeclarationSyntax method) foundMember = method;
 
                 node = node.Parent;
             }
             
-            if (foundNamespace != null && foundClass != null && foundMethod != null)
+            if (foundNamespace != null && foundClass != null && foundMember != null)
             {                
                 var parameters = string.Join(",",
-                    foundMethod.ParameterList.Parameters
+                    foundMember.ParameterList.Parameters
                         .Select(p => FullyQualifiedTypeName(p.Type, semanticModel)));
 
-                var returnType = FullyQualifiedTypeName(foundMethod.ReturnType, semanticModel);
+                var returnType = FullyQualifiedTypeName(foundMember.ReturnType, semanticModel);
 
-                return $"{returnType} {foundNamespace.Name}.{foundClass.Identifier}::{foundMethod.Identifier}({parameters})";
+                return $"{returnType} {foundNamespace.Name}.{foundClass.Identifier}::{foundMember.Identifier}({parameters})";
             }
 
             return null;

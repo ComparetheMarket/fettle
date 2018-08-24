@@ -79,7 +79,7 @@
     <Compile Include="Core\ImplementationDetails\CanInstrument_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\ExtractSourceTextFromClass_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\Instrumentation_Tests.cs" />
-    <Compile Include="Core\Method_coverage.cs" />
+    <Compile Include="Core\Coverage_analysis.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered_with_multiple_filters.cs" />
     <Compile Include="Core\Filtering\Projects_are_not_filtered.cs" />

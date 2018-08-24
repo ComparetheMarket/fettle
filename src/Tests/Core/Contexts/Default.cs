@@ -40,10 +40,10 @@ namespace Fettle.Tests.Core.Contexts
             MockTestRunner = new Mock<ITestRunner>();
 
             mockCoverageAnalysisResult
-                .Setup(x => x.TestsThatCoverMethod(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(x => x.TestsThatCoverMember(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(new[]{"example.test.one"});
 
-            mockCoverageAnalysisResult.Setup(x => x.IsMethodCovered(It.IsAny<string>())).Returns(true);
+            mockCoverageAnalysisResult.Setup(x => x.IsMemberCovered(It.IsAny<string>())).Returns(true);
         }
         
         protected void Given_a_partially_tested_app_in_which_a_mutant_will_survive()

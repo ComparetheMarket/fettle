@@ -11,12 +11,12 @@ namespace Fettle.Core.Internal
 {
     internal static class Instrumentation
     {
-        public const string CoverageOutputLinePrefix = "fettle_covered_method:";
+        public const string CoverageOutputLinePrefix = "fettle_covered_member:";
 
         public static async Task<SyntaxTree> InstrumentDocument(
             SyntaxTree originalSyntaxTree,
             Document document,
-            Action<string, string> onMethodInstrumented)
+            Action<string, string> onMemberInstrumented)
         {
             var root = await originalSyntaxTree.GetRootAsync();
             var semanticModel = await document.GetSemanticModelAsync();
@@ -24,23 +24,23 @@ namespace Fettle.Core.Internal
 
             foreach (var classNode in root.DescendantNodes().OfType<ClassDeclarationSyntax>())
             {
-                foreach (var methodNode in classNode.DescendantNodes()
+                foreach (var memberNode in classNode.DescendantNodes()
                                                     .OfType<MethodDeclarationSyntax>()
                                                     .Where(methodNode => methodNode.CanInstrument()))
                 {
-                    var fullMethodName = methodNode.ChildNodes().First().NameOfContainingMethod(semanticModel);
-                    var methodId = Guid.NewGuid().ToString();
+                    var fullMemberName = memberNode.ChildNodes().First().NameOfContainingMember(semanticModel);
+                    var memberId = Guid.NewGuid().ToString();
 
-                    InstrumentMethod(methodId, methodNode, documentEditor);
+                    InstrumentMember(memberId, memberNode, documentEditor);
 
-                    onMethodInstrumented(methodId, fullMethodName);
+                    onMemberInstrumented(memberId, fullMemberName);
                 }
             }
 
             return await documentEditor.GetChangedDocument().GetSyntaxTreeAsync();
         }
 
-        private static void InstrumentMethod(string methodId, MethodDeclarationSyntax methodNode, DocumentEditor documentEditor)
+        private static void InstrumentMember(string methodId, MethodDeclarationSyntax methodNode, DocumentEditor documentEditor)
         {
             var instrumentationNode = SyntaxFactory.ParseStatement(
                 $"System.Console.WriteLine(\"{CoverageOutputLinePrefix}{methodId}\");");

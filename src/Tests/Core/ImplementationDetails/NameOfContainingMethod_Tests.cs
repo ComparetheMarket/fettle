@@ -24,12 +24,12 @@ namespace Fettle.Tests.Core.ImplementationDetails
     }
 }");
             var compilation = CSharpCompilation.Create("DummyAssembly", new [] { syntaxTree });
-            var methodNode = syntaxTree.GetRoot().DescendantNodes().OfType<ReturnStatementSyntax>().Single();
+            var returnStatementNode = syntaxTree.GetRoot().DescendantNodes().OfType<ReturnStatementSyntax>().Single();
             var semanticModel = compilation.GetSemanticModel(syntaxTree);
 
-            var containingMethodName = methodNode.NameOfContainingMethod(semanticModel);
+            var containingMemberName = returnStatementNode.NameOfContainingMember(semanticModel);
 
-            Assert.That(containingMethodName, Is.EqualTo("System.Void DummyNamespace.DummyClass::MyDummyMethod(System.Int32)"));
+            Assert.That(containingMemberName, Is.EqualTo("System.Void DummyNamespace.DummyClass::MyDummyMethod(System.Int32)"));
         }
 
         [Test]
@@ -47,12 +47,12 @@ namespace Fettle.Tests.Core.ImplementationDetails
     }
 }");
             var compilation = CSharpCompilation.Create("DummyAssembly", new [] { syntaxTree });
-            var methodNode = syntaxTree.GetRoot().DescendantNodes().OfType<ReturnStatementSyntax>().Single();
+            var returnStatementNode = syntaxTree.GetRoot().DescendantNodes().OfType<ReturnStatementSyntax>().Single();
             var semanticModel = compilation.GetSemanticModel(syntaxTree);
 
-            var containingMethodName = methodNode.NameOfContainingMethod(semanticModel);
+            var containingMemberName = returnStatementNode.NameOfContainingMember(semanticModel);
 
-            Assert.That(containingMethodName, Is.EqualTo("System.Int32[] DummyNamespace.DummyClass::MyDummyMethod(System.Int32)"));
+            Assert.That(containingMemberName, Is.EqualTo("System.Int32[] DummyNamespace.DummyClass::MyDummyMethod(System.Int32)"));
         }
     }
 }

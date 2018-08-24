@@ -9,7 +9,7 @@ namespace Fettle.Tests.Core.Coverage
             Given_an_app_that_does_not_compile();
             Given_project_filters("Implementation");
             
-            When_analysing_method_coverage(catchExceptions: true);
+            When_analysing_coverage(catchExceptions: true);
         }
 
         [Test]
