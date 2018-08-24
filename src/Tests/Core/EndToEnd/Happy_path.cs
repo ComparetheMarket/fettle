@@ -79,8 +79,8 @@ namespace Fettle.Tests.Core.EndToEnd
 
             Assert.That(MutationTestResult.SurvivingMutants.SingleOrDefault(
                     sm => sm.SourceLine == 84 &&
-                          sm.OriginalLine.EndsWith("40 + 2;") &&
-                          sm.MutatedLine.EndsWith("40 - 2;")),
+                          sm.OriginalLine.EndsWith("get { return 40 + 2; }") &&
+                          sm.MutatedLine.EndsWith("get { return 40 - 2; }")),
                 Is.Not.Null);
         }
     }
