@@ -64,7 +64,7 @@
     <Compile Include="Internal\IgnoreComments.cs" />
     <Compile Include="Internal\Instrumentation.cs" />
     <Compile Include="Internal\ITestFinder.cs" />
-    <Compile Include="Internal\RoslynExtensions\MethodDeclarationSyntaxExtensions.cs" />
+    <Compile Include="Internal\RoslynExtensions\MemberDeclarationSyntaxExtensions.cs" />
     <Compile Include="Internal\MutationJob.cs" />
     <Compile Include="Internal\MutationJobList.cs" />
     <Compile Include="Internal\MutationJobMetadata.cs" />
