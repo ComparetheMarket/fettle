@@ -22,7 +22,7 @@ namespace Fettle.Tests.Core.Coverage
         }
 
         [Test]
-        public void Then_methods_are_covered_by_the_tests_that_call_them_during_testing()
+        public void Then_members_are_covered_by_the_tests_that_call_them_during_testing()
         {
             const string memberName = "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IsPositive(System.Int32)";
             var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths.First());
@@ -33,9 +33,9 @@ namespace Fettle.Tests.Core.Coverage
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.PositiveOrNegativeAsExpressionBody"
             }));
         }
-        
+
         [Test]
-        public void Then_methods_that_are_not_called_are_recognised_as_not_covered_by_any_tests()
+        public void Then_members_that_are_not_called_are_recognised_as_not_covered_by_any_tests()
         {
             const string memberName = "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AddNumbers_should_be_ignored(System.Int32)";
             foreach (var testAssemblyFilePath in Config.TestAssemblyFilePaths)
@@ -46,7 +46,7 @@ namespace Fettle.Tests.Core.Coverage
         }
 
         [Test]
-        public void Then_methods_are_covered_by_the_test_cases_that_call_them_during_testing_even_if_they_are_empty()
+        public void Then_members_are_covered_by_the_test_cases_that_call_them_during_testing_even_if_they_are_empty()
         {
             const string memberName = "System.Void HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::EmptyMethod()";
             var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths.First());
@@ -57,7 +57,7 @@ namespace Fettle.Tests.Core.Coverage
         }
 
         [Test]
-        public void Then_methods_are_considered_to_be_covered_by_test_cases_if_their_fixture_setup_or_teardown_methods_call_them()
+        public void Then_members_are_considered_to_be_covered_by_test_cases_if_their_fixture_setup_or_teardown_methods_call_them()
         {
             const string memberName = "System.Boolean HasSurvivingMutants.MoreImplementation.CalledByTestFixture::IsFourtyTwo(System.Int32)";
             var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths.First());            
@@ -86,9 +86,20 @@ namespace Fettle.Tests.Core.Coverage
                 "HasSurvivingMutants.MoreTests.MoreTests.PostIncrement2"
             }));
         }
-        
+
         [Test]
-        public void Then_methods_can_be_covered_by_parameterised_tests()
+        public void Then_members_that_are_properties_can_be_covered_by_tests()
+        {
+            const string memberName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IntegerProperty";
+            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[0]);
+            Assert.That(coveringTests, Is.EquivalentTo(new[]
+            {
+                "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IntegerProperty",
+            }));
+        }
+
+        [Test]
+        public void Then_members_can_be_covered_by_parameterised_tests()
         {
             const string memberName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Preincrement(System.Int32)";
             var coveringTests1 = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[0]);            
@@ -135,7 +146,7 @@ namespace Fettle.Tests.Core.Coverage
         }
         
         [Test]
-        public void Then_methods_with_no_bodies_are_ignored()
+        public void Then_members_with_no_bodies_are_ignored()
         {
             const string memberName = "System.Void HasSurvivingMutants.Implementation.AbstractClass::AbstractMethod()";
             Assert.That(Result.IsMemberCovered(memberName), Is.False);
