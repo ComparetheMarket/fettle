@@ -7,10 +7,10 @@ using NUnit.Framework;
 namespace Fettle.Tests.Core.ImplementationDetails
 {
     [TestFixture]
-    class NameOfContainingMethod_Tests
+    class NameOfContainingMember_Tests
     {
         [Test]
-        public void Types_of_parameters_within_result_are_fully_qualified()
+        public void Parameter_names_are_fully_qualified()
         {
             var syntaxTree = CSharpSyntaxTree.ParseText(
 @"namespace DummyNamespace
@@ -33,14 +33,14 @@ namespace Fettle.Tests.Core.ImplementationDetails
         }
 
         [Test]
-        public void Types_with_no_namespaces_are_supported()
+        public void Members_that_return_predefined_types_are_supported()
         {
             var syntaxTree = CSharpSyntaxTree.ParseText(
 @"namespace DummyNamespace
 {
     public static class DummyClass
     {
-        public static int[] MyDummyMethod(int a)
+        public static int[] DummyMethod(int a)
         {
             return new []{ 1, 2, 3 };
         }
@@ -52,7 +52,30 @@ namespace Fettle.Tests.Core.ImplementationDetails
 
             var containingMemberName = returnStatementNode.NameOfContainingMember(semanticModel);
 
-            Assert.That(containingMemberName, Is.EqualTo("System.Int32[] DummyNamespace.DummyClass::MyDummyMethod(System.Int32)"));
+            Assert.That(containingMemberName, Is.EqualTo("System.Int32[] DummyNamespace.DummyClass::DummyMethod(System.Int32)"));
+        }
+
+        [Test]
+        public void Properties_are_supported()
+        {
+            var syntaxTree = CSharpSyntaxTree.ParseText(
+@"namespace DummyNamespace
+{
+    public static class DummyClass
+    {
+        public static int DummyProperty
+        {
+            get { return 42; }
+        }
+    }
+}");
+            var compilation = CSharpCompilation.Create("DummyAssembly", new [] { syntaxTree });
+            var returnStatementNode = syntaxTree.GetRoot().DescendantNodes().OfType<ReturnStatementSyntax>().Single();
+            var semanticModel = compilation.GetSemanticModel(syntaxTree);
+
+            var containingMemberName = returnStatementNode.NameOfContainingMember(semanticModel);
+
+            Assert.That(containingMemberName, Is.EqualTo("System.Int32 DummyNamespace.DummyClass::DummyProperty"));
         }
     }
 }

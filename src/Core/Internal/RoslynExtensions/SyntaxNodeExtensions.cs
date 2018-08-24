@@ -10,27 +10,37 @@ namespace Fettle.Core.Internal.RoslynExtensions
         {
             NamespaceDeclarationSyntax foundNamespace = null;
             ClassDeclarationSyntax foundClass = null;
-            MethodDeclarationSyntax foundMember = null;
+            MethodDeclarationSyntax foundMethod = null;
+            PropertyDeclarationSyntax foundProperty = null;
 
             SyntaxNode node = targetNode.Parent;
             while (node != null)
             {
                 if (node is NamespaceDeclarationSyntax @namespace) foundNamespace = @namespace;
                 else if (node is ClassDeclarationSyntax @class) foundClass = @class;                
-                else if (node is MethodDeclarationSyntax method) foundMember = method;
+                else if (node is MethodDeclarationSyntax method) foundMethod = method;
+                else if (node is PropertyDeclarationSyntax property) foundProperty = property;
 
                 node = node.Parent;
             }
             
-            if (foundNamespace != null && foundClass != null && foundMember != null)
-            {                
-                var parameters = string.Join(",",
-                    foundMember.ParameterList.Parameters
-                        .Select(p => FullyQualifiedTypeName(p.Type, semanticModel)));
+            if (foundNamespace != null && foundClass != null)
+            {
+                if (foundMethod != null)
+                {
+                    var parameters = string.Join(",",
+                        foundMethod.ParameterList.Parameters
+                            .Select(p => FullyQualifiedTypeName(p.Type, semanticModel)));
 
-                var returnType = FullyQualifiedTypeName(foundMember.ReturnType, semanticModel);
+                    var returnType = FullyQualifiedTypeName(foundMethod.ReturnType, semanticModel);
 
-                return $"{returnType} {foundNamespace.Name}.{foundClass.Identifier}::{foundMember.Identifier}({parameters})";
+                    return $"{returnType} {foundNamespace.Name}.{foundClass.Identifier}::{foundMethod.Identifier}({parameters})";
+                }
+                else if (foundProperty != null)
+                {
+                    var returnType = FullyQualifiedTypeName(foundProperty.Type, semanticModel);
+                    return $"{returnType} {foundNamespace.Name}.{foundClass.Identifier}::{foundProperty.Identifier}";
+                }
             }
 
             return null;
