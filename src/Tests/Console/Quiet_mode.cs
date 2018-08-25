@@ -27,14 +27,14 @@ namespace Fettle.Tests.Console
         public void Then_mutation_testing_progress_is_not_output()
         {
             Assert.That(SpyOutputWriter.WrittenNormalLines.Concat(SpyOutputWriter.WrittenLineSegments)
-                    .Any(l => l.Contains("someclass.cs")),
+                    .Any(l => l.Contains(".cs")),
                 Is.False);
         }
 
         [Test]
         public void Then_coverage_analysis_progress_is_not_output()
         {
-            Assert.That(string.Join("", SpyOutputWriter.WrittenLineSegments), Does.Not.Contain(".........."));
+            Assert.That(string.Join("", SpyOutputWriter.WrittenLineSegments), Does.Not.Contain(".."));
         }
     }
     
@@ -60,14 +60,14 @@ namespace Fettle.Tests.Console
         public void Then_mutation_testing_progress_is_output()
         {
             Assert.That(SpyOutputWriter.WrittenNormalLines.Concat(SpyOutputWriter.WrittenLineSegments)
-                    .Any(l => l.Contains("someclass.cs")),
+                    .Any(l => l.Contains(".cs")),
                 Is.True);
         }
 
         [Test]
         public void Then_coverage_analysis_progress_is_output()
         {
-            Assert.That(string.Join("", SpyOutputWriter.WrittenLineSegments), Does.Contain("..."));
+            Assert.That(string.Join("", SpyOutputWriter.WrittenLineSegments), Does.Contain(".."));
         }
     }
 }

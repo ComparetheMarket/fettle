@@ -91,6 +91,7 @@ namespace Fettle.Tests.Console.Contexts
                     // Raise events that a real MutationTestRunner would raise.
                     var classFilePath = Path.Combine(baseSlnDir, "someclass.cs");
                     eventListener.BeginMutationOfFile(classFilePath, baseSlnDir, 0, 1);
+                    eventListener.MemberMutating("System.Void SomeProject.SomeOtherNamespace.SomeClass.SomeMethod(System.Int32)");
                     eventListener.SyntaxNodeMutating(0, 1);
                     eventListener.MutantSurvived(survivingMutant);
                     eventListener.EndMutationOfFile(classFilePath);
