@@ -81,5 +81,11 @@ namespace HasSurvivingMutants.Tests
         {
             PartiallyTestedNumberComparison.EmptyMethod();
         }
+
+        [Test]
+        public void IntegerProperty()
+        {
+            var _ = PartiallyTestedNumberComparison.IntegerProperty;
+        }
     }
 }

@@ -31,13 +31,13 @@ namespace DummyNamespace
             var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync();
 
             var instrumentedSyntaxTree = await Instrumentation.InstrumentDocument(originalSyntaxTree, originalDocument, (_, __) => {});
-            
-            var instrumentedMethodSource = InstrumentedMethodSource(instrumentedSyntaxTree);
-            Assert.That(instrumentedMethodSource, Does.Contain("public int MagicNumber(int a)"));
-            Assert.That(instrumentedMethodSource, Does.Contain("{"));
-            Assert.That(instrumentedMethodSource, Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
-            Assert.That(instrumentedMethodSource, Does.Contain("    return 42;"));
-            Assert.That(instrumentedMethodSource, Does.Contain("}"));
+
+            var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource[0], Does.Contain("public int MagicNumber(int a)"));
+            Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[3], Does.Contain("    return 42;"));
+            Assert.That(instrumentedMethodSource[4], Does.Contain("}"));
         }
 
         [Test]
@@ -58,12 +58,94 @@ namespace DummyNamespace
             var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync();
 
             var instrumentedSyntaxTree = await Instrumentation.InstrumentDocument(originalSyntaxTree, originalDocument, (_, __) => {});
-            
-            var instrumentedMethodSource = InstrumentedMethodSource(instrumentedSyntaxTree);
-            Assert.That(instrumentedMethodSource, Does.Contain("public void DoSomething()"));
-            Assert.That(instrumentedMethodSource, Does.Contain("{"));
-            Assert.That(instrumentedMethodSource, Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
-            Assert.That(instrumentedMethodSource, Does.Contain("}"));
+
+            var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource[0], Does.Contain("public void DoSomething()"));
+            Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[3], Does.Contain("}"));
+        }
+
+        [Test]
+        public async Task Normal_properties_can_be_instrumented()
+        {
+            const string originalSource = @"
+namespace DummyNamespace
+{
+    public class DummyClass
+    {
+        public int MagicNumber
+        {
+            get
+            {
+                return magicNumber + 1;
+            }
+            set
+            {
+                magicNumber = value + 1;
+            }
+        }
+    }
+}
+";
+            var originalDocument = SourceToDocument(originalSource);
+            var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync();
+
+            var instrumentedSyntaxTree = await Instrumentation.InstrumentDocument(originalSyntaxTree, originalDocument, (_, __) => {});
+
+            var instrumentedMethodSource = SourceOfInstrumentedMember<PropertyDeclarationSyntax>(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource[ 0], Does.Contain("public int MagicNumber"));
+            Assert.That(instrumentedMethodSource[ 1], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[ 2], Does.Contain("get"));
+            Assert.That(instrumentedMethodSource[ 3], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[ 4], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[ 5], Does.Contain("    return magicNumber + 1;"));
+            Assert.That(instrumentedMethodSource[ 6], Does.Contain("}"));
+            Assert.That(instrumentedMethodSource[ 8], Does.Contain("set"));
+            Assert.That(instrumentedMethodSource[ 9], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[10], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[11], Does.Contain("    magicNumber = value + 1;"));
+            Assert.That(instrumentedMethodSource[12], Does.Contain("}"));
+        }
+
+        [Test]
+        public async Task Empty_normal_properties_can_be_instrumented()
+        {
+            const string originalSource = @"
+namespace DummyNamespace
+{
+    public class DummyClass
+    {
+        public int MagicNumber
+        {
+            get
+            {
+                return magicNumber + 1;
+            }
+            set
+            {
+            }
+        }
+    }
+}
+";
+            var originalDocument = SourceToDocument(originalSource);
+            var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync();
+
+            var instrumentedSyntaxTree = await Instrumentation.InstrumentDocument(originalSyntaxTree, originalDocument, (_, __) => {});
+
+            var instrumentedMethodSource = SourceOfInstrumentedMember<PropertyDeclarationSyntax>(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource[ 0], Does.Contain("public int MagicNumber"));
+            Assert.That(instrumentedMethodSource[ 1], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[ 2], Does.Contain("get"));
+            Assert.That(instrumentedMethodSource[ 3], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[ 4], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[ 5], Does.Contain("    return magicNumber + 1;"));
+            Assert.That(instrumentedMethodSource[ 6], Does.Contain("}"));
+            Assert.That(instrumentedMethodSource[ 8], Does.Contain("set"));
+            Assert.That(instrumentedMethodSource[ 9], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[10], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[11], Does.Contain("}"));
         }
 
         [Test]
@@ -82,13 +164,13 @@ namespace DummyNamespace
             var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync();
 
             var instrumentedSyntaxTree = await Instrumentation.InstrumentDocument(originalSyntaxTree, originalDocument, (_, __) => {});
-            
-            var instrumentedMethodSource = InstrumentedMethodSource(instrumentedSyntaxTree);
-            Assert.That(instrumentedMethodSource, Does.Contain("public int MagicNumber(int a)"));
-            Assert.That(instrumentedMethodSource, Does.Contain("{"));
-            Assert.That(instrumentedMethodSource, Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
-            Assert.That(instrumentedMethodSource, Does.Contain("    return 42;"));
-            Assert.That(instrumentedMethodSource, Does.Contain("}"));
+
+            var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource[0], Does.Contain("public int MagicNumber"));
+            Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[3], Does.Contain("    return 42;"));
+            Assert.That(instrumentedMethodSource[4], Does.Contain("}"));
         }
 
         [Test]
@@ -107,13 +189,13 @@ namespace DummyNamespace
             var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync();
 
             var instrumentedSyntaxTree = await Instrumentation.InstrumentDocument(originalSyntaxTree, originalDocument, (_, __) => {});
-            
-            var instrumentedMethodSource = InstrumentedMethodSource(instrumentedSyntaxTree);
-            Assert.That(instrumentedMethodSource, Does.Contain("public void DoSomething()"));
-            Assert.That(instrumentedMethodSource, Does.Contain("{"));
-            Assert.That(instrumentedMethodSource, Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
-            Assert.That(instrumentedMethodSource, Does.Contain("    System.Console.WriteLine(\"hello\");"));
-            Assert.That(instrumentedMethodSource, Does.Contain("}"));
+
+            var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource[0], Does.Contain("public void DoSomething()"));
+            Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[3], Does.Contain("    System.Console.WriteLine(\"hello\");"));
+            Assert.That(instrumentedMethodSource[4], Does.Contain("}"));
         }
 
         [Test(Description = "fix for regression of issue #27")]
@@ -132,13 +214,80 @@ namespace DummyNamespace
             var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync();
 
             var instrumentedSyntaxTree = await Instrumentation.InstrumentDocument(originalSyntaxTree, originalDocument, (_, __) => {});
-            
-            var instrumentedMethodSource = InstrumentedMethodSource(instrumentedSyntaxTree);
-            Assert.That(instrumentedMethodSource, Does.Contain("public Task<System.Generic.List<int>> GetThings()"));
-            Assert.That(instrumentedMethodSource, Does.Contain("{"));
-            Assert.That(instrumentedMethodSource, Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
-            Assert.That(instrumentedMethodSource, Does.Contain("   return new[]{1, 2, 3}.ToList();"));
-            Assert.That(instrumentedMethodSource, Does.Contain("}"));
+
+            var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource[0], Does.Contain("public Task<System.Generic.List<int>> GetThings()"));
+            Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[3], Does.Contain("   return new[]{1, 2, 3}.ToList();"));
+            Assert.That(instrumentedMethodSource[4], Does.Contain("}"));
+        }
+
+        [Test]
+        public async Task Expression_bodied_properties_can_be_instrumented()
+        {
+            const string originalSource = @"
+namespace DummyNamespace
+{
+    public class DummyClass
+    {
+        private int magicNumber = 41;
+
+        public int MagicNumber => magicNumber + 1;
+    }
+}
+";
+            var originalDocument = SourceToDocument(originalSource);
+            var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync();
+
+            var instrumentedSyntaxTree = await Instrumentation.InstrumentDocument(originalSyntaxTree, originalDocument, (_, __) => {});
+
+            var instrumentedMethodSource = SourceOfInstrumentedMember<PropertyDeclarationSyntax>(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource[ 0], Does.Contain("public int MagicNumber"));
+            Assert.That(instrumentedMethodSource[ 1], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[ 2], Does.Contain("get"));
+            Assert.That(instrumentedMethodSource[ 3], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[ 4], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[ 5], Does.Contain("    return magicNumber + 1;"));
+            Assert.That(instrumentedMethodSource[ 6], Does.Contain("}"));
+        }
+        
+        [Test]
+        public async Task Expression_bodied_properties_with_accessors_can_be_instrumented()
+        {
+            const string originalSource = @"
+namespace DummyNamespace
+{
+    public class DummyClass
+    {
+        private int magicNumber = 41;
+
+        public int MagicNumber
+        {
+            get => magicNumber + 1;
+            set => magicNumber = value + 1;
+        }
+    }
+}
+";
+            var originalDocument = SourceToDocument(originalSource);
+            var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync();
+
+            var instrumentedSyntaxTree = await Instrumentation.InstrumentDocument(originalSyntaxTree, originalDocument, (_, __) => {});
+
+            var instrumentedMethodSource = SourceOfInstrumentedMember<PropertyDeclarationSyntax>(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource[ 0], Does.Contain("public int MagicNumber"));
+            Assert.That(instrumentedMethodSource[ 1], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[ 2], Does.Contain("get"));
+            Assert.That(instrumentedMethodSource[ 3], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[ 4], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[ 5], Does.Contain("    return magicNumber + 1;"));
+            Assert.That(instrumentedMethodSource[ 6], Does.Contain("}"));
+            Assert.That(instrumentedMethodSource[ 8], Does.Contain("set"));
+            Assert.That(instrumentedMethodSource[ 9], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[10], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[11], Does.Contain("    magicNumber = value + 1;"));
+            Assert.That(instrumentedMethodSource[12], Does.Contain("}"));
         }
 
         [Test]
@@ -164,7 +313,7 @@ namespace DummyNamespace
                 originalSyntaxTree,
                 originalDocument, 
                 (methodId, fullMethodName) => received.Add(new Tuple<string,string>(methodId, fullMethodName)));
-            
+
             Assert.That(received.Count, Is.EqualTo(4));
             Assert.That(received[0].Item2, Does.Contain("MethodA"));
             Assert.That(received[1].Item2, Does.Contain("MethodB"));
@@ -172,16 +321,16 @@ namespace DummyNamespace
             Assert.That(received[3].Item2, Does.Contain("MethodD"));
         }
 
-        private static string InstrumentedMethodSource(SyntaxTree instrumentedSyntaxTree)
+        private static string[] SourceOfInstrumentedMember<T>(SyntaxTree instrumentedSyntaxTree) where T : MemberDeclarationSyntax
         {
-            var node = instrumentedSyntaxTree
+            return instrumentedSyntaxTree
                 .GetRoot()
                 .DescendantNodes()
-                .OfType<MethodDeclarationSyntax>()
+                .OfType<T>()
                 .Single()
-                .NormalizeWhitespace();
-            
-            return node.ToString();
+                .NormalizeWhitespace()
+                .ToString()
+                .Split(new []{ Environment.NewLine }, StringSplitOptions.None);
         }
 
         private static Document SourceToDocument(string source)

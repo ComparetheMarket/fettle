@@ -23,7 +23,7 @@ namespace Fettle.Tests.Console.Contexts
         {
             ICoverageAnalysisResult emptyCoverageResult = new CoverageAnalysisResult();
             mockCoverage
-                .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))            
+                .Setup(x => x.AnalyseCoverage(It.IsAny<Config>()))            
                 .Returns(
                     Task.FromResult(emptyCoverageResult));
         }
@@ -48,7 +48,7 @@ namespace Fettle.Tests.Console.Contexts
             Given_a_valid_config_file();
 
             mockCoverage
-                .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))
+                .Setup(x => x.AnalyseCoverage(It.IsAny<Config>()))
                 .Returns(
                     Task.FromResult(CoverageAnalysisResult.Error("an example coverage analysis error")));
         }
@@ -91,6 +91,7 @@ namespace Fettle.Tests.Console.Contexts
                     // Raise events that a real MutationTestRunner would raise.
                     var classFilePath = Path.Combine(baseSlnDir, "someclass.cs");
                     eventListener.BeginMutationOfFile(classFilePath, baseSlnDir, 0, 1);
+                    eventListener.MemberMutating("System.Void SomeProject.SomeOtherNamespace.SomeClass::SomeMethod(System.Int32)");
                     eventListener.SyntaxNodeMutating(0, 1);
                     eventListener.MutantSurvived(survivingMutant);
                     eventListener.EndMutationOfFile(classFilePath);
@@ -102,7 +103,7 @@ namespace Fettle.Tests.Console.Contexts
         {
             ICoverageAnalysisResult emptyCoverageResult = new CoverageAnalysisResult();
             mockCoverage
-                .Setup(x => x.AnalyseMethodCoverage(It.IsAny<Config>()))
+                .Setup(x => x.AnalyseCoverage(It.IsAny<Config>()))
                 .Callback(() =>
                 {
                     for (var i = 0; i < 10; ++i)
@@ -131,7 +132,7 @@ namespace Fettle.Tests.Console.Contexts
         protected void Given_coverage_analysis_will_throw_an_exception(Exception ex)
         {
             mockCoverage
-                .Setup(r => r.AnalyseMethodCoverage(It.IsAny<Config>()))
+                .Setup(r => r.AnalyseCoverage(It.IsAny<Config>()))
                 .Throws(ex);
         }
 

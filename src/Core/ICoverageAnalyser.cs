@@ -4,6 +4,6 @@ namespace Fettle.Core
 {
     public interface ICoverageAnalyser
     {
-        Task<ICoverageAnalysisResult> AnalyseMethodCoverage(Config config);
+        Task<ICoverageAnalysisResult> AnalyseCoverage(Config config);
     }
 }

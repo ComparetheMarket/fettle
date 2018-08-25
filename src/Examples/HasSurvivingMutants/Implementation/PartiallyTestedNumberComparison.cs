@@ -77,5 +77,11 @@
 
         // This exists to test that Fettle can handle expression body methods
         public static string PositiveOrNegativeAsExpressionBody(int n) => IsPositive(n) ? "positive" : "negative";
+
+        // This exists to test that Fettle can mutate syntax within properties
+        public static int IntegerProperty
+        {
+            get { return 40 + 2; }
+        }
     }
 }

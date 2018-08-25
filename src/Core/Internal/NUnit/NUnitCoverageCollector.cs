@@ -9,22 +9,22 @@ namespace Fettle.Core.Internal.NUnit
 {
     internal class NUnitCoverageCollector : ITestEventListener
     {
-        private readonly IDictionary<string, string> methodIdsToNames;
+        private readonly IDictionary<string, string> memberIdsToNames;
         private readonly Action<string, int> onAnalysingTestCase;
         private int numTestCasesExecuted;
         private NUnitEventListener TestEventListener { get; }
             
-        private readonly Dictionary<string, ImmutableHashSet<string>> methodsAndCoveringTests 
+        private readonly Dictionary<string, ImmutableHashSet<string>> membersAndCoveringTests 
             = new Dictionary<string, ImmutableHashSet<string>>();
 
-        public IReadOnlyDictionary<string, ImmutableHashSet<string>> MethodsAndCoveringTests { get; }
+        public IReadOnlyDictionary<string, ImmutableHashSet<string>> MembersAndCoveringTests { get; }
 
-        public NUnitCoverageCollector(IDictionary<string, string> methodIdsToNames, Action<string, int> onAnalysingTestCase)
+        public NUnitCoverageCollector(IDictionary<string, string> memberIdsToNames, Action<string, int> onAnalysingTestCase)
         {
-            this.methodIdsToNames = methodIdsToNames;
+            this.memberIdsToNames = memberIdsToNames;
             this.onAnalysingTestCase = onAnalysingTestCase;
 
-            MethodsAndCoveringTests = new ReadOnlyDictionary<string, ImmutableHashSet<string>>(methodsAndCoveringTests);
+            MembersAndCoveringTests = new ReadOnlyDictionary<string, ImmutableHashSet<string>>(membersAndCoveringTests);
             TestEventListener = new NUnitEventListener(OnTestStarting, OnTestComplete, OnTestFixtureComplete);
         }
 
@@ -33,21 +33,21 @@ namespace Fettle.Core.Internal.NUnit
             TestEventListener.OnTestEvent(report);
         }
 
-        private void OnTestFixtureComplete(IEnumerable<string> testMethodsInFixture, IEnumerable<string> executedMethodIds)
+        private void OnTestFixtureComplete(IEnumerable<string> testMethodsInFixture, IEnumerable<string> executedMemberIds)
         {
             var testMethodsInFixtureAsArray = testMethodsInFixture.ToArray();
 
-            foreach (var executedMethodId in executedMethodIds)
+            foreach (var executedMemberId in executedMemberIds)
             {
-                var executedMethodName = methodIdsToNames[executedMethodId];
+                var executedMemberName = memberIdsToNames[executedMemberId];
 
-                if (!methodsAndCoveringTests.ContainsKey(executedMethodName))
-                    methodsAndCoveringTests.Add(executedMethodName, ImmutableHashSet<string>.Empty);
+                if (!membersAndCoveringTests.ContainsKey(executedMemberName))
+                    membersAndCoveringTests.Add(executedMemberName, ImmutableHashSet<string>.Empty);
 
                 foreach (var testMethodName in testMethodsInFixtureAsArray)
                 {
-                    methodsAndCoveringTests[executedMethodName] =
-                        methodsAndCoveringTests[executedMethodName].Add(testMethodName);
+                    membersAndCoveringTests[executedMemberName] =
+                        membersAndCoveringTests[executedMemberName].Add(testMethodName);
                 }
             }
         }
@@ -58,17 +58,17 @@ namespace Fettle.Core.Internal.NUnit
             numTestCasesExecuted++;
         }
 
-        private void OnTestComplete(string testMethodName, IEnumerable<string> executedMethodIds)
+        private void OnTestComplete(string testMethodName, IEnumerable<string> executedMemberIds)
         {
-            foreach (var executedMethodId in executedMethodIds)
+            foreach (var executedMemberId in executedMemberIds)
             {
-                var executedMethodName = methodIdsToNames[executedMethodId];
+                var executedMemberName = memberIdsToNames[executedMemberId];
 
-                if (!methodsAndCoveringTests.ContainsKey(executedMethodName))
-                    methodsAndCoveringTests.Add(executedMethodName, ImmutableHashSet<string>.Empty);
+                if (!membersAndCoveringTests.ContainsKey(executedMemberName))
+                    membersAndCoveringTests.Add(executedMemberName, ImmutableHashSet<string>.Empty);
 
-                methodsAndCoveringTests[executedMethodName] =
-                    methodsAndCoveringTests[executedMethodName].Add(testMethodName);
+                membersAndCoveringTests[executedMemberName] =
+                    membersAndCoveringTests[executedMemberName].Add(testMethodName);
             }
         }
     }

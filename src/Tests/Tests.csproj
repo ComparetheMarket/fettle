@@ -59,6 +59,7 @@
     <Compile Include="Console\EndToEnd\Happy_path.cs" />
     <Compile Include="Console\Errors_occur_during_coverage_analysis.cs" />
     <Compile Include="Console\Errors_occur_during_mutation_testing.cs" />
+    <Compile Include="Console\ImplementationDetails\VerboseEventListener_Tests.cs" />
     <Compile Include="Console\Missing_command_line_arguments.cs" />
     <Compile Include="Console\Mutation_testing_throws_an_exception.cs" />
     <Compile Include="Console\Missing_config_file.cs" />
@@ -79,7 +80,7 @@
     <Compile Include="Core\ImplementationDetails\CanInstrument_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\ExtractSourceTextFromClass_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\Instrumentation_Tests.cs" />
-    <Compile Include="Core\Method_coverage.cs" />
+    <Compile Include="Core\Coverage_analysis.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered_with_multiple_filters.cs" />
     <Compile Include="Core\Filtering\Projects_are_not_filtered.cs" />
@@ -88,7 +89,7 @@
     <Compile Include="Core\Filtering\Source_files_are_not_filtered.cs" />
     <Compile Include="Core\Ignored_lines.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Conditional_operator.cs" />
-    <Compile Include="Core\ImplementationDetails\NameOfContainingMethod_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\NameOfContainingMember_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\NUnitExploreResults_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Increment_and_decrement_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Equality_operators.cs" />
@@ -167,6 +168,7 @@
       <Paket>True</Paket>
     </Analyzer>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>

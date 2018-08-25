@@ -11,12 +11,12 @@ namespace Fettle.Core.Internal
 {
     internal static class Instrumentation
     {
-        public const string CoverageOutputLinePrefix = "fettle_covered_method:";
+        public const string CoverageOutputLinePrefix = "fettle_covered_member:";
 
         public static async Task<SyntaxTree> InstrumentDocument(
             SyntaxTree originalSyntaxTree,
             Document document,
-            Action<string, string> onMethodInstrumented)
+            Action<string, string> onMemberInstrumented)
         {
             var root = await originalSyntaxTree.GetRootAsync();
             var semanticModel = await document.GetSemanticModelAsync();
@@ -24,35 +24,62 @@ namespace Fettle.Core.Internal
 
             foreach (var classNode in root.DescendantNodes().OfType<ClassDeclarationSyntax>())
             {
-                foreach (var methodNode in classNode.DescendantNodes()
-                                                    .OfType<MethodDeclarationSyntax>()
-                                                    .Where(methodNode => methodNode.CanInstrument()))
+                foreach (var memberNode in classNode.DescendantNodes()
+                                                    .OfType<MemberDeclarationSyntax>()
+                                                    .Where(memberNode => memberNode.CanInstrument()))
                 {
-                    var fullMethodName = methodNode.ChildNodes().First().NameOfContainingMethod(semanticModel);
-                    var methodId = Guid.NewGuid().ToString();
+                    var fullMemberName = memberNode.ChildNodes().First().NameOfContainingMember(semanticModel);
+                    var memberId = Guid.NewGuid().ToString();
 
-                    InstrumentMethod(methodId, methodNode, documentEditor);
+                    InstrumentMember(memberId, memberNode, documentEditor);
 
-                    onMethodInstrumented(methodId, fullMethodName);
+                    onMemberInstrumented(memberId, fullMemberName);
                 }
             }
 
             return await documentEditor.GetChangedDocument().GetSyntaxTreeAsync();
         }
 
-        private static void InstrumentMethod(string methodId, MethodDeclarationSyntax methodNode, DocumentEditor documentEditor)
+        private static void InstrumentMember(string methodId, MemberDeclarationSyntax memberNode, DocumentEditor documentEditor)
         {
             var instrumentationNode = SyntaxFactory.ParseStatement(
                 $"System.Console.WriteLine(\"{CoverageOutputLinePrefix}{methodId}\");");
 
-            var isMethodExpressionBodied = methodNode.ExpressionBody != null;
-            if (isMethodExpressionBodied)
+            if (memberNode is MethodDeclarationSyntax methodNode)
             {
-                InstrumentExpressionBodiedMethod(methodNode, documentEditor, instrumentationNode);
+                var isMethodExpressionBodied = methodNode.ExpressionBody != null;
+                if (isMethodExpressionBodied)
+                {
+                    InstrumentExpressionBodiedMethod(methodNode, documentEditor, instrumentationNode);
+                }
+                else
+                {
+                    InstrumentNormalMethod(methodNode, documentEditor, instrumentationNode);
+                }
             }
-            else
+            else if (memberNode is PropertyDeclarationSyntax propertyNode)
             {
-                InstrumentNormalMethod(methodNode, documentEditor, instrumentationNode);
+                if (propertyNode.ExpressionBody != null)
+                {
+                    InstrumentExpressionBodiedProperty(propertyNode, documentEditor, instrumentationNode);
+                }
+                else
+                {
+                    foreach (var accessorNode in propertyNode.AccessorList.Accessors)
+                    {
+                        var isAccessorExpressionBodied = accessorNode.ExpressionBody != null;
+                        if (isAccessorExpressionBodied)
+                        {
+                            InstrumentExpressionBodiedPropertyAccessor(
+                                accessorNode, documentEditor, instrumentationNode);
+                        }
+                        else
+                        {
+                            InstrumentNormalPropertyAccessor(
+                                accessorNode, documentEditor, instrumentationNode);
+                        }
+                    }
+                }
             }
         }
 
@@ -75,26 +102,54 @@ namespace Fettle.Core.Internal
             }
         }
 
+        private static void InstrumentNormalPropertyAccessor(
+            AccessorDeclarationSyntax propertyAccessorNode, 
+            DocumentEditor documentEditor, 
+            StatementSyntax instrumentationNode)
+        {
+            var firstChildNode = propertyAccessorNode.Body.ChildNodes().FirstOrDefault();
+            var isAccessorEmpty = firstChildNode == null;
+            if (isAccessorEmpty)
+            {
+                documentEditor.ReplaceNode(
+                    propertyAccessorNode,
+                    propertyAccessorNode.WithBody(SyntaxFactory.Block(instrumentationNode)));
+            }
+            else
+            {
+                documentEditor.InsertBefore(firstChildNode, instrumentationNode);
+            }
+        }
+
+        // A note on instrumenting expression-bodied methods/properties:
+        //
+        // We replace expression bodies (which can only have one statement) with a normal body
+        // so that we can add the extra instrumentation statement.
+        //
+        // E.g. these:
+        //
+        //      public int MethodA() => 42;
+        //      public void MethodB(string s) => Console.WriteLine(s);
+        //
+        // become these:
+        //
+        //      public int MethodA()
+        //      {
+        //          <instrumentation statement goes here>
+        //          return 42;
+        //      }
+        //
+        //      public void MethodB(string s)
+        //      {
+        //          <instrumentation statement goes here>
+        //          Console.WriteLine(s);
+        //      }
+
         private static void InstrumentExpressionBodiedMethod(
             MethodDeclarationSyntax methodNode,
             DocumentEditor documentEditor,
             StatementSyntax instrumentationNode)
         {
-            // Replace expression body (which can only have one statement) with a normal method body
-            // so that we can add the extra instrumentation statement.
-            //
-            // E.g. this:
-            //
-            //      public int MagicNumber() => 42;
-            //
-            // becomes this:
-            //
-            //      public int MagicNumber()
-            //      {
-            //          <instrumentation statement goes here>
-            //          return 42;
-            //      }
-
             BlockSyntax newMethodBodyBlock;
 
             var isVoidMethod = methodNode.ReturnType is PredefinedTypeSyntax typeSyntax &&
@@ -118,7 +173,54 @@ namespace Fettle.Core.Internal
                 .WithBody(newMethodBodyBlock);
 
             documentEditor.ReplaceNode(methodNode, newMethodNode);
+        }
 
+        private static void InstrumentExpressionBodiedProperty(
+            PropertyDeclarationSyntax propertyNode,
+            DocumentEditor documentEditor,
+            StatementSyntax instrumentationNode)
+        {
+            var newGetAccessorBodyBlock = SyntaxFactory.Block(
+                instrumentationNode,
+                SyntaxFactory.ReturnStatement(propertyNode.ExpressionBody.Expression));
+
+            var newPropertyNode = propertyNode
+                .WithExpressionBody(null)
+                .AddAccessorListAccessors(
+                    SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration, newGetAccessorBodyBlock));
+
+            documentEditor.ReplaceNode(propertyNode, newPropertyNode);
+        }
+
+        private static void InstrumentExpressionBodiedPropertyAccessor(
+            AccessorDeclarationSyntax propertyAccessorNode,
+            DocumentEditor documentEditor,
+            StatementSyntax instrumentationNode)
+        {
+            BlockSyntax newAccessorBodyBlock;
+
+            if (propertyAccessorNode.Kind() == SyntaxKind.GetAccessorDeclaration)
+            {
+                newAccessorBodyBlock = SyntaxFactory.Block(
+                    instrumentationNode,
+                    SyntaxFactory.ReturnStatement(propertyAccessorNode.ExpressionBody.Expression));
+            }
+            else
+            {
+                newAccessorBodyBlock = SyntaxFactory.Block(
+                    instrumentationNode,
+                    SyntaxFactory.ExpressionStatement(propertyAccessorNode.ExpressionBody.Expression));
+            }
+
+            var newAccessorNode = propertyAccessorNode.Update(
+                attributeLists: propertyAccessorNode.AttributeLists,
+                modifiers: propertyAccessorNode.Modifiers,
+                keyword: propertyAccessorNode.Keyword,
+                body: newAccessorBodyBlock,
+                expressionBody: null,
+                semicolonToken: new SyntaxToken());
+
+            documentEditor.ReplaceNode(propertyAccessorNode, newAccessorNode);
         }
     }
 }

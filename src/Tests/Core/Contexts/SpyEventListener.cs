@@ -9,11 +9,11 @@ namespace Fettle.Tests.Core.Contexts
         private readonly List<string> begunFiles = new List<string>();
         public IReadOnlyList<string> BegunFiles => begunFiles;
 
-        private readonly List<string> begunMethods = new List<string>();
-        public IReadOnlyList<string> BegunMethods => begunMethods;
+        private readonly List<string> begunMembers = new List<string>();
+        public IReadOnlyList<string> BegunMembers => begunMembers;
         
         public bool HaveAnyFilesBegun => begunFiles.Any();
-        public bool HaveAnyMethodsBegun => begunMethods.Any();
+        public bool HaveAnyMembersBegun => begunMembers.Any();
         public bool HaveAnySyntaxNodesBegun { get; private set; }
         public bool HaveAnyFilesEnded { get; private set; }
         public bool HaveAnyMutantsSurvived { get; private set; }
@@ -27,9 +27,9 @@ namespace Fettle.Tests.Core.Contexts
             begunFiles.Add(filePath);
         }
 
-        public void MethodMutating(string name)
+        public void MemberMutating(string name)
         {
-            begunMethods.Add(name);    
+            begunMembers.Add(name);    
         }
 
         public void SyntaxNodeMutating(int index, int total)

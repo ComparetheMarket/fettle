@@ -27,9 +27,9 @@ namespace Fettle.Core
             this.testRunner = testRunner;
         }
 
-        public async Task<ICoverageAnalysisResult> AnalyseMethodCoverage(Config config)
+        public async Task<ICoverageAnalysisResult> AnalyseCoverage(Config config)
         {
-            var methodIdsToNames = new Dictionary<string, string>();
+            var memberIdsToNames = new Dictionary<string, string>();
             
             var baseTempDirectory = TempDirectory.Create();
 
@@ -50,7 +50,7 @@ namespace Fettle.Core
                         config,
                         baseTempDirectory,
                         copiedTestAssemblyFilePaths,
-                        methodIdsToNames);
+                        memberIdsToNames);
 
                     var result = new CoverageAnalysisResult();
 
@@ -63,7 +63,7 @@ namespace Fettle.Core
                         var runResult = testRunner.RunTestsAndAnalyseCoverage(
                             testAssemblyFilePaths: new [] { copiedTestAssemblyFilePath }, 
                             testMethodNames: tests, 
-                            methodIdsToNames: methodIdsToNames, 
+                            memberIdsToNames: memberIdsToNames, 
                             onAnalysingTestCase: (test, index) => eventListener.BeginCoverageAnalysisOfTestCase(test, index, tests.Length));
 
                         if (runResult.Status != TestRunStatus.AllTestsPassed)
@@ -72,7 +72,7 @@ namespace Fettle.Core
                         }
 
                         var originalTestAssemblyFilePath = config.TestAssemblyFilePaths[testAssemblyIndex];
-                        result = result.WithCoveredMethods(runResult.MethodsAndCoveringTests, originalTestAssemblyFilePath);
+                        result = result.WithCoveredMembers(runResult.MembersAndCoveringTests, originalTestAssemblyFilePath);
                     }
 
                     return result;
@@ -89,13 +89,13 @@ namespace Fettle.Core
             Config config,
             string baseTempDirectory,
             IList<string> copiedTestAssemblyFilePaths,
-            IDictionary<string, string> methodIdsToNames)
+            IDictionary<string, string> memberIdsToNames)
         {
             foreach (var project in projects)
             {
                 var outputFilePath = Path.Combine(baseTempDirectory, $@"{project.AssemblyName}.dll");
 
-                await InstrumentThenCompileProject(project, config, outputFilePath, methodIdsToNames);
+                await InstrumentThenCompileProject(project, config, outputFilePath, memberIdsToNames);
 
                 CopyInstrumentedAssemblyIntoTempTestAssemblyDirectories(
                     outputFilePath, 
@@ -107,7 +107,7 @@ namespace Fettle.Core
             Project project,
             Config config,
             string outputFilePath,
-            IDictionary<string, string> methodIdsToNames)
+            IDictionary<string, string> memberIdsToNames)
         {
             var originalSyntaxTrees = new List<SyntaxTree>();
             var modifiedSyntaxTrees = new List<SyntaxTree>();
@@ -122,7 +122,7 @@ namespace Fettle.Core
                 var modifiedSyntaxTree = await Instrumentation.InstrumentDocument(
                     originalSyntaxTree, 
                     originalClass,
-                    methodIdsToNames.Add);
+                    memberIdsToNames.Add);
 
                 originalSyntaxTrees.Add(originalSyntaxTree);
                 modifiedSyntaxTrees.Add(modifiedSyntaxTree);

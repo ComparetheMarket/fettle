@@ -57,22 +57,22 @@ namespace Fettle.Core.Internal.NUnit
             var testName = doc.Root.Attribute("fullname").Value;
             testCasesWithinFixture.Add(testName);
 
-            var calledMethodIds = ParseExecutedMethodIdsFromOutput(doc);
+            var calledMemberIds = ParseExecutedMemberIdsFromOutput(doc);
 
-            onTestComplete(testName, calledMethodIds);
+            onTestComplete(testName, calledMemberIds);
         }
 
         private void HandleTestFixtureComplete(string report)
         {
             var doc = XDocument.Parse(report);
 
-            var calledMethodIds = ParseExecutedMethodIdsFromOutput(doc);
-            onTestFixtureComplete(testCasesWithinFixture, calledMethodIds);
+            var calledMemberIds = ParseExecutedMemberIdsFromOutput(doc);
+            onTestFixtureComplete(testCasesWithinFixture, calledMemberIds);
 
             testCasesWithinFixture.Clear();
         }
 
-        private static List<string> ParseExecutedMethodIdsFromOutput(XDocument doc)
+        private static List<string> ParseExecutedMemberIdsFromOutput(XDocument doc)
         {
             var consoleOutput = new StringBuilder();
             foreach (var outputNode in doc.XPathSelectElements("//test-case/output|//test-suite/output"))
@@ -80,7 +80,7 @@ namespace Fettle.Core.Internal.NUnit
                 consoleOutput.Append(outputNode.Value);
             }
 
-            var calledMethodIds = new List<string>();
+            var calledMemberIds = new List<string>();
             foreach (var outputLine in consoleOutput
                 .ToString()
                 .Split(new[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries))
@@ -88,12 +88,12 @@ namespace Fettle.Core.Internal.NUnit
                 const string prefix = Instrumentation.CoverageOutputLinePrefix;
                 if (outputLine.StartsWith(prefix))
                 {
-                    var method = outputLine.Substring(prefix.Length);
-                    calledMethodIds.Add(method);
+                    var member = outputLine.Substring(prefix.Length);
+                    calledMemberIds.Add(member);
                 }
             }
 
-            return calledMethodIds;
+            return calledMemberIds;
         }
     }
 }

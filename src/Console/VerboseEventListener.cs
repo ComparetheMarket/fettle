@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Fettle.Core;
 
@@ -8,7 +9,7 @@ namespace Fettle.Console
     {
         private readonly IOutputWriter outputWriter;
         private string baseSourceDir;
-        private bool anyEventsForFile;
+        private bool anyMutationsMadeForCurrentFile;
 
         public VerboseEventListener(IOutputWriter outputWriter)
         {
@@ -17,8 +18,7 @@ namespace Fettle.Console
 
         public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
         {
-            var progress = Math.Floor(((decimal)index / total) * 100);
-            if (progress % 5 == 0)
+            if (index % 5 == 0)
             {
                 outputWriter.Write(".");
             }
@@ -37,16 +37,19 @@ namespace Fettle.Console
             outputWriter.Write(Environment.NewLine);
             outputWriter.Write($"Looking in {ToRelativePath(filePath)} ({index+1}/{total}):");
 
-            anyEventsForFile = false;
+            anyMutationsMadeForCurrentFile = false;
         }
 
-        public void MethodMutating(string name)
+        public void MemberMutating(string name)
         {
-            var shortName = Regex.Match(name, @"\s.*\.(.*)\(").Groups[1].Value.Replace("::", ".");
-            outputWriter.Write(Environment.NewLine);
-            outputWriter.Write($"  Found method: {shortName}\t");
+            var tokensInReverseOrder = name.Split(new[] {"::"}, StringSplitOptions.None).Reverse().ToArray();
+            var memberNameWithoutParens = tokensInReverseOrder.First().Split('(').First();
+            var className = tokensInReverseOrder.Skip(1).First().Split('.').Last();
 
-            anyEventsForFile = true;
+            outputWriter.Write(Environment.NewLine);
+            outputWriter.Write($"  Found: {className}.{memberNameWithoutParens}\t");
+
+            anyMutationsMadeForCurrentFile = true;
         }
 
         public void SyntaxNodeMutating(int index, int total)
@@ -61,7 +64,7 @@ namespace Fettle.Console
 
         public void EndMutationOfFile(string filePath)
         {
-            if (anyEventsForFile)
+            if (anyMutationsMadeForCurrentFile)
             {
                 outputWriter.WriteLine("");
             }
@@ -72,9 +75,6 @@ namespace Fettle.Console
             }
         }
 
-        private string ToRelativePath(string filePath)
-        {
-            return filePath.Substring(baseSourceDir.Length + 1);
-        }
+        private string ToRelativePath(string filePath) => filePath.Substring(baseSourceDir.Length + 1);
     }
 }

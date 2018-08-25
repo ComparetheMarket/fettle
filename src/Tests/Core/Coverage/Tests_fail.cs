@@ -11,7 +11,7 @@ namespace Fettle.Tests.Core.Coverage
 
             Given_some_failing_tests();
 
-            When_analysing_method_coverage();
+            When_analysing_coverage();
         }
 
         [Test]

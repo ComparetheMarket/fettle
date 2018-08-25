@@ -9,7 +9,7 @@ namespace Fettle.Core.Internal
     internal class MutationJob
     {
         private readonly SyntaxNode originalSyntaxRoot;
-        private readonly string methodName;
+        private readonly string memberName;
         private readonly Config config;
         private readonly IMutator mutator;
         private readonly ICoverageAnalysisResult coverageAnalysisResult;
@@ -22,7 +22,7 @@ namespace Fettle.Core.Internal
             SyntaxNode originalSyntaxRoot,
             SyntaxNode originalNode,
             Document originalClass,
-            string methodName,
+            string memberName,
             Config config,
             IMutator mutator,
             ICoverageAnalysisResult coverageAnalysisResult)
@@ -31,7 +31,7 @@ namespace Fettle.Core.Internal
             OriginalClass = originalClass;
 
             this.originalSyntaxRoot = originalSyntaxRoot;
-            this.methodName = methodName;
+            this.memberName = memberName;
             this.config = config;
             this.mutator = mutator;
             this.coverageAnalysisResult = coverageAnalysisResult;
@@ -60,7 +60,7 @@ namespace Fettle.Core.Internal
                 var originalTestAssemblyFilePath = config.TestAssemblyFilePaths[testAssemblyIndex];
                 var tempTestAssemblyFilePath = copiedTempTestAssemblyFilePaths[testAssemblyIndex];
 
-                var testsToRun = coverageAnalysisResult.TestsThatCoverMethod(methodName, originalTestAssemblyFilePath);
+                var testsToRun = coverageAnalysisResult.TestsThatCoverMember(memberName, originalTestAssemblyFilePath);
                 if (testsToRun.Any())
                 {
                     ranAnyTests = true;

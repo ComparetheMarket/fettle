@@ -108,7 +108,7 @@ namespace Fettle.Console
         {
             outputWriter.Write("Analysing test coverage");
 
-            var coverageResult = coverageAnalyser.AnalyseMethodCoverage(config).Result;
+            var coverageResult = coverageAnalyser.AnalyseCoverage(config).Result;
             if (coverageResult.ErrorDescription != null)
             {
                 outputWriter.WriteFailureLine("Unable to perform test coverage analysis:");
