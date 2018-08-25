@@ -59,6 +59,7 @@
     <Compile Include="Console\EndToEnd\Happy_path.cs" />
     <Compile Include="Console\Errors_occur_during_coverage_analysis.cs" />
     <Compile Include="Console\Errors_occur_during_mutation_testing.cs" />
+    <Compile Include="Console\ImplementationDetails\VerboseEventListener_Tests.cs" />
     <Compile Include="Console\Missing_command_line_arguments.cs" />
     <Compile Include="Console\Mutation_testing_throws_an_exception.cs" />
     <Compile Include="Console\Missing_config_file.cs" />
@@ -167,6 +168,7 @@
       <Paket>True</Paket>
     </Analyzer>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
