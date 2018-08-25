@@ -59,16 +59,25 @@ namespace Fettle.Core.Internal
             }
             else if (memberNode is PropertyDeclarationSyntax propertyNode)
             {
-                foreach (var accessorNode in propertyNode.AccessorList.Accessors)
+                if (propertyNode.ExpressionBody != null)
                 {
-                    var isAccessorExpressionBodied = accessorNode.ExpressionBody != null;
-                    if (isAccessorExpressionBodied)
+                    InstrumentExpressionBodiedProperty(propertyNode, documentEditor, instrumentationNode);
+                }
+                else
+                {
+                    foreach (var accessorNode in propertyNode.AccessorList.Accessors)
                     {
-                        InstrumentExpressionBodiedPropertyAccessor(accessorNode, documentEditor, instrumentationNode);
-                    }
-                    else
-                    {
-                        InstrumentNormalPropertyAccessor(accessorNode, documentEditor, instrumentationNode);
+                        var isAccessorExpressionBodied = accessorNode.ExpressionBody != null;
+                        if (isAccessorExpressionBodied)
+                        {
+                            InstrumentExpressionBodiedPropertyAccessor(
+                                accessorNode, documentEditor, instrumentationNode);
+                        }
+                        else
+                        {
+                            InstrumentNormalPropertyAccessor(
+                                accessorNode, documentEditor, instrumentationNode);
+                        }
                     }
                 }
             }
@@ -141,7 +150,6 @@ namespace Fettle.Core.Internal
             DocumentEditor documentEditor,
             StatementSyntax instrumentationNode)
         {
-            
             BlockSyntax newMethodBodyBlock;
 
             var isVoidMethod = methodNode.ReturnType is PredefinedTypeSyntax typeSyntax &&
@@ -166,7 +174,24 @@ namespace Fettle.Core.Internal
 
             documentEditor.ReplaceNode(methodNode, newMethodNode);
         }
-        
+
+        private static void InstrumentExpressionBodiedProperty(
+            PropertyDeclarationSyntax propertyNode,
+            DocumentEditor documentEditor,
+            StatementSyntax instrumentationNode)
+        {
+            var newGetAccessorBodyBlock = SyntaxFactory.Block(
+                instrumentationNode,
+                SyntaxFactory.ReturnStatement(propertyNode.ExpressionBody.Expression));
+
+            var newPropertyNode = propertyNode
+                .WithExpressionBody(null)
+                .AddAccessorListAccessors(
+                    SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration, newGetAccessorBodyBlock));
+
+            documentEditor.ReplaceNode(propertyNode, newPropertyNode);
+        }
+
         private static void InstrumentExpressionBodiedPropertyAccessor(
             AccessorDeclarationSyntax propertyAccessorNode,
             DocumentEditor documentEditor,

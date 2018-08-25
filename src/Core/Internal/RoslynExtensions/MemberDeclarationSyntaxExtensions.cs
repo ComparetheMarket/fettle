@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -28,17 +27,29 @@ namespace Fettle.Core.Internal.RoslynExtensions
 
         private static bool CanInstrumentProperty(PropertyDeclarationSyntax propertyDeclaration)
         {
-            var accessors = propertyDeclaration.AccessorList.ChildNodes().OfType<AccessorDeclarationSyntax>();
-            var getter = accessors.Single(a => a.Kind() == SyntaxKind.GetAccessorDeclaration);
+            var hasAccessors = propertyDeclaration.AccessorList != null;
+            if (hasAccessors)
+            {
+                var accessors = propertyDeclaration.AccessorList.ChildNodes().OfType<AccessorDeclarationSyntax>();
+                var getter = accessors.Single(a => a.Kind() == SyntaxKind.GetAccessorDeclaration);
 
-            // Assumption: you can't mix auto accessors and non-auto accessors in a single property.
-            // E.g. these won't compile:
-            //      int Thing { get; set => x = value; }
-            //      int Thing { get { return x; } set; }
-            // Therefore, if the getter has a body/expression body then the setter will too (and vice versa).
-            // Therefore we only need to check one.
+                var getterIsAutoAccessor = getter.Body == null && getter.ExpressionBody == null;
 
-            return getter.Body != null || getter.ExpressionBody != null;
+                // Assumption: you can't mix auto accessors and non-auto accessors in a single property.
+                // E.g. these won't compile:
+                //      int Thing { get; set => x = value; }
+                //      int Thing { get { return x; } set; }
+                // Therefore, if the getter has a body/expression body then the setter will too (and vice versa).
+                // Therefore we only need to check one.
+
+                if (getterIsAutoAccessor)
+                {
+                    // Auto-accessor means that there is no body/expression body, so nothing to mutate
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

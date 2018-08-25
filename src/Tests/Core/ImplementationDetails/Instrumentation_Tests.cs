@@ -231,6 +231,37 @@ namespace DummyNamespace
 {
     public class DummyClass
     {
+        private int magicNumber = 41;
+
+        public int MagicNumber => magicNumber + 1;
+    }
+}
+";
+            var originalDocument = SourceToDocument(originalSource);
+            var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync();
+
+            var instrumentedSyntaxTree = await Instrumentation.InstrumentDocument(originalSyntaxTree, originalDocument, (_, __) => {});
+
+            var instrumentedMethodSource = SourceOfInstrumentedMember<PropertyDeclarationSyntax>(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource[ 0], Does.Contain("public int MagicNumber"));
+            Assert.That(instrumentedMethodSource[ 1], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[ 2], Does.Contain("get"));
+            Assert.That(instrumentedMethodSource[ 3], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[ 4], Does.Contain($"   System.Console.WriteLine(\"{Instrumentation.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[ 5], Does.Contain("    return magicNumber + 1;"));
+            Assert.That(instrumentedMethodSource[ 6], Does.Contain("}"));
+        }
+        
+        [Test]
+        public async Task Expression_bodied_properties_with_accessors_can_be_instrumented()
+        {
+            const string originalSource = @"
+namespace DummyNamespace
+{
+    public class DummyClass
+    {
+        private int magicNumber = 41;
+
         public int MagicNumber
         {
             get => magicNumber + 1;

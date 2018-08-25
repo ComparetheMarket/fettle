@@ -73,6 +73,23 @@ namespace DummyNamespace
     {
         private static int magicNumber = 41;
 
+        public static int MagicNumber => magicNumber + 1;
+    }
+}");
+
+            Assert.That(propertyDeclaration.CanInstrument(), Is.True);
+        }
+        
+        [Test]
+        public void Expression_bodied_properties_with_accessors_can_be_instrumented()
+        {
+            var propertyDeclaration = ExtractLastSyntaxNodeFromSource<PropertyDeclarationSyntax>(@"
+namespace DummyNamespace
+{
+    public static class DummyClass
+    {
+        private static int magicNumber = 41;
+
         public static int MagicNumber
         {
             get => magicNumber + 1;
