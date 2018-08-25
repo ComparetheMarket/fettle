@@ -81,7 +81,7 @@
         // This exists to test that Fettle can mutate syntax within properties
         public static int IntegerProperty
         {
-            get { return 40 + 2; } 
+            get { return 40 + 2; }
         }
     }
 }
