@@ -35,18 +35,17 @@ namespace Fettle.Tests.Console.EndToEnd
             fettleProcess.WaitForExit((int)TimeSpan.FromMinutes(1).TotalMilliseconds);
 
             stopwatch.Stop();
-            System.Console.WriteLine($"Duration: {stopwatch.Elapsed.TotalSeconds} seconds");
 
             var stdOut = fettleProcess.StandardOutput.ReadToEnd();
-            System.Console.WriteLine($"*** stdout: {stdOut}");
-
             var stdErr = fettleProcess.StandardError.ReadToEnd();
-            System.Console.WriteLine($"*** stderr: {stdErr}");
             
-            Assert.That(fettleProcess.ExitCode, Is.EqualTo(1));
-            Assert.That(stdErr, Is.Empty);            
-            Assert.That(stdOut, Does.Contain("mutant(s) survived!"));
-            Assert.That(stdOut, Does.Contain("PartiallyTestedNumberComparison.cs:7"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fettleProcess.ExitCode, Is.EqualTo(1));
+                Assert.That(stdErr, Is.Empty);
+                Assert.That(stdOut, Does.Contain("mutant(s) survived!"));
+                Assert.That(stdOut, Does.Contain("PartiallyTestedNumberComparison.cs:7"));    
+            });
         }
 
         private static void ModifyConfigFile(string configFilePath)
