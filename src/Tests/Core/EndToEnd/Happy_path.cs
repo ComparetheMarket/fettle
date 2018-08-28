@@ -17,7 +17,7 @@ namespace Fettle.Tests.Core.EndToEnd
         [Test]
         public void Then_the_expected_surviving_mutants_are_returned()
         {
-            Assert.That(MutationTestResult.SurvivingMutants.Count, Is.EqualTo(10),
+            Assert.That(MutationTestResult.SurvivingMutants.Count, Is.EqualTo(11),
                 string.Join(Environment.NewLine, MutationTestResult.SurvivingMutants.Select(sm =>
                     $"{Path.GetFileName(sm.SourceFilePath)}:{sm.SourceLine} \"{sm.OriginalLine}\" => \"{sm.MutatedLine}\"")));
 
@@ -81,6 +81,12 @@ namespace Fettle.Tests.Core.EndToEnd
                     sm => sm.SourceLine == 84 &&
                           sm.OriginalLine.EndsWith("get { return 40 + 2; }") &&
                           sm.MutatedLine.EndsWith("get { return 40 - 2; }")),
+                Is.Not.Null);
+
+            Assert.That(MutationTestResult.SurvivingMutants.SingleOrDefault(
+                    sm => sm.SourceLine == 89 &&
+                          sm.OriginalLine.EndsWith("if (b)") &&
+                          sm.MutatedLine.EndsWith("if (!b)")),
                 Is.Not.Null);
         }
     }

@@ -83,5 +83,18 @@
         {
             get { return 40 + 2; }
         }
+
+        public static string BooleanToString(bool b)
+        {
+            if (b)
+            {
+                return "true";
+            }
+            else
+            {
+                return "false";
+            }
+        }
+
     }
 }

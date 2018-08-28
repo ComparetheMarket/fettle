@@ -60,5 +60,37 @@ namespace DummyNamespace
                    &&
                    b == 0;"));
         }
+
+        [Test]
+        public void The_source_text_of_if_statements_are_reduced_when_extracted()
+        {
+            var syntaxTree = CSharpSyntaxTree.ParseText(@"
+namespace DummyNamespace
+{
+    public static class DummyClass
+    {
+        public static bool AreBothPositive(int a, int b)
+        {
+            if (a > 0 &&
+                b > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+}");
+            var syntaxRoot = syntaxTree.GetRoot();
+            var span = syntaxTree.GetRoot().DescendantNodes().OfType<IfStatementSyntax>().Single().Span;
+
+            var sourceText = span.ToSourceText(syntaxRoot);
+
+            Assert.That(sourceText, Is.EqualTo(
+@"            if (a > 0 &&
+                b > 0)"));
+        }
     }
 }
