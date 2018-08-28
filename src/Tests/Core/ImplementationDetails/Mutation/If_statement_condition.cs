@@ -10,8 +10,8 @@ namespace Fettle.Tests.Core.ImplementationDetails.Mutation
     [TestFixture]
     class If_statement_condition
     {
-        [TestCase("a", "if (!a")]
-        [TestCase("!a", "if (a")]
+        [TestCase("a", "if (!(a))")]
+        [TestCase("!a", "if (a)")]
         public void Conditions_can_be_negated(string before, string expectedAfter)
         {
             var syntaxTree = CSharpSyntaxTree.ParseText(
@@ -45,7 +45,7 @@ $@"public static string BooleanToString(bool b)
     {
         return ""a"";
     }
-    else if ((b))
+    else if (b)
     {
         return ""b"";
     }
@@ -59,7 +59,7 @@ $@"public static string BooleanToString(bool b)
 
             var mutators = nodeToMutate.SupportedMutators().OfType<InvertIfStatementConditionMutator>().ToArray();
             var mutatedNode = mutators.Select(m => m.Mutate(nodeToMutate)).Single();
-            Assert.That(mutatedNode.ToString(), Does.StartWith("if (!b"));
+            Assert.That(mutatedNode.ToString(), Does.StartWith("if (!(b)"));
         }
 
         [Test]
@@ -80,7 +80,7 @@ $@"public static string BooleanToString(bool b)
 
             var mutators = nodeToMutate.SupportedMutators().OfType<InvertIfStatementConditionMutator>().ToArray();
             var mutatedNode = mutators.Select(m => m.Mutate(nodeToMutate)).Single();
-            Assert.That(mutatedNode.ToString(), Does.StartWith("if (!(a && b)"));            
+            Assert.That(mutatedNode.ToString(), Does.StartWith("if (!(a && b)"));
         }
     }
 }

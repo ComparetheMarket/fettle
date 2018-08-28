@@ -64,6 +64,7 @@
     <Compile Include="Internal\IgnoreComments.cs" />
     <Compile Include="Internal\Instrumentation.cs" />
     <Compile Include="Internal\ITestFinder.cs" />
+    <Compile Include="Internal\Mutators\InvertIfStatementConditionMutator.cs" />
     <Compile Include="Internal\RoslynExtensions\MemberDeclarationSyntaxExtensions.cs" />
     <Compile Include="Internal\MutationJob.cs" />
     <Compile Include="Internal\MutationJobList.cs" />

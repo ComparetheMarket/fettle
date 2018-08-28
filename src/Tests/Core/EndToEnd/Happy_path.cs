@@ -86,7 +86,7 @@ namespace Fettle.Tests.Core.EndToEnd
             Assert.That(MutationTestResult.SurvivingMutants.SingleOrDefault(
                     sm => sm.SourceLine == 89 &&
                           sm.OriginalLine.EndsWith("if (b)") &&
-                          sm.MutatedLine.EndsWith("if (!b)")),
+                          sm.MutatedLine.EndsWith("if (!(b))")),
                 Is.Not.Null);
         }
     }
