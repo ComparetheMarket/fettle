@@ -78,7 +78,6 @@
     <Compile Include="Core\Coverage\Happy_path.cs" />
     <Compile Include="Core\Coverage\Tests_fail.cs" />
     <Compile Include="Core\ImplementationDetails\CanInstrument_Tests.cs" />
-    <Compile Include="Core\ImplementationDetails\ExtractSourceTextFromClass_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\Instrumentation_Tests.cs" />
     <Compile Include="Core\Coverage_analysis.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered.cs" />
@@ -98,6 +97,7 @@
     <Compile Include="Core\ImplementationDetails\Mutation\Mathematical_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Relational_operators.cs" />
     <Compile Include="Core\ImplementationDetails\NUnitRunResults_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\SurvivingMutant_Create_Tests.cs" />
     <Compile Include="Core\Invalid_config.cs" />
     <Compile Include="Core\Temporary_files.cs" />
     <Compile Include="Core\Contexts\Coverage.cs" />
@@ -169,7 +169,6 @@
       <Paket>True</Paket>
     </Analyzer>
   </ItemGroup>
-  <ItemGroup />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
