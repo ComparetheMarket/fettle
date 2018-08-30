@@ -87,5 +87,12 @@ namespace HasSurvivingMutants.Tests
         {
             var _ = PartiallyTestedNumberComparison.IntegerProperty;
         }
+
+        [Test]
+        public void BooleanToString()
+        {
+            PartiallyTestedNumberComparison.BooleanToString(true);
+            PartiallyTestedNumberComparison.BooleanToString(false);
+        }
     }
 }

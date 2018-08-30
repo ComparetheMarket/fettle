@@ -36,6 +36,10 @@ namespace Fettle.Core.Internal.RoslynExtensions
             {
                 return new List<IMutator> { new InvertConditionalExpressionMutator() };
             }
+            else if (node is IfStatementSyntax ifStatement)
+            {
+                return new List<IMutator> { new InvertIfStatementConditionMutator() };
+            }
             
             return new List<IMutator>();
         }
