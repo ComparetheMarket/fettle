@@ -73,7 +73,9 @@ namespace Fettle.Core.Internal
                 }
             }
 
-            return ranAnyTests ? await SurvivingMutant.CreateFrom(this) : null;
+            return ranAnyTests ? 
+                await SurvivingMutant.Create(OriginalClass, OriginalNode, MutatedSyntaxRoot) 
+                : null;
         }
 
         private async Task<(bool Success, string OutputFilePath)> CompileContainingProject(string outputDirectory)
