@@ -86,6 +86,12 @@ For example:
 // fettle: end ignore
 ```
 
+## More Info
+
+If you're having problems running Fettle see the [troubleshooting guide](https://github.com/ComparetheMarket/fettle/wiki/Troubleshooting).  
+
+There's also a [list of supported mutations](https://github.com/ComparetheMarket/fettle/wiki/Supported-Mutations).
+
 ## Built With
 
 Fettle relies on some awesome .NET projects which include:
