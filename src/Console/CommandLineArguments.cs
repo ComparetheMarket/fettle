@@ -18,6 +18,9 @@ namespace Fettle.Console
             [Option('q', "quiet", Required = false, HelpText = "If specified, less output will be produced", DefaultValue = false)]
             public bool Quiet { get; set; }
             
+            [Option('s', "skipcoverageanalysis", Required = false, HelpText = "If specified, the coverage analysis optimisation is skipped", DefaultValue = false)]
+            public bool SkipCoverageAnalysis { get; set; }
+
             // ReSharper restore UnusedAutoPropertyAccessor.Local
 
             [HelpOption]
@@ -60,7 +63,11 @@ namespace Fettle.Console
             var config = ConfigFile.Parse(configFileContents)
                 .WithPathsRelativeTo(baseDirectory: Path.GetDirectoryName(configFilePath));
             
-            var consoleOptions = new ConsoleOptions{ Quiet = parsedArgs.Quiet };
+            var consoleOptions = new ConsoleOptions
+            {
+                Quiet = parsedArgs.Quiet,
+                SkipCoverageAnalysis = parsedArgs.SkipCoverageAnalysis
+            };
 
             return (true, config, consoleOptions);
         }
