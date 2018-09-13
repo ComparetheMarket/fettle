@@ -15,7 +15,7 @@ namespace Fettle.Tests.Core.Contexts
             "..", "..", "..", "Examples", "HasSurvivingMutants");
 
         protected Mock<ITestRunner> MockTestRunner { get; }
-        private readonly Mock<ICoverageAnalysisResult> mockCoverageAnalysisResult = new Mock<ICoverageAnalysisResult>();
+        private Mock<ICoverageAnalysisResult> mockCoverageAnalysisResult = new Mock<ICoverageAnalysisResult>();
 
         protected SpyEventListener SpyEventListener { get; } = new SpyEventListener();
         protected MutationTestResult MutationTestResult { get; private set; }
@@ -50,17 +50,22 @@ namespace Fettle.Tests.Core.Contexts
         {
             var wasCalled = false;
 
-            MockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
-                          .Returns(() =>
-                          {
-                              if (!wasCalled)
-                              {
-                                  wasCalled = true;
-                                  return new TestRunResult { Status = TestRunStatus.AllTestsPassed };
-                              }
+            Func<TestRunResult> returnValueFunction = () =>
+            {
+                if (!wasCalled)
+                {
+                    wasCalled = true;
+                    return new TestRunResult { Status = TestRunStatus.AllTestsPassed };
+                }
 
-                              return new TestRunResult { Status = TestRunStatus.SomeTestsFailed };
-                          });
+                return new TestRunResult { Status = TestRunStatus.SomeTestsFailed };
+            };
+
+            MockTestRunner.Setup(x => x.RunAllTests(It.IsAny<IEnumerable<string>>()))
+                          .Returns(returnValueFunction);
+
+            MockTestRunner.Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
+                          .Returns(returnValueFunction);
         }
         
         protected void Given_a_partially_tested_app_in_which_multiple_mutants_survive_for_a_syntax_node()
@@ -99,6 +104,11 @@ namespace Fettle.Tests.Core.Contexts
         {
             Config = configModifier(Config);
         }
+
+        protected void Given_coverage_analysis_has_not_been_performed()
+        {
+            mockCoverageAnalysisResult = null;
+        }
         
         protected void When_mutation_testing_the_app(bool captureException = false)
         {
@@ -106,7 +116,7 @@ namespace Fettle.Tests.Core.Contexts
             {
                 MutationTestResult = new MutationTestRunner(
                             MockTestRunner.Object, 
-                            mockCoverageAnalysisResult.Object, 
+                            mockCoverageAnalysisResult != null ? mockCoverageAnalysisResult.Object : null, 
                             SpyEventListener)
                         .Run(Config).Result;
             }

@@ -9,6 +9,9 @@ namespace Fettle.Core.Internal
             IEnumerable<string> testAssemblyFilePaths,
             IEnumerable<string> testMethodNames);
 
+        TestRunResult RunAllTests(
+            IEnumerable<string> testAssemblyFilePaths);
+
         CoverageTestRunResult RunTestsAndAnalyseCoverage(
             IEnumerable<string> testAssemblyFilePaths,
             IEnumerable<string> testMethodNames,

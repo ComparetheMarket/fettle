@@ -25,6 +25,11 @@ namespace Fettle.Core.Internal.NUnit
             return RunTests(testAssemblyFilePaths, testMethodNames, new NullEventListener());
         }
 
+        public TestRunResult RunAllTests(IEnumerable<string> testAssemblyFilePaths)
+        {
+            return RunTests(testAssemblyFilePaths, Enumerable.Empty<string>());
+        }
+
         public CoverageTestRunResult RunTestsAndAnalyseCoverage(
             IEnumerable<string> testAssemblyFilePaths,
             IEnumerable<string> testMethodNames,
