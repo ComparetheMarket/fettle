@@ -58,13 +58,12 @@ namespace Fettle.Core
                     {
                         var copiedTestAssemblyFilePath = copiedTestAssemblyFilePaths[testAssemblyIndex];
 
-                        var tests = testFinder.FindTests(new [] { copiedTestAssemblyFilePath });
+                        var numTests = testFinder.FindTests(new[]{ copiedTestAssemblyFilePath }).Length;
 
-                        var runResult = testRunner.RunTestsAndAnalyseCoverage(
-                            testAssemblyFilePaths: new [] { copiedTestAssemblyFilePath }, 
-                            testMethodNames: tests, 
+                        var runResult = testRunner.RunAllTestsAndAnalyseCoverage(
+                            testAssemblyFilePaths: new [] { copiedTestAssemblyFilePath },
                             memberIdsToNames: memberIdsToNames, 
-                            onAnalysingTestCase: (test, index) => eventListener.BeginCoverageAnalysisOfTestCase(test, index, tests.Length));
+                            onAnalysingTestCase: (test, index) => eventListener.BeginCoverageAnalysisOfTestCase(test, index, numTests));
 
                         if (runResult.Status != TestRunStatus.AllTestsPassed)
                         {
