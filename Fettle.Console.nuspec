@@ -10,6 +10,7 @@
     <licenseUrl>https://github.com/ComparetheMarket/fettle/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/ComparetheMarket/fettle</projectUrl>
     <iconUrl>https://avatars2.githubusercontent.com/u/1951126?s=64</iconUrl>
+    <releaseNotes>@releaseNotes@</releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
 An experimental mutation testing tool for C# code.

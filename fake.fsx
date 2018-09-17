@@ -89,6 +89,7 @@ let packageTarget() =
     NuGetPack (fun p ->
         {p with
             Version = buildVersion
+            ReleaseNotes = sprintf "https://github.com/ComparetheMarket/fettle/releases/tag/v%s" buildVersion
             WorkingDir = "."
             Files = [ (sprintf @"src\Console\bin\%s\*.*" mode, Some "tools", None) ]
             OutputPath = outputDir
