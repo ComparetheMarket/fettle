@@ -60,16 +60,25 @@ namespace Fettle.Core.Internal
                 var originalTestAssemblyFilePath = config.TestAssemblyFilePaths[testAssemblyIndex];
                 var tempTestAssemblyFilePath = copiedTempTestAssemblyFilePaths[testAssemblyIndex];
 
-                var testsToRun = coverageAnalysisResult.TestsThatCoverMember(memberName, originalTestAssemblyFilePath);
-                if (testsToRun.Any())
+                string[] testsToRun = null;
+                if (coverageAnalysisResult != null)
                 {
-                    ranAnyTests = true;
-
-                    var result = testRunner.RunTests(new[] {tempTestAssemblyFilePath}, testsToRun);
-                    if (result.Status == TestRunStatus.SomeTestsFailed)
+                    testsToRun = coverageAnalysisResult.TestsThatCoverMember(memberName, originalTestAssemblyFilePath);
+                    if (!testsToRun.Any())
                     {
-                        return null;
+                        continue;
                     }
+                }
+
+                ranAnyTests = true;
+
+                var result = testsToRun != null ?
+                    testRunner.RunTests(new[] {tempTestAssemblyFilePath}, testsToRun) :
+                    testRunner.RunAllTests(new[] {tempTestAssemblyFilePath});
+
+                if (result.Status == TestRunStatus.SomeTestsFailed)
+                {
+                    return null;
                 }
             }
 

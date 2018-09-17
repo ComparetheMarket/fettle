@@ -61,8 +61,7 @@ namespace Fettle.Tests.Core.Contexts
                 });
 
             mockTestRunner
-                .Setup(x => x.RunTestsAndAnalyseCoverage(
-                    It.IsAny<IEnumerable<string>>(),
+                .Setup(x => x.RunAllTestsAndAnalyseCoverage(
                     It.IsAny<IEnumerable<string>>(),
                     It.IsAny<IDictionary<string,string>>(),
                     It.IsAny<Action<string,int>>()))

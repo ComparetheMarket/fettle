@@ -25,15 +25,19 @@ namespace Fettle.Core.Internal.NUnit
             return RunTests(testAssemblyFilePaths, testMethodNames, new NullEventListener());
         }
 
-        public CoverageTestRunResult RunTestsAndAnalyseCoverage(
+        public TestRunResult RunAllTests(IEnumerable<string> testAssemblyFilePaths)
+        {
+            return RunTests(testAssemblyFilePaths, FindTests(testAssemblyFilePaths));
+        }
+
+        public CoverageTestRunResult RunAllTestsAndAnalyseCoverage(
             IEnumerable<string> testAssemblyFilePaths,
-            IEnumerable<string> testMethodNames,
             IDictionary<string, string> memberIdsToNames,
             Action<string, int> onAnalysingTestCase)
         {
             var coverageCollector = new NUnitCoverageCollector(memberIdsToNames, onAnalysingTestCase);
             
-            var runTestsResult = RunTests(testAssemblyFilePaths, testMethodNames, coverageCollector);
+            var runTestsResult = RunTests(testAssemblyFilePaths, FindTests(testAssemblyFilePaths), coverageCollector);
 
             return new CoverageTestRunResult
             {

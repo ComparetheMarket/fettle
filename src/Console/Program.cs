@@ -56,11 +56,15 @@ namespace Fettle.Console
                     ? (IEventListener) new QuietEventListener(outputWriter)
                     : (IEventListener) new VerboseEventListener(outputWriter);
 
-                var analyser = coverageAnalyserFactory(eventListener);
-                var coverageResult = AnalyseCoverage(analyser, outputWriter, parsedArgs.Config);
-                if (coverageResult.ErrorDescription != null)
+                ICoverageAnalysisResult coverageResult = null;
+                if (!parsedArgs.ConsoleOptions.SkipCoverageAnalysis)
                 {
-                    return ExitCodes.ConfigOrArgsAreInvalid;
+                    var analyser = coverageAnalyserFactory(eventListener);
+                    coverageResult = AnalyseCoverage(analyser, outputWriter, parsedArgs.Config);
+                    if (coverageResult.ErrorDescription != null)
+                    {
+                        return ExitCodes.ConfigOrArgsAreInvalid;
+                    }
                 }
 
                 outputWriter.WriteLine("Mutation testing starting...");

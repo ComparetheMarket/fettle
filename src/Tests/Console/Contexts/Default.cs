@@ -13,19 +13,19 @@ namespace Fettle.Tests.Console.Contexts
     {
         private readonly List<string> commandLineArgs = new List<string>();
         private IEventListener eventListener;
-        private readonly Mock<ICoverageAnalyser> mockCoverage = new Mock<ICoverageAnalyser>();
-
+        
+        protected Mock<ICoverageAnalyser> MockCoverageAnalyser { get; } = new Mock<ICoverageAnalyser>();
         protected Mock<IMutationTestRunner> MockMutationTestRunner { get; } = new Mock<IMutationTestRunner>();
         protected SpyOutputWriter SpyOutputWriter = new SpyOutputWriter();
         protected int ExitCode { get; private set; }
 
         public Default()
         {
-            ICoverageAnalysisResult emptyCoverageResult = new CoverageAnalysisResult();
-            mockCoverage
-                .Setup(x => x.AnalyseCoverage(It.IsAny<Config>()))            
+            var emptyCoverageResult = new CoverageAnalysisResult();
+            MockCoverageAnalyser
+                .Setup(x => x.AnalyseCoverage(It.IsAny<Config>()))
                 .Returns(
-                    Task.FromResult(emptyCoverageResult));
+                    Task.FromResult<ICoverageAnalysisResult>(emptyCoverageResult));
         }
 
         protected void Given_config_file_does_not_exist()
@@ -47,7 +47,7 @@ namespace Fettle.Tests.Console.Contexts
         {
             Given_a_valid_config_file();
 
-            mockCoverage
+            MockCoverageAnalyser
                 .Setup(x => x.AnalyseCoverage(It.IsAny<Config>()))
                 .Returns(
                     Task.FromResult(CoverageAnalysisResult.Error("an example coverage analysis error")));
@@ -70,6 +70,11 @@ namespace Fettle.Tests.Console.Contexts
         protected void Given_no_command_line_arguments_specified()
         {
             commandLineArgs.Clear();
+        }
+        
+        protected void Given_coverage_analysis_is_disabled_via_command_line_argument()
+        {
+            commandLineArgs.Add("--skipcoverageanalysis");
         }
 
         protected void Given_some_mutants_will_survive()
@@ -102,7 +107,7 @@ namespace Fettle.Tests.Console.Contexts
         protected void Given_coverage_analysis_runs_successfully()
         {
             ICoverageAnalysisResult emptyCoverageResult = new CoverageAnalysisResult();
-            mockCoverage
+            MockCoverageAnalyser
                 .Setup(x => x.AnalyseCoverage(It.IsAny<Config>()))
                 .Callback(() =>
                 {
@@ -131,7 +136,7 @@ namespace Fettle.Tests.Console.Contexts
 
         protected void Given_coverage_analysis_will_throw_an_exception(Exception ex)
         {
-            mockCoverage
+            MockCoverageAnalyser
                 .Setup(r => r.AnalyseCoverage(It.IsAny<Config>()))
                 .Throws(ex);
         }
@@ -141,7 +146,7 @@ namespace Fettle.Tests.Console.Contexts
             ICoverageAnalyser CreateMockCoverageAnalyser(IEventListener eventListenerIn)
             {
                 eventListener = eventListenerIn;
-                return mockCoverage.Object;
+                return MockCoverageAnalyser.Object;
             }
 
             IMutationTestRunner CreateMockMutationTestRunner(

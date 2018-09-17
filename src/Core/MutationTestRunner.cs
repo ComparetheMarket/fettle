@@ -84,7 +84,8 @@ namespace Fettle.Core
                             continue;
                         }
 
-                        if (!coverageAnalysisResult.IsMemberCovered(memberName))
+                        if (coverageAnalysisResult != null &&
+                            !coverageAnalysisResult.IsMemberCovered(memberName))
                         {
                             continue;
                         }
