@@ -92,6 +92,8 @@ If you're having problems running Fettle see the [troubleshooting guide](https:/
 
 There's also a [list of supported mutations](https://github.com/ComparetheMarket/fettle/wiki/Supported-Mutations).
 
+By default Fettle analyses your code's coverage. This allows the mutation testing to be done faster but will use more memory and will mean that only covered code is mutated. You can read more about this and how to disable it [here](https://github.com/ComparetheMarket/fettle/wiki/Coverage-Analysis).
+
 ## Built With
 
 Fettle relies on some awesome .NET projects which include:
