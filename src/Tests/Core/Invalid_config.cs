@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace Fettle.Tests.Core
 {    
-    [TestFixtureSource("TestCases")]
+    [TestFixtureSource(nameof(TestCases))]
     class Invalid_config : Contexts.InvalidConfig
     {
         private static readonly object[] TestCases =
