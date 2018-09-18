@@ -1,6 +1,6 @@
 ﻿using Fettle.Core;
 
-namespace Fettle.Tests.Core.Contexts
+namespace Fettle.Tests.Console.Contexts
 {
     class InvalidConfig : Default
     {

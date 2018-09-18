@@ -72,7 +72,7 @@
     <Compile Include="Core\Contexts\EndToEnd.cs" />
     <Compile Include="Core\Contexts\BinaryExpressionMutators.cs" />
     <Compile Include="Core\Contexts\Default.cs" />
-    <Compile Include="Core\Contexts\InvalidConfig.cs" />
+    <Compile Include="Console\Contexts\InvalidConfig.cs" />
     <Compile Include="Core\Contexts\SpyEventListener.cs" />
     <Compile Include="Core\Coverage\Compilation_fails.cs" />
     <Compile Include="Core\Coverage\Source_file_filters.cs" />
@@ -99,7 +99,7 @@
     <Compile Include="Core\ImplementationDetails\Mutation\Relational_operators.cs" />
     <Compile Include="Core\ImplementationDetails\NUnitRunResults_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\SurvivingMutant_Create_Tests.cs" />
-    <Compile Include="Core\Invalid_config.cs" />
+    <Compile Include="Console\Invalid_config.cs" />
     <Compile Include="Core\Temporary_files.cs" />
     <Compile Include="Core\Contexts\Coverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
