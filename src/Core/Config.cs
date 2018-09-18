@@ -37,6 +37,7 @@ namespace Fettle.Core
         public IEnumerable<string> Validate()
         {
             return ValidateRequiredPropertiesArePresent()
+                   .Concat(ValidateContentsOfCollections())
                    .Concat(ValidateFilesArePresent());
         }
         
@@ -66,12 +67,35 @@ namespace Fettle.Core
                     $"The solution file was not found: \"{SolutionFilePath}\"";
             }
 
-            var nonExistentTestAssemblies = TestAssemblyFilePaths.Where(f => !File.Exists(f)).ToList();
-            if (nonExistentTestAssemblies.Any())
+            if (TestAssemblyFilePaths != null)
             {
-                var filesListMessage = string.Join(Environment.NewLine, nonExistentTestAssemblies);
-                yield return
-                    $"One or more test assemblies were not found:{Environment.NewLine}{filesListMessage}";
+                var nonExistentTestAssemblies = TestAssemblyFilePaths.Where(f => !File.Exists(f)).ToList();
+                if (nonExistentTestAssemblies.Any())
+                {
+                    var filesListMessage = string.Join(Environment.NewLine, nonExistentTestAssemblies);
+                    yield return
+                        $"One or more test assemblies were not found:{Environment.NewLine}{filesListMessage}";
+                }
+            }
+        }
+
+        private IEnumerable<string> ValidateContentsOfCollections()
+        {
+            bool AnyItemsNull(IEnumerable<string> items) => items != null && items.Any(i => i == null);
+
+            if (AnyItemsNull(TestAssemblyFilePaths))
+            {
+                yield return "One or more items in the list of test assemblies is blank";
+            }
+
+            if (AnyItemsNull(ProjectFilters))
+            {
+                yield return "One or more items in the list of project filters is blank";
+            }
+            
+            if (AnyItemsNull(SourceFileFilters))
+            {
+                yield return "One or more items in the list of source file filters is blank";
             }
         }
     }

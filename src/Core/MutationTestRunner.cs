@@ -32,12 +32,6 @@ namespace Fettle.Core
 
         public async Task<MutationTestResult> Run(Config config)
         {
-            var validationErrors = config.Validate().ToList();
-            if (validationErrors.Any())
-            {
-                return new MutationTestResult().WithErrors(validationErrors);
-            }
-
             var baseTempDirectory = TempDirectory.Create();
             try
             {

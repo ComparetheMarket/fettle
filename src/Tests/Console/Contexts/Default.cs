@@ -82,14 +82,11 @@ namespace Fettle.Tests.Console.Contexts
             var configFileContents = $@"
 solution: {modifiedConfig.SolutionFilePath}
 
-testAssemblies:
-    {modifiedConfig.TestAssemblyFilePaths.Select(x => "- " + x).FirstOrDefault()}
+testAssemblies: {CollectionToYamlList(modifiedConfig.TestAssemblyFilePaths)}
 
-projectFilters:
-    {modifiedConfig.ProjectFilters.Select(x => "- " + x).FirstOrDefault()}
+projectFilters: {CollectionToYamlList(modifiedConfig.ProjectFilters)}
 
-sourceFileFilters:
-    {modifiedConfig.SourceFileFilters.Select(x => "- " + x).FirstOrDefault()}
+sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
 ";
             var configFilePath =
                 Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", "fettle.config.invalid.yml");
@@ -98,6 +95,12 @@ sourceFileFilters:
 
             commandLineArgs.Add("--config");
             commandLineArgs.Add(configFilePath);
+        }
+
+        private static string CollectionToYamlList(IEnumerable<string> collection)
+        {
+            var itemsAsYaml = collection.Select(item => $"{Environment.NewLine}    - {item ?? String.Empty}");
+            return string.Join("", itemsAsYaml);
         }
 
         protected void Given_additional_command_line_arguments(params string[] args)

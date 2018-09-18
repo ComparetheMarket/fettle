@@ -16,6 +16,28 @@ namespace Fettle.Tests.Console.Contexts
             return config;
         }
         
+        protected static Config WithNullTestAssembly(Config config)
+        {
+            config.TestAssemblyFilePaths = new []
+            {
+                $"../../../../../src/Examples/HasSurvivingMutants/Tests/bin/{BuildConfig.AsString}/HasSurvivingMutants.Tests.dll", 
+                null
+            };
+            return config;
+        }
+        
+        protected static Config WithNullProjectFilter(Config config)
+        {
+            config.ProjectFilters = new [] { "Implementation", null};
+            return config;
+        }
+        
+        protected static Config WithNullSourceFileFilter(Config config)
+        {
+            config.SourceFileFilters = new [] { "Implementation/*", null};
+            return config;
+        }
+
         protected static Config WithNoTestAssemblies(Config config)
         {
             config.TestAssemblyFilePaths = new string[0];
