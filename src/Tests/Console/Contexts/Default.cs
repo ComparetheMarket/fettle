@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Fettle.Console;
 using Fettle.Core;
@@ -17,6 +18,7 @@ namespace Fettle.Tests.Console.Contexts
         protected Mock<ICoverageAnalyser> MockCoverageAnalyser { get; } = new Mock<ICoverageAnalyser>();
         protected Mock<IMutationTestRunner> MockMutationTestRunner { get; } = new Mock<IMutationTestRunner>();
         protected SpyOutputWriter SpyOutputWriter = new SpyOutputWriter();
+
         protected int ExitCode { get; private set; }
 
         public Default()
@@ -55,13 +57,52 @@ namespace Fettle.Tests.Console.Contexts
 
         protected void Given_a_valid_config_file()
         {
-            var configFilePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", "fettle.config.yml");
-            ModifyConfigFile(configFilePath);
+            var configFilePath =
+                Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", "fettle.config.yml");
+
+            var buildModeSpecificConfig = String.Format(File.ReadAllText(configFilePath), BuildConfig.AsString);
+            File.WriteAllText(configFilePath, buildModeSpecificConfig);
 
             commandLineArgs.Add("--config");
             commandLineArgs.Add(configFilePath);
         }
         
+        protected void Given_a_config_file_with_invalid_contents(Func<Config, Config> configModifier)
+        {
+            var defaultConfig = new Config
+            {
+                SolutionFilePath = "../../../../../src/Examples/HasSurvivingMutants/HasSurvivingMutants.sln",
+                TestAssemblyFilePaths = new [] { $"../../../../../src/Examples/HasSurvivingMutants/Tests/bin/{BuildConfig.AsString}/HasSurvivingMutants.Tests.dll" },
+                ProjectFilters = new []{ "HasSurvivingMutants.Implementation" },
+                SourceFileFilters = new []{ "Implementation/*.cs" }
+            };
+
+            var modifiedConfig = configModifier(defaultConfig);
+
+            var configFileContents = $@"
+solution: {modifiedConfig.SolutionFilePath}
+
+testAssemblies: {CollectionToYamlList(modifiedConfig.TestAssemblyFilePaths)}
+
+projectFilters: {CollectionToYamlList(modifiedConfig.ProjectFilters)}
+
+sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
+";
+            var configFilePath =
+                Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", "fettle.config.invalid.yml");
+
+            File.WriteAllText(configFilePath, configFileContents);
+
+            commandLineArgs.Add("--config");
+            commandLineArgs.Add(configFilePath);
+        }
+
+        private static string CollectionToYamlList(IEnumerable<string> collection)
+        {
+            var itemsAsYaml = collection.Select(item => $"{Environment.NewLine}    - {item ?? String.Empty}");
+            return string.Join("", itemsAsYaml);
+        }
+
         protected void Given_additional_command_line_arguments(params string[] args)
         {
             commandLineArgs.AddRange(args);
@@ -161,13 +202,6 @@ namespace Fettle.Tests.Console.Contexts
                 mutationTestRunnerFactory: CreateMockMutationTestRunner,
                 coverageAnalyserFactory: CreateMockCoverageAnalyser,
                 outputWriter: SpyOutputWriter);
-        }
-
-        private void ModifyConfigFile(string configFilePath)
-        {
-            var originalConfigFileContents = File.ReadAllText(configFilePath);
-            File.WriteAllText(configFilePath, 
-                string.Format(originalConfigFileContents, BuildConfig.AsString));
-        }
+        }        
     }
 }

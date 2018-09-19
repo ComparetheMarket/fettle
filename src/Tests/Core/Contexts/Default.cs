@@ -100,11 +100,6 @@ namespace Fettle.Tests.Core.Contexts
             TempDirectories.ToList().ForEach(d => Directory.Delete(d, recursive: true));
         }
 
-        protected void Given_config_is_invalid(Func<Config, Config> configModifier)
-        {
-            Config = configModifier(Config);
-        }
-
         protected void Given_coverage_analysis_has_not_been_performed()
         {
             mockCoverageAnalysisResult = null;

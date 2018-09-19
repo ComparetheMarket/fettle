@@ -51,7 +51,15 @@ namespace Fettle.Console
                 {
                     return ExitCodes.ConfigOrArgsAreInvalid;
                 }
-                
+
+                var validationErrors = parsedArgs.Config.Validate().ToList();
+                if (validationErrors.Any())
+                {
+                    outputWriter.WriteFailureLine("Validation of configuration failed, check your config file for errors.");
+                    validationErrors.ForEach(e => outputWriter.WriteFailureLine($"==> {e}"));
+                    return ExitCodes.ConfigOrArgsAreInvalid;
+                }
+
                 var eventListener = parsedArgs.ConsoleOptions.Quiet
                     ? (IEventListener) new QuietEventListener(outputWriter)
                     : (IEventListener) new VerboseEventListener(outputWriter);
