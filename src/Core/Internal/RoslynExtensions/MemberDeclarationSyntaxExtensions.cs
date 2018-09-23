@@ -31,18 +31,19 @@ namespace Fettle.Core.Internal.RoslynExtensions
             if (hasAccessors)
             {
                 var accessors = propertyDeclaration.AccessorList.ChildNodes().OfType<AccessorDeclarationSyntax>();
-                var getter = accessors.Single(a => a.Kind() == SyntaxKind.GetAccessorDeclaration);
+                var accessor = accessors.SingleOrDefault(a => a.Kind() == SyntaxKind.GetAccessorDeclaration) ??
+                               accessors.Single(a => a.Kind() == SyntaxKind.SetAccessorDeclaration);
 
-                var getterIsAutoAccessor = getter.Body == null && getter.ExpressionBody == null;
+                var isAutoAccessor = accessor.Body == null && accessor.ExpressionBody == null;
 
                 // Assumption: you can't mix auto accessors and non-auto accessors in a single property.
                 // E.g. these won't compile:
                 //      int Thing { get; set => x = value; }
                 //      int Thing { get { return x; } set; }
-                // Therefore, if the getter has a body/expression body then the setter will too (and vice versa).
-                // Therefore we only need to check one.
+                // Therefore, if a getter has a body/expression body then the setter will too (and vice versa).
+                // Therefore we only need to check one accessor.
 
-                if (getterIsAutoAccessor)
+                if (isAutoAccessor)
                 {
                     // Auto-accessor means that there is no body/expression body, so nothing to mutate
                     return false;
