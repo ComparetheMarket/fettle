@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Fettle.Core.Internal.RoslynExtensions;
@@ -21,22 +22,19 @@ namespace Fettle.Core.Internal
             var root = await originalSyntaxTree.GetRootAsync();
             var semanticModel = await document.GetSemanticModelAsync();
             var documentEditor = DocumentEditor.CreateAsync(document).Result;
-
-            foreach (var classNode in root.DescendantNodes().OfType<ClassDeclarationSyntax>())
+            
+            foreach (var memberNode in root.DescendantNodes()
+                                           .OfType<MemberDeclarationSyntax>()
+                                           .Where(memberNode => memberNode.CanInstrument()))
             {
-                foreach (var memberNode in classNode.DescendantNodes()
-                                                    .OfType<MemberDeclarationSyntax>()
-                                                    .Where(memberNode => memberNode.CanInstrument()))
-                {
-                    var fullMemberName = memberNode.ChildNodes().First().NameOfContainingMember(semanticModel);
-                    var memberId = Guid.NewGuid().ToString();
+                var fullMemberName = memberNode.ChildNodes().First().NameOfContainingMember(semanticModel);
+                var memberId = Guid.NewGuid().ToString();
 
-                    InstrumentMember(memberId, memberNode, documentEditor);
+                InstrumentMember(memberId, memberNode, documentEditor);
 
-                    onMemberInstrumented(memberId, fullMemberName);
-                }
+                onMemberInstrumented(memberId, fullMemberName);
             }
-
+            
             return await documentEditor.GetChangedDocument().GetSyntaxTreeAsync();
         }
 
