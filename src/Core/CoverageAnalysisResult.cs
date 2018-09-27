@@ -9,6 +9,8 @@ namespace Fettle.Core
         private Dictionary<string, IDictionary<string, ImmutableHashSet<string>>> coverageByTestAssembly = 
             new Dictionary<string, IDictionary<string, ImmutableHashSet<string>>>();
 
+        public bool WasSuccessful => ErrorDescription == null;
+
         public string ErrorDescription { get; private set; }
 
         public string[] AllAnalysedMembers =>

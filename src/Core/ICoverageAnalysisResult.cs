@@ -2,6 +2,8 @@
 {
     public interface ICoverageAnalysisResult
     {
+        bool WasSuccessful { get; }
+
         string ErrorDescription { get; }
         
         string[] AllAnalysedMembers { get; }

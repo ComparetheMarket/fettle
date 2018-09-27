@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Fettle.Core;
@@ -55,49 +56,38 @@ namespace Fettle.Console
                 var validationErrors = parsedArgs.Config.Validate().ToList();
                 if (validationErrors.Any())
                 {
-                    outputWriter.WriteFailureLine("Validation of configuration failed, check your config file for errors.");
-                    validationErrors.ForEach(e => outputWriter.WriteFailureLine($"==> {e}"));
+                    OutputValidationErrors(validationErrors, outputWriter);
                     return ExitCodes.ConfigOrArgsAreInvalid;
                 }
 
-                var eventListener = parsedArgs.ConsoleOptions.Quiet
-                    ? (IEventListener) new QuietEventListener(outputWriter)
-                    : (IEventListener) new VerboseEventListener(outputWriter);
+                var eventListener = CreateEventListener(outputWriter, isQuietModeEnabled: parsedArgs.ConsoleOptions.Quiet);
 
                 ICoverageAnalysisResult coverageResult = null;
                 if (!parsedArgs.ConsoleOptions.SkipCoverageAnalysis)
                 {
                     var analyser = coverageAnalyserFactory(eventListener);
                     coverageResult = AnalyseCoverage(analyser, outputWriter, parsedArgs.Config);
-                    if (coverageResult.ErrorDescription != null)
+                    if (!coverageResult.WasSuccessful)
+                    {
+                        OutputCoverageAnalysisError(coverageResult.ErrorDescription, outputWriter);
+                        return ExitCodes.ConfigOrArgsAreInvalid;
+                    }
+                }
+                
+                var mutationTestRunner = mutationTestRunnerFactory(eventListener, coverageResult);
+                var mutationTestResult = PerformMutationTesting(mutationTestRunner, parsedArgs.Config, outputWriter);
+                if (mutationTestResult.Errors.Any())
+                {
+                    outputWriter.WriteFailureLine("Unable to perform mutation testing:");
+                    mutationTestResult.Errors.ToList().ForEach(e => outputWriter.WriteFailureLine($"==> {e}"));
                     {
                         return ExitCodes.ConfigOrArgsAreInvalid;
                     }
                 }
 
-                outputWriter.WriteLine("Mutation testing starting...");
-                var runner = mutationTestRunnerFactory(eventListener, coverageResult);
-                var result = runner.Run(parsedArgs.Config).Result;
-                
-                if (result.Errors.Any())
+                if (mutationTestResult.SurvivingMutants.Any())
                 {
-                    outputWriter.WriteFailureLine("Unable to perform mutation testing:");
-                    result.Errors.ToList().ForEach(e => outputWriter.WriteFailureLine($"==> {e}"));
-                    return ExitCodes.ConfigOrArgsAreInvalid;
-                }
-
-                outputWriter.Write(Environment.NewLine + Environment.NewLine);
-                outputWriter.WriteLine("Mutation testing complete.");
-
-                if (result.SurvivingMutants.Any())
-                {
-                    outputWriter.WriteFailureLine($"{result.SurvivingMutants.Count} mutant(s) survived!");
-
-                    result.SurvivingMutants
-                        .Select((sm, index) => new {sm, index})
-                        .ToList()
-                        .ForEach(item => OutputSurvivorInfo(item.sm, item.index, parsedArgs.Config, outputWriter));
-
+                    OutputAllSurvivorInfo(mutationTestResult.SurvivingMutants, outputWriter, parsedArgs.Config);
                     return ExitCodes.SomeMutantsSurvived;
                 }
                 else
@@ -112,6 +102,12 @@ namespace Fettle.Console
                 return ExitCodes.UnexpectedError;
             }
         }
+        
+        private static IEventListener CreateEventListener(IOutputWriter outputWriter, bool isQuietModeEnabled)
+        {
+            return isQuietModeEnabled ? (IEventListener) new QuietEventListener(outputWriter)
+                                      : (IEventListener) new VerboseEventListener(outputWriter);
+        }
 
         private static ICoverageAnalysisResult AnalyseCoverage(
             ICoverageAnalyser coverageAnalyser, 
@@ -121,19 +117,54 @@ namespace Fettle.Console
             outputWriter.Write("Analysing test coverage");
 
             var coverageResult = coverageAnalyser.AnalyseCoverage(config).Result;
-            if (coverageResult.ErrorDescription != null)
-            {
-                outputWriter.WriteFailureLine("Unable to perform test coverage analysis:");
-                outputWriter.WriteFailureLine(coverageResult.ErrorDescription);
-            }
-            else
-            {
+            if (coverageResult.WasSuccessful)
+            {            
                 outputWriter.Write(Environment.NewLine);
             }
 
             return coverageResult;
         }
 
+        private static MutationTestResult PerformMutationTesting(
+            IMutationTestRunner mutationTestRunner, 
+            Config config, 
+            IOutputWriter outputWriter)
+        {
+            outputWriter.WriteLine("Mutation testing starting...");
+            
+            var result = mutationTestRunner.Run(config).Result;
+            
+            outputWriter.Write(Environment.NewLine + Environment.NewLine);
+            outputWriter.WriteLine("Mutation testing complete.");
+
+            return result;
+        }
+
+        private static void OutputValidationErrors(List<string> validationErrors, IOutputWriter outputWriter)
+        {
+            outputWriter.WriteFailureLine("Validation of configuration failed, check your config file for errors.");
+            validationErrors.ForEach(e => outputWriter.WriteFailureLine($"==> {e}"));
+        }
+
+        private static void OutputCoverageAnalysisError(string errorDescription, IOutputWriter outputWriter)
+        {
+            outputWriter.WriteFailureLine("Unable to perform test coverage analysis:");
+            outputWriter.WriteFailureLine(errorDescription);
+        }
+
+        private static void OutputAllSurvivorInfo(
+            IReadOnlyCollection<SurvivingMutant> survivingMutants,
+            IOutputWriter outputWriter, 
+            Config config)
+        {
+            outputWriter.WriteFailureLine($"{survivingMutants.Count} mutant(s) survived!");
+
+            survivingMutants
+                .Select((sm, index) => new {sm, index})
+                .ToList()
+                .ForEach(item => OutputSurvivorInfo(item.sm, item.index, config, outputWriter));
+        }
+        
         private static void OutputSurvivorInfo(SurvivingMutant survivor, int index, Config config, IOutputWriter outputWriter)
         {
             string ToRelativePath(string filePath)
