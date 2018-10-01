@@ -78,8 +78,11 @@
     <Compile Include="Core\Coverage\Source_file_filters.cs" />
     <Compile Include="Core\Coverage\Happy_path.cs" />
     <Compile Include="Core\Coverage\Tests_fail.cs" />
-    <Compile Include="Core\ImplementationDetails\CanInstrument_Tests.cs" />
-    <Compile Include="Core\ImplementationDetails\Instrumentation_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\Instrumentation\InstrumentationTestsBase.cs" />
+    <Compile Include="Core\ImplementationDetails\Instrumentation\Instrumentation_of_fields_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\Instrumentation\Instrumentation_of_methods_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\Instrumentation\Instrumentation_of_properties_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\Instrumentation\Instrumentation_Tests.cs" />
     <Compile Include="Core\Coverage_analysis.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered_with_multiple_filters.cs" />
@@ -170,6 +173,7 @@
       <Paket>True</Paket>
     </Analyzer>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
