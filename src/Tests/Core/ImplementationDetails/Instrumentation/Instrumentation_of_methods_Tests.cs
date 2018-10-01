@@ -248,5 +248,269 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(instrumentedMethodSource[4], Does.Contain("}"));
             }
         }
+
+        [TestFixture]
+        public class Constructors : InstrumentationTestsBase
+        {
+            [Test]
+            public async Task Constructors_can_be_mutated()
+            {
+                var input = await CreateInput<ConstructorDeclarationSyntax>(@"
+                namespace DummyNamespace
+                {
+                    public class DummyClass
+                    {
+                        private readonly int thing;
+
+                        public DummyClass(int a)
+                        {
+                            this.thing = a + 1;
+                        }
+                    }
+                }");
+
+                Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
+
+                var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+
+                var instrumentedMethodSource = SourceOfInstrumentedMember<ConstructorDeclarationSyntax>(instrumentedSyntaxTree);
+                Assert.That(instrumentedMethodSource[0], Does.Contain("public DummyClass(int a)"));
+                Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+                Assert.That(instrumentedMethodSource[3], Does.Contain("   this.thing = a + 1;"));
+                Assert.That(instrumentedMethodSource[4], Does.Contain("}"));
+            }
+
+            [Test]
+            public async Task Constructors_that_are_expression_bodied_can_be_mutated()
+            {
+                var input = await CreateInput<ConstructorDeclarationSyntax>(@"
+                namespace DummyNamespace
+                {
+                    public class DummyClass
+                    {
+                        private readonly int thing;
+
+                        public DummyClass(int a) => this.thing = a + 1;
+                    }
+                }");
+
+                Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
+
+                var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+
+                var instrumentedMethodSource = SourceOfInstrumentedMember<ConstructorDeclarationSyntax>(instrumentedSyntaxTree);
+                Assert.That(instrumentedMethodSource[0], Does.Contain("public DummyClass(int a)"));
+                Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+                Assert.That(instrumentedMethodSource[3], Does.Contain("   this.thing = a + 1;"));
+                Assert.That(instrumentedMethodSource[4], Does.Contain("}"));
+            }
+        }
+
+        [TestFixture]
+        public class Destructors : InstrumentationTestsBase
+        {
+            [Test]
+            public async Task Destructors_can_be_mutated()
+            {
+                var input = await CreateInput<DestructorDeclarationSyntax>(@"
+                namespace DummyNamespace
+                {
+                    public class DummyClass
+                    {
+                        ~DummyClass()
+                        {
+                            System.Console.WriteLine(""bye!"");
+                        }
+                    }
+                }");
+
+                Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
+
+                var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+
+                var instrumentedMethodSource = SourceOfInstrumentedMember<DestructorDeclarationSyntax>(instrumentedSyntaxTree);
+                Assert.That(instrumentedMethodSource[0], Does.Contain("~DummyClass()"));
+                Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+                Assert.That(instrumentedMethodSource[3], Does.Contain("   System.Console.WriteLine(\"bye!\");"));
+                Assert.That(instrumentedMethodSource[4], Does.Contain("}"));
+            }
+
+            [Test]
+            public async Task Destructors_that_are_expression_bodied_can_be_mutated()
+            {
+                var input = await CreateInput<DestructorDeclarationSyntax>(@"
+                namespace DummyNamespace
+                {
+                    public class DummyClass
+                    {
+                        ~DummyClass() => System.Console.WriteLine(""bye!"");
+                    }
+                }");
+
+                Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
+
+                var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+
+                var instrumentedMethodSource = SourceOfInstrumentedMember<DestructorDeclarationSyntax>(instrumentedSyntaxTree);
+                Assert.That(instrumentedMethodSource[0], Does.Contain("~DummyClass()"));
+                Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+                Assert.That(instrumentedMethodSource[3], Does.Contain("   System.Console.WriteLine(\"bye!\");"));
+                Assert.That(instrumentedMethodSource[4], Does.Contain("}"));
+            }
+        }
+
+        [TestFixture]
+        public class Operators : InstrumentationTestsBase
+        {
+            [Test]
+            public async Task Operators_can_be_mutated()
+            {
+                var input = await CreateInput<OperatorDeclarationSyntax>(@"
+                namespace DummyNamespace
+                {
+                    public class Point
+                    {
+                        public int x, y;
+    
+                        public Point(int x, int y)
+                        {
+                            this.x = x;
+                            this.y = y;
+                        }
+
+                        public static Fraction operator *(Point a, Point b)
+                        {
+                            return new Fraction(a.x * b.x, a.y * b.y);
+                        }
+                    }
+                }");
+
+                Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
+
+                var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+
+                var instrumentedMethodSource = SourceOfInstrumentedMember<OperatorDeclarationSyntax>(instrumentedSyntaxTree);
+                Assert.That(instrumentedMethodSource[0], Does.Contain("public static Point operator *(Point a, Point b)"));
+                Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+                Assert.That(instrumentedMethodSource[3], Does.Contain("   return new Point(a.num * b.num, a.den * b.den);"));
+                Assert.That(instrumentedMethodSource[4], Does.Contain("}"));                
+            }
+
+            [Test]
+            public async Task Operators_that_are_expression_bodied_can_be_mutated()
+            {
+                var input = await CreateInput<OperatorDeclarationSyntax>(@"
+                namespace DummyNamespace
+                {
+                    public class Point
+                    {
+                        public int x, y;
+    
+                        public Point(int x, int y)
+                        {
+                            this.x = x;
+                            this.y = y;
+                        }
+
+                        public static Fraction operator *(Point a, Point b) => new Fraction(a.x * b.x, a.y * b.y);
+                    }
+                }");
+
+                Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
+
+                var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+
+                var instrumentedMethodSource = SourceOfInstrumentedMember<OperatorDeclarationSyntax>(instrumentedSyntaxTree);
+                Assert.That(instrumentedMethodSource[0], Does.Contain("public static Point operator *(Point a, Point b)"));
+                Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+                Assert.That(instrumentedMethodSource[3], Does.Contain("   return new Point(a.x * b.x, a.y * b.y);"));
+                Assert.That(instrumentedMethodSource[4], Does.Contain("}"));                
+            }
+        }
+
+        [TestFixture]
+        public class Conversion_operators : InstrumentationTestsBase
+        {
+            [Test]
+            public async Task Conversion_operators_can_be_mutated()
+            {
+                var input = await CreateInput<ConversionOperatorDeclarationSyntax>(@"
+                namespace DummyNamespace
+                {
+                    public class Point
+                    {
+                        public int x, y;
+    
+                        public Point(int x, int y)
+                        {
+                            this.x = x;
+                            this.y = y;
+                        }
+
+                        public static implicit operator string(Point p)
+                        {
+                            return x.ToString() + "","" + y.ToString();
+                        }
+                    }
+                }");
+
+                Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
+
+                var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                
+                var instrumentedMethodSource = SourceOfInstrumentedMember<ConversionOperatorDeclarationSyntax>(instrumentedSyntaxTree);
+                Assert.That(instrumentedMethodSource[0], Does.Contain("public static implicit operator string(Point p)"));
+                Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+                Assert.That(instrumentedMethodSource[3], Does.Contain(@"   return x.ToString() + "","" + y.ToString();"));
+                Assert.That(instrumentedMethodSource[4], Does.Contain("}"));
+            }
+
+            [Test]
+            public async Task Conversion_operators_that_are_expression_bodied_can_be_mutated()
+            {
+                var input = await CreateInput<ConversionOperatorDeclarationSyntax>(@"
+                namespace DummyNamespace
+                {
+                    public class Point
+                    {
+                        public int x, y;
+    
+                        public Point(int x, int y)
+                        {
+                            this.x = x;
+                            this.y = y;
+                        }
+
+                        public static implicit operator string(Point p) => x.ToString() + "","" + y.ToString();
+                    }
+                }");
+
+                Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
+
+                var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                
+                var instrumentedMethodSource2 = SourceOfInstrumentedMember<ConversionOperatorDeclarationSyntax>(instrumentedSyntaxTree);
+                Assert.That(instrumentedMethodSource2[0], Does.Contain("public static implicit operator string(Point p)"));
+                Assert.That(instrumentedMethodSource2[1], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource2[2], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+                Assert.That(instrumentedMethodSource2[3], Does.Contain(@"   return x.ToString() + "","" + y.ToString();"));
+                Assert.That(instrumentedMethodSource2[4], Does.Contain("}"));
+            }
+        }
     }
 }
