@@ -16,7 +16,7 @@ namespace Fettle.Core.Internal.RoslynExtensions
                 case ConversionOperatorDeclarationSyntax conversionOperator: return conversionOperator.WithExpressionBody(null);
                 case MethodDeclarationSyntax method: return method.WithExpressionBody(null);
             }
-            throw new NotImplementedException();
+            throw new NotImplementedException($"Unsupported method type: {declaration.GetType()}");
         }
 
         public static bool ReturnsSomething(this BaseMethodDeclarationSyntax declaration)
@@ -49,7 +49,7 @@ namespace Fettle.Core.Internal.RoslynExtensions
                 case ConversionOperatorDeclarationSyntax conversionOperator: return conversionOperator.WithBody(body);
                 case MethodDeclarationSyntax method: return method.WithBody(body);
             }
-            throw new NotImplementedException();
+            throw new NotImplementedException($"Unsupported method type: {declaration.GetType()}");
         }
     }
 }

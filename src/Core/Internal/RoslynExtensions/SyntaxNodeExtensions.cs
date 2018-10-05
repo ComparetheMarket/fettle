@@ -71,7 +71,7 @@ namespace Fettle.Core.Internal.RoslynExtensions
                 case EventDeclarationSyntax @event: return @event.Identifier.ToString();
                 
             }
-            throw new NotImplementedException();
+            throw new NotImplementedException($"Unsupported member type: {baseMember.GetType()}");
         }
 
         private static string ReturnType(SemanticModel semanticModel, MemberDeclarationSyntax baseMember)
@@ -87,7 +87,7 @@ namespace Fettle.Core.Internal.RoslynExtensions
                 case MethodDeclarationSyntax method: return FullyQualifiedTypeName(method.ReturnType, semanticModel);
                 case BasePropertyDeclarationSyntax property: return FullyQualifiedTypeName(property.Type, semanticModel);
             }
-            throw new NotImplementedException();
+            throw new NotImplementedException($"Unsupported member type: {baseMember.GetType()}");
         }
 
         private static string FullyQualifiedTypeName(TypeSyntax type, SemanticModel semanticModel)
