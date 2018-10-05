@@ -314,18 +314,18 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                     input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<IndexerDeclarationSyntax>(instrumentedSyntaxTree);
-                Assert.That(instrumentedMethodSource[0], Does.Contain("public int this[int i]"));
-                Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
-                Assert.That(instrumentedMethodSource[2], Does.Contain("get"));
-                Assert.That(instrumentedMethodSource[3], Does.Contain("{"));
-                Assert.That(instrumentedMethodSource[4], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
-                Assert.That(instrumentedMethodSource[5], Does.Contain("    return arr[i];"));
-                Assert.That(instrumentedMethodSource[6], Does.Contain("}"));
-                Assert.That(instrumentedMethodSource[2], Does.Contain("set"));
-                Assert.That(instrumentedMethodSource[3], Does.Contain("{"));
-                Assert.That(instrumentedMethodSource[4], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
-                Assert.That(instrumentedMethodSource[5], Does.Contain("    arr[i] = value;"));
-                Assert.That(instrumentedMethodSource[6], Does.Contain("}"));
+                Assert.That(instrumentedMethodSource[ 0], Does.Contain("public int this[int i]"));
+                Assert.That(instrumentedMethodSource[ 1], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[ 2], Does.Contain("get"));
+                Assert.That(instrumentedMethodSource[ 3], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[ 4], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+                Assert.That(instrumentedMethodSource[ 5], Does.Contain("    return arr[i];"));
+                Assert.That(instrumentedMethodSource[ 6], Does.Contain("}"));
+                Assert.That(instrumentedMethodSource[ 8], Does.Contain("set"));
+                Assert.That(instrumentedMethodSource[ 9], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[10], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+                Assert.That(instrumentedMethodSource[11], Does.Contain("    arr[i] = value;"));
+                Assert.That(instrumentedMethodSource[12], Does.Contain("}"));
             }
 
             [Test]
@@ -352,18 +352,18 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                     input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<IndexerDeclarationSyntax>(instrumentedSyntaxTree);
-                Assert.That(instrumentedMethodSource[0], Does.Contain("public int this[int i]"));
-                Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
-                Assert.That(instrumentedMethodSource[2], Does.Contain("get"));
-                Assert.That(instrumentedMethodSource[3], Does.Contain("{"));
-                Assert.That(instrumentedMethodSource[4], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
-                Assert.That(instrumentedMethodSource[5], Does.Contain("    return arr[i];"));
-                Assert.That(instrumentedMethodSource[6], Does.Contain("}"));
-                Assert.That(instrumentedMethodSource[2], Does.Contain("set"));
-                Assert.That(instrumentedMethodSource[3], Does.Contain("{"));
-                Assert.That(instrumentedMethodSource[4], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
-                Assert.That(instrumentedMethodSource[5], Does.Contain("    arr[i] = value;"));
-                Assert.That(instrumentedMethodSource[6], Does.Contain("}"));
+                Assert.That(instrumentedMethodSource[ 0], Does.Contain("public int this[int i]"));
+                Assert.That(instrumentedMethodSource[ 1], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[ 2], Does.Contain("get"));
+                Assert.That(instrumentedMethodSource[ 3], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[ 4], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+                Assert.That(instrumentedMethodSource[ 5], Does.Contain("    return arr[i];"));
+                Assert.That(instrumentedMethodSource[ 6], Does.Contain("}"));
+                Assert.That(instrumentedMethodSource[ 8], Does.Contain("set"));
+                Assert.That(instrumentedMethodSource[ 9], Does.Contain("{"));
+                Assert.That(instrumentedMethodSource[10], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+                Assert.That(instrumentedMethodSource[11], Does.Contain("    arr[i] = value;"));
+                Assert.That(instrumentedMethodSource[12], Does.Contain("}"));
             }
         }
 
@@ -407,19 +407,19 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
             var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
                 input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
 
-            var instrumentedMethodSource = SourceOfInstrumentedMember<IndexerDeclarationSyntax>(instrumentedSyntaxTree);
-            Assert.That(instrumentedMethodSource[0], Does.Contain("public event EventHandler<EventArgs> SomeEvent"));
-            Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
-            Assert.That(instrumentedMethodSource[2], Does.Contain("add"));
-            Assert.That(instrumentedMethodSource[3], Does.Contain("{"));
-            Assert.That(instrumentedMethodSource[4], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
-            Assert.That(instrumentedMethodSource[5], Does.Contain("    someEvent += value;"));
-            Assert.That(instrumentedMethodSource[6], Does.Contain("}"));
-            Assert.That(instrumentedMethodSource[2], Does.Contain("remove"));
-            Assert.That(instrumentedMethodSource[3], Does.Contain("{"));
-            Assert.That(instrumentedMethodSource[4], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
-            Assert.That(instrumentedMethodSource[5], Does.Contain("    someEvent -= value;"));
-            Assert.That(instrumentedMethodSource[6], Does.Contain("}"));
+            var instrumentedMethodSource = SourceOfInstrumentedMember<EventDeclarationSyntax>(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource[ 0], Does.Contain("public event EventHandler<EventArgs> SomeEvent"));
+            Assert.That(instrumentedMethodSource[ 1], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[ 2], Does.Contain("add"));
+            Assert.That(instrumentedMethodSource[ 3], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[ 4], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[ 5], Does.Contain("    someEvent += value;"));
+            Assert.That(instrumentedMethodSource[ 6], Does.Contain("}"));
+            Assert.That(instrumentedMethodSource[ 8], Does.Contain("remove"));
+            Assert.That(instrumentedMethodSource[ 9], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[10], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
+            Assert.That(instrumentedMethodSource[11], Does.Contain("    someEvent -= value;"));
+            Assert.That(instrumentedMethodSource[12], Does.Contain("}"));
         }
     }
 }

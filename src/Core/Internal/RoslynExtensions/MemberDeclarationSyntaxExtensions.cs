@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Fettle.Core.Internal.RoslynExtensions
@@ -31,11 +30,7 @@ namespace Fettle.Core.Internal.RoslynExtensions
             if (hasAccessors)
             {
                 var accessors = propertyDeclaration.AccessorList.ChildNodes().OfType<AccessorDeclarationSyntax>().ToArray();
-
-                var accessor = accessors.SingleOrDefault(a => a.Kind() == SyntaxKind.GetAccessorDeclaration) ??
-                               accessors.Single(a => a.Kind() == SyntaxKind.SetAccessorDeclaration);
-
-                var isAutoAccessor = accessor.Body == null && accessor.ExpressionBody == null;
+                var areAnyAutoAccessors = accessors.Any(a => a.Body == null && a.ExpressionBody == null);
 
                 // Assumption: you can't mix auto accessors and non-auto accessors in a single property.
                 // E.g. these won't compile:
@@ -43,8 +38,9 @@ namespace Fettle.Core.Internal.RoslynExtensions
                 //      int Thing { get { return x; } set; }
                 // Therefore, if a getter has a body/expression body then the setter will too (and vice versa).
                 // Therefore we only need to check one accessor.
+                // (And the same with add/remove accessors for events).
 
-                if (isAutoAccessor)
+                if (areAnyAutoAccessors)
                 {
                     // Auto-accessor means that there is no body/expression body, so nothing to mutate
                     return false;

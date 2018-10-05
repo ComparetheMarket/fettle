@@ -54,15 +54,15 @@ namespace Fettle.Core.Internal
                     InstrumentNormalMethod(methodNode, documentEditor, instrumentationNode);
                 }
             }
-            else if (memberNode is PropertyDeclarationSyntax propertyNode)
+            else if (memberNode is BasePropertyDeclarationSyntax basePropertyNode)
             {
-                if (propertyNode.ExpressionBody != null)
+                if (basePropertyNode is PropertyDeclarationSyntax propertyNode && propertyNode.ExpressionBody != null)
                 {
                     InstrumentExpressionBodiedProperty(propertyNode, documentEditor, instrumentationNode);
                 }
                 else
                 {
-                    foreach (var accessorNode in propertyNode.AccessorList.Accessors)
+                    foreach (var accessorNode in basePropertyNode.AccessorList.Accessors)
                     {
                         var isAccessorExpressionBodied = accessorNode.ExpressionBody != null;
                         if (isAccessorExpressionBodied)

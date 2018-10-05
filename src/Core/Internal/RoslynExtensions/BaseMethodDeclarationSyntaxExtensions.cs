@@ -6,6 +6,19 @@ namespace Fettle.Core.Internal.RoslynExtensions
 {
     internal static class BaseMethodDeclarationSyntaxExtensions
     {
+        public static BaseMethodDeclarationSyntax WithNoExpressionBody(this BaseMethodDeclarationSyntax declaration)
+        {
+            switch (declaration)
+            {
+                case ConstructorDeclarationSyntax constructor: return constructor.WithExpressionBody(null);
+                case DestructorDeclarationSyntax destructor: return destructor.WithExpressionBody(null);
+                case OperatorDeclarationSyntax @operator: return @operator.WithExpressionBody(null);
+                case ConversionOperatorDeclarationSyntax conversionOperator: return conversionOperator.WithExpressionBody(null);
+                case MethodDeclarationSyntax method: return method.WithExpressionBody(null);
+            }
+            throw new NotImplementedException();
+        }
+
         public static bool ReturnsSomething(this BaseMethodDeclarationSyntax declaration)
         {
             TypeSyntax returnType = null;
@@ -35,19 +48,6 @@ namespace Fettle.Core.Internal.RoslynExtensions
                 case OperatorDeclarationSyntax @operator: return @operator.WithBody(body);
                 case ConversionOperatorDeclarationSyntax conversionOperator: return conversionOperator.WithBody(body);
                 case MethodDeclarationSyntax method: return method.WithBody(body);
-            }
-            throw new NotImplementedException();
-        }
-
-        public static BaseMethodDeclarationSyntax WithNoExpressionBody(this BaseMethodDeclarationSyntax declaration)
-        {
-            switch (declaration)
-            {
-                case ConstructorDeclarationSyntax constructor: return constructor.WithExpressionBody(null);
-                case DestructorDeclarationSyntax destructor: return destructor.WithExpressionBody(null);
-                case OperatorDeclarationSyntax @operator: return @operator.WithExpressionBody(null);
-                case ConversionOperatorDeclarationSyntax conversionOperator: return conversionOperator.WithExpressionBody(null);
-                case MethodDeclarationSyntax method: return method.WithExpressionBody(null);
             }
             throw new NotImplementedException();
         }
