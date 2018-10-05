@@ -184,6 +184,8 @@ namespace Fettle.Tests.Core.ImplementationDetails
             {
                 public class DummyClass
                 {
+                    public double x, y;
+
                     public static DummyClass operator *(DummyClass a, DummyClass b)
                     {
                         return new DummyClass { x = a.x + b.x, y = a.y + b.y };
@@ -191,7 +193,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
 
                     public static implicit operator string(DummyClass d)
                     {
-                        return new DummyClass { x = int.Parse(d.x), y = 0 };
+                        return d.x.ToString();
                     }
                 }
             }");
@@ -200,11 +202,14 @@ namespace Fettle.Tests.Core.ImplementationDetails
 
             var returnStatementNodes = syntaxTree.GetRoot().DescendantNodes().OfType<ReturnStatementSyntax>().ToArray();
             
-            Assert.That(returnStatementNodes[0].NameOfContainingMember(semanticModel), 
-                Is.EqualTo("DummyNamespace.DummyClass::operator *(DummyClass, DummyClass)"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(returnStatementNodes[0].NameOfContainingMember(semanticModel), 
+                    Is.EqualTo("DummyNamespace.DummyClass::operator *(DummyNamespace.DummyClass,DummyNamespace.DummyClass)"));
 
-            Assert.That(returnStatementNodes[1].NameOfContainingMember(semanticModel), 
-                Is.EqualTo("DummyNamespace.DummyClass::operator string(DummyClass)"));
+                Assert.That(returnStatementNodes[1].NameOfContainingMember(semanticModel), 
+                    Is.EqualTo("DummyNamespace.DummyClass::operator string(DummyNamespace.DummyClass)"));
+            });
         }
     }
 }
