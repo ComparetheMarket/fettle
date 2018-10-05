@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Framework;
 using System.Threading.Tasks;
-using InstrumentationImpl = Fettle.Core.Internal.Instrumentation;
+using InstrumentationImpl = Fettle.Core.Internal.Instrumentation.Instrumentation;
 
 namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
 {

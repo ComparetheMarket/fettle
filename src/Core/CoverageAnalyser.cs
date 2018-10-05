@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Fettle.Core.Internal;
+using Fettle.Core.Internal.Instrumentation;
 using Fettle.Core.Internal.NUnit;
 using Microsoft.CodeAnalysis;
 

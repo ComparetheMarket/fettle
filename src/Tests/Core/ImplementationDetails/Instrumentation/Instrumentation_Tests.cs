@@ -3,7 +3,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using InstrumentationImpl = Fettle.Core.Internal.Instrumentation;
+using InstrumentationImpl = Fettle.Core.Internal.Instrumentation.Instrumentation;
 
 namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
 {
