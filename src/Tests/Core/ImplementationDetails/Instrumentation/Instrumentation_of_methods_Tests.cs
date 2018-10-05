@@ -386,9 +386,9 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                             this.y = y;
                         }
 
-                        public static Fraction operator *(Point a, Point b)
+                        public static Point operator *(Point a, Point b)
                         {
-                            return new Fraction(a.x * b.x, a.y * b.y);
+                            return new Point(a.x * b.x, a.y * b.y);
                         }
                     }
                 }");
@@ -422,7 +422,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                             this.y = y;
                         }
 
-                        public static Fraction operator *(Point a, Point b) => new Fraction(a.x * b.x, a.y * b.y);
+                        public static Point operator *(Point a, Point b) => new Point(a.x * b.x, a.y * b.y);
                     }
                 }");
 
