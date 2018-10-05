@@ -34,6 +34,9 @@ namespace Fettle.Core
             
             var baseTempDirectory = TempDirectory.Create();
 
+            long memberId = 0;
+            long GenerateMemberId() => ++memberId;
+
             try
             {
                 var copiedTestAssemblyFilePaths = 
@@ -51,6 +54,7 @@ namespace Fettle.Core
                         config,
                         baseTempDirectory,
                         copiedTestAssemblyFilePaths,
+                        GenerateMemberId,
                         memberIdsToNames);
 
                     var result = new CoverageAnalysisResult();
@@ -89,13 +93,14 @@ namespace Fettle.Core
             Config config,
             string baseTempDirectory,
             IList<string> copiedTestAssemblyFilePaths,
+            Func<long> memberIdGenerator,
             IDictionary<string, string> memberIdsToNames)
         {
             foreach (var project in projects)
             {
                 var outputFilePath = Path.Combine(baseTempDirectory, $@"{project.AssemblyName}.dll");
 
-                await InstrumentThenCompileProject(project, config, outputFilePath, memberIdsToNames);
+                await InstrumentThenCompileProject(project, config, outputFilePath, memberIdGenerator, memberIdsToNames);
 
                 CopyInstrumentedAssemblyIntoTempTestAssemblyDirectories(
                     outputFilePath, 
@@ -107,6 +112,7 @@ namespace Fettle.Core
             Project project,
             Config config,
             string outputFilePath,
+            Func<long> memberIdGenerator,
             IDictionary<string, string> memberIdsToNames)
         {
             var originalSyntaxTrees = new List<SyntaxTree>();
@@ -122,7 +128,8 @@ namespace Fettle.Core
                 var modifiedSyntaxTree = await Instrumentation.InstrumentDocument(
                     originalSyntaxTree, 
                     originalClass,
-                    memberIdsToNames.Add);
+                    memberIdsToNames.Add,
+                    memberIdGenerator);
 
                 originalSyntaxTrees.Add(originalSyntaxTree);
                 modifiedSyntaxTrees.Add(modifiedSyntaxTree);

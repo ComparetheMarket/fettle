@@ -16,7 +16,8 @@ namespace Fettle.Core.Internal.Instrumentation
         public static async Task<SyntaxTree> InstrumentDocument(
             SyntaxTree originalSyntaxTree,
             Document document,
-            Action<string, string> onMemberInstrumented)
+            Action<string, string> onMemberInstrumented,
+            Func<long> memberIdGenerator)
         {
             var root = await originalSyntaxTree.GetRootAsync();
             var semanticModel = await document.GetSemanticModelAsync();
@@ -27,11 +28,13 @@ namespace Fettle.Core.Internal.Instrumentation
                                            .Where(memberNode => memberNode.CanInstrument()))
             {
                 var fullMemberName = memberNode.ChildNodes().First().NameOfContainingMember(semanticModel);
-                var memberId = Guid.NewGuid().ToString();
 
-                InstrumentMember(memberId, memberNode, documentEditor);
+                var memberId = memberIdGenerator();
+                var memberIdAsString = memberId.ToString();
 
-                onMemberInstrumented(memberId, fullMemberName);
+                InstrumentMember(memberIdAsString, memberNode, documentEditor);
+
+                onMemberInstrumented(memberIdAsString, fullMemberName);
             }
             
             return await documentEditor.GetChangedDocument().GetSyntaxTreeAsync();

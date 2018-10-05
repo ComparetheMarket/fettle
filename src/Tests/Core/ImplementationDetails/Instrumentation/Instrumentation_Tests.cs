@@ -29,13 +29,39 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
             await InstrumentationImpl.InstrumentDocument(
                 input.OriginalSyntaxTree,
                 input.OriginalDocument, 
-                (methodId, fullMethodName) => received.Add(new Tuple<string,string>(methodId, fullMethodName)));
+                (methodId, fullMethodName) => received.Add(new Tuple<string,string>(methodId, fullMethodName)),
+                () => 0);
 
             Assert.That(received.Count, Is.EqualTo(4));
             Assert.That(received[0].Item2, Does.Contain("MethodA"));
             Assert.That(received[1].Item2, Does.Contain("MethodB"));
             Assert.That(received[2].Item2, Does.Contain("MethodC"));
             Assert.That(received[3].Item2, Does.Contain("MethodD"));
+        }
+
+        [Test]
+        public async Task The_generated_member_id_is_used()
+        {
+            var input = await CreateInput<MemberDeclarationSyntax>(@"
+            namespace DummyNamespace
+            {
+                public class DummyClass
+                {
+                    public int MethodA(int a) { return 42; }
+                }
+            }");
+
+            var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
+                input.OriginalSyntaxTree,
+                input.OriginalDocument, 
+                (_,__) => {},
+                () => 12345);
+
+            var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
+            Assert.That(instrumentedMethodSource[0], Does.Contain("public int MethodA(int a)"));
+            Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
+            Assert.That(instrumentedMethodSource[2], Does.Contain(
+                $"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}12345"));
         }
     }
 }

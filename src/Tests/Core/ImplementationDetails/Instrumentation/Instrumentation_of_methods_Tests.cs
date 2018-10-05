@@ -30,7 +30,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public static int MagicNumber(int a)"));
@@ -56,7 +56,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public static void DoNothing()"));
@@ -84,7 +84,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public static int MagicNumber(int a)"));
@@ -109,7 +109,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public void DoSomething()"));
@@ -134,7 +134,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public Task<System.Generic.List<int>> GetThings()"));
@@ -186,7 +186,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public override void MagicNumber(int a)"));
@@ -238,7 +238,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<MethodDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public partial void MagicNumber(int a)"));
@@ -272,7 +272,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<ConstructorDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public DummyClass(int a)"));
@@ -299,7 +299,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<ConstructorDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public DummyClass(int a)"));
@@ -331,7 +331,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<DestructorDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("~DummyClass()"));
@@ -356,7 +356,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<DestructorDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("~DummyClass()"));
@@ -396,7 +396,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<OperatorDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public static Point operator *(Point a, Point b)"));
@@ -429,7 +429,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<OperatorDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public static Point operator *(Point a, Point b)"));
@@ -469,7 +469,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
                 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<ConversionOperatorDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public static implicit operator string (Point p)"));
@@ -502,7 +502,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
                 
                 var instrumentedMethodSource2 = SourceOfInstrumentedMember<ConversionOperatorDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource2[0], Does.Contain("public static implicit operator string (Point p)"));

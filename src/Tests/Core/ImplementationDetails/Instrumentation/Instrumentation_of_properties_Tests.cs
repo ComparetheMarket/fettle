@@ -34,7 +34,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                        input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                        input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<PropertyDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[ 0], Does.Contain("public int MagicNumber"));
@@ -71,7 +71,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                        input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                        input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<PropertyDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public int MagicNumber"));
@@ -104,7 +104,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                        input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                        input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<PropertyDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[ 0], Does.Contain("public int MagicNumber"));
@@ -141,7 +141,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                        input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                        input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<PropertyDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public static int MagicNumber"));
@@ -174,7 +174,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<PropertyDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[ 0], Does.Contain("public static int MagicNumber"));
@@ -211,7 +211,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<PropertyDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public int MagicNumber"));
@@ -260,10 +260,10 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
             Assert.That(input2.MemberToInstrument.CanInstrument(), Is.True);
 
             var instrumentedSyntaxTree1 = await InstrumentationImpl.InstrumentDocument(
-                    input1.OriginalSyntaxTree, input1.OriginalDocument, (_, __) => {});
+                    input1.OriginalSyntaxTree, input1.OriginalDocument, (_, __) => {}, () => 0);
 
             var instrumentedSyntaxTree2 = await InstrumentationImpl.InstrumentDocument(
-                    input2.OriginalSyntaxTree, input2.OriginalDocument, (_, __) => {});
+                    input2.OriginalSyntaxTree, input2.OriginalDocument, (_, __) => {}, () => 0);
 
             var instrumentedMethodSources = new[]
             {
@@ -311,7 +311,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<IndexerDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[ 0], Does.Contain("public int this[int i]"));
@@ -349,7 +349,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
                 var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                    input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<IndexerDeclarationSyntax>(instrumentedSyntaxTree);
                 Assert.That(instrumentedMethodSource[ 0], Does.Contain("public int this[int i]"));
@@ -405,7 +405,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
             Assert.That(input.MemberToInstrument.CanInstrument(), Is.True);
 
             var instrumentedSyntaxTree = await InstrumentationImpl.InstrumentDocument(
-                input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
+                input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {}, () => 0);
 
             var instrumentedMethodSource = SourceOfInstrumentedMember<EventDeclarationSyntax>(instrumentedSyntaxTree);
             Assert.That(instrumentedMethodSource[ 0], Does.Contain("public event EventHandler<EventArgs> SomeEvent"));
