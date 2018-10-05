@@ -388,11 +388,13 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
             var input = await CreateInput<EventDeclarationSyntax>(@"
             namespace DummyNamespace
             {
+                using System;
+
                 public class DummyClass
                 {
-                    private event EventHandler<string> someEvent;
+                    private event EventHandler<EventArgs> someEvent;
 
-                    public event EventHandler<string> SomeEvent
+                    public event EventHandler<EventArgs> SomeEvent
                     {
                         add { someEvent += value; }
                         remove { someEvent -= value; }
@@ -406,7 +408,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
 
             var instrumentedMethodSource = SourceOfInstrumentedMember<IndexerDeclarationSyntax>(instrumentedSyntaxTree);
-            Assert.That(instrumentedMethodSource[0], Does.Contain("public event EventHandler<string> SomeEvent"));
+            Assert.That(instrumentedMethodSource[0], Does.Contain("public event EventHandler<EventArgs> SomeEvent"));
             Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
             Assert.That(instrumentedMethodSource[2], Does.Contain("add"));
             Assert.That(instrumentedMethodSource[3], Does.Contain("{"));

@@ -8,11 +8,11 @@ namespace Fettle.Core.Internal.RoslynExtensions
     {
         public static bool CanInstrument(this MemberDeclarationSyntax memberDeclaration)
         {
-            if (memberDeclaration is MethodDeclarationSyntax methodDeclaration)
+            if (memberDeclaration is BaseMethodDeclarationSyntax methodDeclaration)
             {
                 return CanInstrumentMethod(methodDeclaration);
             }
-            else if (memberDeclaration is PropertyDeclarationSyntax propertyDeclaration)
+            else if (memberDeclaration is BasePropertyDeclarationSyntax propertyDeclaration)
             {
                 return CanInstrumentProperty(propertyDeclaration);
             }
@@ -20,17 +20,18 @@ namespace Fettle.Core.Internal.RoslynExtensions
             return false;
         }
 
-        private static bool CanInstrumentMethod(MethodDeclarationSyntax methodDeclaration)
+        private static bool CanInstrumentMethod(BaseMethodDeclarationSyntax methodDeclaration)
         {
             return methodDeclaration.Body != null || methodDeclaration.ExpressionBody != null;
         }
 
-        private static bool CanInstrumentProperty(PropertyDeclarationSyntax propertyDeclaration)
+        private static bool CanInstrumentProperty(BasePropertyDeclarationSyntax propertyDeclaration)
         {
             var hasAccessors = propertyDeclaration.AccessorList != null;
             if (hasAccessors)
             {
-                var accessors = propertyDeclaration.AccessorList.ChildNodes().OfType<AccessorDeclarationSyntax>();
+                var accessors = propertyDeclaration.AccessorList.ChildNodes().OfType<AccessorDeclarationSyntax>().ToArray();
+
                 var accessor = accessors.SingleOrDefault(a => a.Kind() == SyntaxKind.GetAccessorDeclaration) ??
                                accessors.Single(a => a.Kind() == SyntaxKind.SetAccessorDeclaration);
 
