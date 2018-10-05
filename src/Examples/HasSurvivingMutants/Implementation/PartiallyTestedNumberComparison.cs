@@ -96,5 +96,7 @@
             }
         }
 
+        // This exists to test that Fettle ignores fields (which it doesn't support)
+        public static int magicNumber = 42;
     }
 }

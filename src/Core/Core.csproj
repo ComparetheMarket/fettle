@@ -62,9 +62,12 @@
     <Compile Include="Internal\DocumentExtensions.cs" />
     <Compile Include="Internal\Filtering.cs" />
     <Compile Include="Internal\IgnoreComments.cs" />
-    <Compile Include="Internal\Instrumentation.cs" />
+    <Compile Include="Internal\Instrumentation\Instrumentation.cs" />
+    <Compile Include="Internal\Instrumentation\MethodInstrumentation.cs" />
+    <Compile Include="Internal\Instrumentation\PropertyInstrumentation.cs" />
     <Compile Include="Internal\ITestFinder.cs" />
     <Compile Include="Internal\Mutators\InvertIfStatementConditionMutator.cs" />
+    <Compile Include="Internal\RoslynExtensions\BaseMethodDeclarationSyntaxExtensions.cs" />
     <Compile Include="Internal\RoslynExtensions\MemberDeclarationSyntaxExtensions.cs" />
     <Compile Include="Internal\MutationJob.cs" />
     <Compile Include="Internal\MutationJobList.cs" />
