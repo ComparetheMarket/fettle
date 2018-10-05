@@ -95,7 +95,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
             }
 
             [Test]
-            public async Task Expression_bodied_methods_that_do_not_return_a_valud_can_be_instrumented()
+            public async Task Expression_bodied_methods_that_do_not_return_a_value_can_be_instrumented()
             {
                 var input = await CreateInput<MethodDeclarationSyntax>(@"
                 namespace DummyNamespace
@@ -402,7 +402,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                 Assert.That(instrumentedMethodSource[0], Does.Contain("public static Point operator *(Point a, Point b)"));
                 Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
                 Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
-                Assert.That(instrumentedMethodSource[3], Does.Contain("   return new Point(a.num * b.num, a.den * b.den);"));
+                Assert.That(instrumentedMethodSource[3], Does.Contain("   return new Point(a.x * b.x, a.y * b.y);"));
                 Assert.That(instrumentedMethodSource[4], Does.Contain("}"));                
             }
 
@@ -459,7 +459,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                             this.y = y;
                         }
 
-                        public static implicit operator string(Point p)
+                        public static implicit operator string (Point p)
                         {
                             return x.ToString() + "","" + y.ToString();
                         }
@@ -472,7 +472,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                     input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
                 
                 var instrumentedMethodSource = SourceOfInstrumentedMember<ConversionOperatorDeclarationSyntax>(instrumentedSyntaxTree);
-                Assert.That(instrumentedMethodSource[0], Does.Contain("public static implicit operator string(Point p)"));
+                Assert.That(instrumentedMethodSource[0], Does.Contain("public static implicit operator string (Point p)"));
                 Assert.That(instrumentedMethodSource[1], Does.Contain("{"));
                 Assert.That(instrumentedMethodSource[2], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
                 Assert.That(instrumentedMethodSource[3], Does.Contain(@"   return x.ToString() + "","" + y.ToString();"));
@@ -495,7 +495,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                             this.y = y;
                         }
 
-                        public static implicit operator string(Point p) => x.ToString() + "","" + y.ToString();
+                        public static implicit operator string (Point p) => x.ToString() + "","" + y.ToString();
                     }
                 }");
 
@@ -505,7 +505,7 @@ namespace Fettle.Tests.Core.ImplementationDetails.Instrumentation
                     input.OriginalSyntaxTree, input.OriginalDocument, (_, __) => {});
                 
                 var instrumentedMethodSource2 = SourceOfInstrumentedMember<ConversionOperatorDeclarationSyntax>(instrumentedSyntaxTree);
-                Assert.That(instrumentedMethodSource2[0], Does.Contain("public static implicit operator string(Point p)"));
+                Assert.That(instrumentedMethodSource2[0], Does.Contain("public static implicit operator string (Point p)"));
                 Assert.That(instrumentedMethodSource2[1], Does.Contain("{"));
                 Assert.That(instrumentedMethodSource2[2], Does.Contain($"   System.Console.WriteLine(\"{InstrumentationImpl.CoverageOutputLinePrefix}"));
                 Assert.That(instrumentedMethodSource2[3], Does.Contain(@"   return x.ToString() + "","" + y.ToString();"));

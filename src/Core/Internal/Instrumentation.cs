@@ -42,7 +42,7 @@ namespace Fettle.Core.Internal
             var instrumentationNode = SyntaxFactory.ParseStatement(
                 $"System.Console.WriteLine(\"{CoverageOutputLinePrefix}{methodId}\");");
 
-            if (memberNode is MethodDeclarationSyntax methodNode)
+            if (memberNode is BaseMethodDeclarationSyntax methodNode)
             {
                 var isMethodExpressionBodied = methodNode.ExpressionBody != null;
                 if (isMethodExpressionBodied)
@@ -81,7 +81,7 @@ namespace Fettle.Core.Internal
         }
 
         private static void InstrumentNormalMethod(
-            MethodDeclarationSyntax methodNode,
+            BaseMethodDeclarationSyntax methodNode,
             DocumentEditor documentEditor,
             StatementSyntax instrumentationNode)
         {
@@ -143,30 +143,27 @@ namespace Fettle.Core.Internal
         //      }
 
         private static void InstrumentExpressionBodiedMethod(
-            MethodDeclarationSyntax methodNode,
+            BaseMethodDeclarationSyntax methodNode,
             DocumentEditor documentEditor,
             StatementSyntax instrumentationNode)
         {
             BlockSyntax newMethodBodyBlock;
 
-            var isVoidMethod = methodNode.ReturnType is PredefinedTypeSyntax typeSyntax &&
-                               typeSyntax.Keyword.Kind() == SyntaxKind.VoidKeyword;
-
-            if (isVoidMethod)
-            {
-                newMethodBodyBlock = SyntaxFactory.Block(
-                    instrumentationNode,
-                    SyntaxFactory.ExpressionStatement(methodNode.ExpressionBody.Expression));
-            }
-            else
+            if (methodNode.ReturnsSomething())
             {
                 newMethodBodyBlock = SyntaxFactory.Block(
                     instrumentationNode,
                     SyntaxFactory.ReturnStatement(methodNode.ExpressionBody.Expression));
             }
+            else
+            {
+                newMethodBodyBlock = SyntaxFactory.Block(
+                    instrumentationNode,
+                    SyntaxFactory.ExpressionStatement(methodNode.ExpressionBody.Expression));
+            }
 
             var newMethodNode = methodNode
-                .WithExpressionBody(null)
+                .WithNoExpressionBody()
                 .WithBody(newMethodBodyBlock);
 
             documentEditor.ReplaceNode(methodNode, newMethodNode);
