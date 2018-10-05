@@ -69,6 +69,7 @@
     <Compile Include="Console\Surviving_mutants.cs" />
     <Compile Include="Console\Unrecognised_command_line_arguments.cs" />
     <Compile Include="Core\Assembly_modification.cs" />
+    <Compile Include="Core\Contexts\AssignmentExpressionMutators.cs" />
     <Compile Include="Core\Contexts\EndToEnd.cs" />
     <Compile Include="Core\Contexts\BinaryExpressionMutators.cs" />
     <Compile Include="Core\Contexts\Default.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Core\Filtering\Source_files_are_filtered_with_multiple_filters.cs" />
     <Compile Include="Core\Filtering\Source_files_are_not_filtered.cs" />
     <Compile Include="Core\Ignored_lines.cs" />
+    <Compile Include="Core\ImplementationDetails\Mutation\Assignment_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Conditional_operator.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\If_statement_condition.cs" />
     <Compile Include="Core\ImplementationDetails\NameOfContainingMember_Tests.cs" />
