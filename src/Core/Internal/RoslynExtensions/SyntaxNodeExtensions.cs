@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Fettle.Core.Internal.RoslynExtensions
 {
     internal static class SyntaxNodeExtensions
-    {        
+    {
         public static string NameOfContainingMember(this SyntaxNode targetNode, SemanticModel semanticModel)
         {
             NamespaceDeclarationSyntax foundNamespace = null;
@@ -16,29 +16,35 @@ namespace Fettle.Core.Internal.RoslynExtensions
             SyntaxNode node = targetNode.Parent;
             while (node != null)
             {
-                if (node is NamespaceDeclarationSyntax @namespace) foundNamespace = @namespace;
-                else if (node is ClassDeclarationSyntax @class) foundClass = @class;                
-                else if (node is MemberDeclarationSyntax member) foundMember = member;
-                
+                switch (node)
+                {
+                    case NamespaceDeclarationSyntax @namespace: foundNamespace = @namespace; break;
+                    case ClassDeclarationSyntax @class: foundClass = @class; break;
+                    case MemberDeclarationSyntax member: foundMember = member; break;
+                }
+
                 node = node.Parent;
             }
-            
-            if (foundNamespace != null && foundClass != null)
+
+            var foundContainingMember = foundNamespace != null && foundClass != null && foundMember != null;
+            if (foundContainingMember && SupportsMember(foundMember))
             {
-                if (foundMember != null)
-                {
-                    var formattedParameters = FormattedParameters(semanticModel, foundMember);
-                    
-                    var returnType = ReturnType(semanticModel, foundMember);
-                    var returnTypeFormatted = returnType != null ? $"{returnType} " : "";
+                var formattedParameters = FormattedParameters(semanticModel, foundMember);
 
-                    var identifier = Identifier(foundMember);
+                var returnType = ReturnType(semanticModel, foundMember);
+                var returnTypeFormatted = returnType != null ? $"{returnType} " : "";
 
-                    return $"{returnTypeFormatted}{foundNamespace.Name}.{foundClass.Identifier}::{identifier}{formattedParameters}";
-                }
+                var identifier = Identifier(foundMember);
+
+                return $"{returnTypeFormatted}{foundNamespace.Name}.{foundClass.Identifier}::{identifier}{formattedParameters}";
             }
 
             return null;
+        }
+
+        private static bool SupportsMember(MemberDeclarationSyntax member)
+        {
+            return member is BaseMethodDeclarationSyntax || member is BasePropertyDeclarationSyntax;
         }
 
         private static string FormattedParameters(SemanticModel semanticModel, MemberDeclarationSyntax baseMember)

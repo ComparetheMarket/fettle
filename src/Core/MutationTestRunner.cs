@@ -73,8 +73,9 @@ namespace Fettle.Core
                         var memberName = nodeToMutate.NameOfContainingMember(documentSemanticModel);
                         if (memberName == null)
                         {
-                            // The node is not within a member, e.g. it's a class or namespace declaration.
-                            // Therefore there is no code to mutate.
+                            // The node is not within a member (e.g. it's a class or namespace declaration)
+                            // Or, the node is within a member, but the member is not one Fettle supports.
+                            // Either way, there is no code to mutate.
                             continue;
                         }
 

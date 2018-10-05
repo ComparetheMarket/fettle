@@ -213,5 +213,25 @@ namespace Fettle.Tests.Core.ImplementationDetails
                     Is.EqualTo("DummyNamespace.DummyClass::operator string(DummyNamespace.DummyClass)"));
             });
         }
+
+        [Test]
+        public void Fields_are_not_supported()
+        {
+            var syntaxTree = CSharpSyntaxTree.ParseText(
+            @"namespace DummyNamespace
+            {
+                public static class DummyClass
+                {
+                    public static int dummyField = 42;
+                }
+            }");
+            var compilation = CSharpCompilation.Create("DummyAssembly", new [] { syntaxTree });
+            var returnStatementNode = syntaxTree.GetRoot().DescendantNodes().OfType<EqualsValueClauseSyntax>().Single();
+            var semanticModel = compilation.GetSemanticModel(syntaxTree);
+
+            var containingMemberName = returnStatementNode.NameOfContainingMember(semanticModel);
+
+            Assert.That(containingMemberName, Is.Null);
+        }
     }
 }
