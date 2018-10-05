@@ -11,61 +11,72 @@ namespace Fettle.Core.Internal.RoslynExtensions
         {
             NamespaceDeclarationSyntax foundNamespace = null;
             ClassDeclarationSyntax foundClass = null;
-            BaseMethodDeclarationSyntax foundMethod = null;
-            PropertyDeclarationSyntax foundProperty = null;
+            MemberDeclarationSyntax foundMember = null;
 
             SyntaxNode node = targetNode.Parent;
             while (node != null)
             {
                 if (node is NamespaceDeclarationSyntax @namespace) foundNamespace = @namespace;
                 else if (node is ClassDeclarationSyntax @class) foundClass = @class;                
-                else if (node is BaseMethodDeclarationSyntax method) foundMethod = method;
-                else if (node is PropertyDeclarationSyntax property) foundProperty = property;
-
+                else if (node is MemberDeclarationSyntax member) foundMember = member;
+                
                 node = node.Parent;
             }
             
             if (foundNamespace != null && foundClass != null)
             {
-                if (foundMethod != null)
+                if (foundMember != null)
                 {
-                    var parameters = string.Join(",",
-                        foundMethod.ParameterList.Parameters
-                            .Select(p => FullyQualifiedTypeName(p.Type, semanticModel)));
-
-                    var returnType = ReturnType(semanticModel, foundMethod);
+                    var formattedParameters = FormattedParameters(semanticModel, foundMember);
+                    
+                    var returnType = ReturnType(semanticModel, foundMember);
                     var returnTypeFormatted = returnType != null ? $"{returnType} " : "";
 
-                    var identifier = Identifier(foundMethod);
+                    var identifier = Identifier(foundMember);
 
-                    return $"{returnTypeFormatted}{foundNamespace.Name}.{foundClass.Identifier}::{identifier}({parameters})";
-                }
-                else if (foundProperty != null)
-                {
-                    var returnType = FullyQualifiedTypeName(foundProperty.Type, semanticModel);
-                    return $"{returnType} {foundNamespace.Name}.{foundClass.Identifier}::{foundProperty.Identifier}";
+                    return $"{returnTypeFormatted}{foundNamespace.Name}.{foundClass.Identifier}::{identifier}{formattedParameters}";
                 }
             }
 
             return null;
         }
 
-        private static string Identifier(BaseMethodDeclarationSyntax baseMethod)
+        private static string FormattedParameters(SemanticModel semanticModel, MemberDeclarationSyntax baseMember)
         {
-            switch (baseMethod)
+            string ParametersAsString(SeparatedSyntaxList<ParameterSyntax> parameters) =>
+                string.Join(",",
+                    parameters.Select(p => FullyQualifiedTypeName(p.Type, semanticModel)));
+
+            switch (baseMember)
+            {
+                case BaseMethodDeclarationSyntax method: return $"({ParametersAsString(method.ParameterList.Parameters)})";
+                case IndexerDeclarationSyntax indexer:  return $"[{ParametersAsString(indexer.ParameterList.Parameters)}]";
+            }
+
+            return "";
+        }
+
+        private static string Identifier(MemberDeclarationSyntax baseMember)
+        {
+            switch (baseMember)
             {
                 case ConstructorDeclarationSyntax constructor: return constructor.Identifier.ToString();
                 case DestructorDeclarationSyntax destructor: return $"~{destructor.Identifier}";
                 case MethodDeclarationSyntax method: return method.Identifier.ToString();
                 case OperatorDeclarationSyntax @operator: return $"operator {@operator.OperatorToken}";
                 case ConversionOperatorDeclarationSyntax conversionOperator: return $"operator {conversionOperator.Type}";
+                
+                case PropertyDeclarationSyntax property: return property.Identifier.ToString();
+                case IndexerDeclarationSyntax _: return "this";
+                case EventDeclarationSyntax @event: return @event.Identifier.ToString();
+                
             }
             throw new NotImplementedException();
         }
 
-        private static string ReturnType(SemanticModel semanticModel, BaseMethodDeclarationSyntax baseMethod)
+        private static string ReturnType(SemanticModel semanticModel, MemberDeclarationSyntax baseMember)
         {
-            switch (baseMethod)
+            switch (baseMember)
             {
                 case ConstructorDeclarationSyntax _: 
                 case DestructorDeclarationSyntax _: 
@@ -74,6 +85,7 @@ namespace Fettle.Core.Internal.RoslynExtensions
                     return null;
 
                 case MethodDeclarationSyntax method: return FullyQualifiedTypeName(method.ReturnType, semanticModel);
+                case BasePropertyDeclarationSyntax property: return FullyQualifiedTypeName(property.Type, semanticModel);
             }
             throw new NotImplementedException();
         }
@@ -83,7 +95,8 @@ namespace Fettle.Core.Internal.RoslynExtensions
             var typeInfoType = semanticModel.GetTypeInfo(type).Type;
 
             var symbolDisplayFormat = new SymbolDisplayFormat(
-                typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
+                typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+                genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters);
 
             return typeInfoType.ToDisplayString(symbolDisplayFormat);
         }

@@ -154,13 +154,15 @@ namespace Fettle.Tests.Core.ImplementationDetails
         public void Events_are_supported()
         {
             var syntaxTree = CSharpSyntaxTree.ParseText(
-                @"namespace DummyNamespace
+            @"namespace DummyNamespace
             {
+                using System;
+
                 public class DummyClass
                 {
-                   private event EventHandler<string> someEvent;
+                    private event EventHandler<EventArgs> someEvent;
 
-                    public event EventHandler<string> SomeEvent
+                    public event EventHandler<EventArgs> SomeEvent
                     {
                         add { someEvent += value; }
                         remove { someEvent -= value; }
@@ -168,12 +170,12 @@ namespace Fettle.Tests.Core.ImplementationDetails
                 }
             }");
             var compilation = CSharpCompilation.Create("DummyAssembly", new [] { syntaxTree });
-            var returnStatementNode = syntaxTree.GetRoot().DescendantNodes().OfType<AssignmentExpressionSyntax>().Single();
+            var addStatmentNode = syntaxTree.GetRoot().DescendantNodes().OfType<AssignmentExpressionSyntax>().First();
             var semanticModel = compilation.GetSemanticModel(syntaxTree);
 
-            var containingMemberName = returnStatementNode.NameOfContainingMember(semanticModel);
+            var containingMemberName = addStatmentNode.NameOfContainingMember(semanticModel);
 
-            Assert.That(containingMemberName, Is.EqualTo("EventHandler<string> DummyNamespace.DummyClass::SomeEvent"));
+            Assert.That(containingMemberName, Is.EqualTo("EventHandler<EventArgs> DummyNamespace.DummyClass::SomeEvent"));
         }
 
         [Test]
