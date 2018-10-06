@@ -22,73 +22,69 @@ namespace Fettle.Core.Internal
         public static async Task<MutationJobList> Create(Config config, ICoverageAnalysisResult coverageAnalysisResult)
         {
             var jobs = new MutationJobList(config);
+            
+            var documentsToMutate = await config.FindMutatableDocuments();
 
-            using (var workspace = MSBuildWorkspaceFactory.Create())
+            for (var classIndex = 0; classIndex < documentsToMutate.Length; classIndex++)
             {
-                var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
+                var documentToMutate = documentsToMutate[classIndex];
+                var documentSyntaxRoot = await documentToMutate.GetSyntaxRootAsync();
+                var documentSemanticModel = await documentToMutate.GetSemanticModelAsync();
 
-                var documentsToMutate = solution.MutatableClasses(config);
-                for (var classIndex = 0; classIndex < documentsToMutate.Length; classIndex++)
+                var nodesToMutate = documentSyntaxRoot.DescendantNodes().ToArray();
+                var isIgnoring = false;
+
+                for (var nodeIndex = 0; nodeIndex < nodesToMutate.Length; nodeIndex++)
                 {
-                    var documentToMutate = documentsToMutate[classIndex];
-                    var documentSyntaxRoot = await documentToMutate.GetSyntaxRootAsync();
-                    var documentSemanticModel = await documentToMutate.GetSemanticModelAsync();
+                    var nodeToMutate = nodesToMutate[nodeIndex];
 
-                    var nodesToMutate = documentSyntaxRoot.DescendantNodes().ToArray();
-                    var isIgnoring = false;
-
-                    for (var nodeIndex = 0; nodeIndex < nodesToMutate.Length; nodeIndex++)
+                    var memberName = nodeToMutate.NameOfContainingMember(documentSemanticModel);
+                    if (memberName == null)
                     {
-                        var nodeToMutate = nodesToMutate[nodeIndex];
+                        // The node is not within a member (e.g. it's a class or namespace declaration)
+                        // Or, the node is within a member, but the member is not one Fettle supports.
+                        // Either way, there is no code to mutate.
+                        continue;
+                    }
 
-                        var memberName = nodeToMutate.NameOfContainingMember(documentSemanticModel);
-                        if (memberName == null)
+                    if (coverageAnalysisResult != null &&
+                        !coverageAnalysisResult.IsMemberCovered(memberName))
+                    {
+                        continue;
+                    }
+
+                    if (Ignoring.NodeHasBeginIgnoreComment(nodeToMutate)) isIgnoring = true;
+                    else if (Ignoring.NodeHasEndIgnoreComment(nodeToMutate)) isIgnoring = false;
+
+                    if (isIgnoring)
+                    {
+                        continue;
+                    }
+
+                    foreach (var mutator in nodeToMutate.SupportedMutators())
+                    {
+                        var job = new MutationJob(
+                            documentSyntaxRoot,
+                            nodeToMutate,
+                            documentToMutate,
+                            memberName,
+                            config,
+                            mutator,
+                            coverageAnalysisResult);
+
+                        var jobMetadata = new MutationJobMetadata
                         {
-                            // The node is not within a member (e.g. it's a class or namespace declaration)
-                            // Or, the node is within a member, but the member is not one Fettle supports.
-                            // Either way, there is no code to mutate.
-                            continue;
-                        }
+                            SourceFilePath = documentToMutate.FilePath,
+                            SourceFileIndex = classIndex,
+                            SourceFilesTotal = documentsToMutate.Length,
 
-                        if (coverageAnalysisResult != null &&
-                            !coverageAnalysisResult.IsMemberCovered(memberName))
-                        {
-                            continue;
-                        }
-
-                        if (Ignoring.NodeHasBeginIgnoreComment(nodeToMutate)) isIgnoring = true;
-                        else if (Ignoring.NodeHasEndIgnoreComment(nodeToMutate)) isIgnoring = false;
-
-                        if (isIgnoring)
-                        {
-                            continue;
-                        }
-
-                        foreach (var mutator in nodeToMutate.SupportedMutators())
-                        {
-                            var job = new MutationJob(
-                                documentSyntaxRoot,
-                                nodeToMutate,
-                                documentToMutate,
-                                memberName,
-                                config,
-                                mutator,
-                                coverageAnalysisResult);
-
-                            var jobMetadata = new MutationJobMetadata
-                            {
-                                SourceFilePath = documentToMutate.FilePath,
-                                SourceFileIndex = classIndex,
-                                SourceFilesTotal = documentsToMutate.Length,
-
-                                MemberName = memberName,
+                            MemberName = memberName,
                                 
-                                SyntaxNodeIndex = nodeIndex,
-                                SyntaxNodesTotal = nodesToMutate.Length
-                            };
+                            SyntaxNodeIndex = nodeIndex,
+                            SyntaxNodesTotal = nodesToMutate.Length
+                        };
 
-                            jobs.AddJob(job, jobMetadata);
-                        }
+                        jobs.AddJob(job, jobMetadata);
                     }
                 }
             }

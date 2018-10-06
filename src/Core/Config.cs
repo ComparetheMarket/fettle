@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Fettle.Core.Internal.RoslynExtensions;
+using Microsoft.CodeAnalysis;
 
 namespace Fettle.Core
 {
@@ -40,7 +43,16 @@ namespace Fettle.Core
                    .Concat(ValidateContentsOfCollections())
                    .Concat(ValidateFilesArePresent());
         }
-        
+
+        public async Task<Document[]> FindMutatableDocuments()
+        {
+            using (var workspace = MSBuildWorkspaceFactory.Create())
+            {
+                var solution = await workspace.OpenSolutionAsync(SolutionFilePath);
+                return solution.MutatableClasses(this);
+            }
+        }
+
         private IEnumerable<string> ValidateRequiredPropertiesArePresent()
         {
             string PropertyNotSpecified(string propertyName)
