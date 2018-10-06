@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -43,12 +44,25 @@ namespace Fettle.Core.Internal.NUnit
             {
                 Status = status,
                 ConsoleOutput = consoleOutput.ToString(),
-
-                Error = string.Join(Environment.NewLine,
-                    rootNode.SelectNodes("//test-case/failure/message")
-                        .Cast<XmlNode>()
-                        .Select(x => x.InnerText))
+                Error = string.Join(Environment.NewLine, CollateErrorLines(rootNode))
             };
+        }
+
+        private static IEnumerable<string> CollateErrorLines(XmlNode rootNode)
+        {
+            return rootNode.SelectNodes("//test-case/failure")
+                .Cast<XmlNode>()
+                .Select(failure => new
+                {
+                    TestName = failure.SelectSingleNode("../@fullname")?.InnerText ?? "",
+                    Message = failure.SelectSingleNode("message")?.InnerText ?? "",
+                    StackTrace = failure.SelectSingleNode("stack-trace")?.InnerText ?? ""
+                })
+                .Select(failure => 
+                    $@"{failure.TestName}{Environment.NewLine}"
+                    + Environment.NewLine
+                    + $"{failure.Message}{Environment.NewLine}"
+                    + $"{failure.StackTrace}{Environment.NewLine}");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -33,9 +34,13 @@ namespace Fettle.Core
 
         internal static ICoverageAnalysisResult Error(string errorDescription)
         {
+            var fullErrorDescription = "Encountered a failing test." +
+                $"{Environment.NewLine}{Environment.NewLine}" +
+                $"{errorDescription}";
+
             return new CoverageAnalysisResult
             {
-                ErrorDescription = errorDescription
+                ErrorDescription = fullErrorDescription
             };
         }
 

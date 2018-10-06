@@ -49,7 +49,7 @@ namespace Fettle.Tests.Core.Contexts
             };
         }
 
-        protected void Given_some_failing_tests()
+        protected void Given_some_failing_tests(string failingTest)
         {
             var mockTestRunner = new Mock<ITestRunner>();
             mockTestRunner
@@ -57,7 +57,7 @@ namespace Fettle.Tests.Core.Contexts
                 .Returns(new TestRunResult
                 {
                     Status = TestRunStatus.SomeTestsFailed,
-                    Error = "HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred failed"
+                    Error = $"{failingTest} failed"
                 });
 
             mockTestRunner
@@ -68,7 +68,7 @@ namespace Fettle.Tests.Core.Contexts
                 .Returns(new CoverageTestRunResult
                 {
                     Status = TestRunStatus.SomeTestsFailed,
-                    Error = "HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred failed"
+                    Error = $"{failingTest} failed"
                 });
 
             testRunner = mockTestRunner.Object;
