@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Fettle.Core.Internal
 {
-    internal class Filtering
+    internal static class Filtering
     {
         public static bool ShouldMutateProject(Project project, Config config)
         {
@@ -19,7 +19,7 @@ namespace Fettle.Core.Internal
                 .Any(f => Glob.Parse(f).IsMatch(project.Name));
         }
 
-        public static bool ShouldMutateClass(Document @class, Config config)
+        public static bool ShouldMutateDocument(Document @class, Config config)
         {
             if (config.SourceFileFilters == null ||
                 !config.SourceFileFilters.Any())
