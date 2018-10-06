@@ -53,6 +53,8 @@ namespace Fettle.Core
             }
         }
 
+        public async Task<bool> HasAnyMutatableDocuments() => (await FindMutatableDocuments()).Any();
+
         private IEnumerable<string> ValidateRequiredPropertiesArePresent()
         {
             string PropertyNotSpecified(string propertyName)

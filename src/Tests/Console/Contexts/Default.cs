@@ -66,8 +66,22 @@ namespace Fettle.Tests.Console.Contexts
             commandLineArgs.Add("--config");
             commandLineArgs.Add(configFilePath);
         }
-        
+
         protected void Given_a_config_file_with_invalid_contents(Func<Config, Config> configModifier)
+        {
+            Given_a_config_file(configModifier);
+        }
+        
+        protected void Given_a_config_file_where_all_source_files_are_filtered_out()
+        {            
+            Given_a_config_file(config =>
+            {
+                config.SourceFileFilters = new []{ @"SomeDir\SomeNonExistentFile.cs" };
+                return config;
+            });
+        }
+
+        private void Given_a_config_file(Func<Config, Config> configModifier)
         {
             var defaultConfig = new Config
             {

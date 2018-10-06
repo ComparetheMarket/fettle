@@ -33,7 +33,7 @@ namespace Fettle.Console
         
         private static class ExitCodes
         {
-            public const int NoMutantsSurvived = 0;
+            public const int Success = 0;
             public const int SomeMutantsSurvived = 1;
             public const int ConfigOrArgsAreInvalid = 2;
             public const int UnexpectedError = 3;
@@ -58,6 +58,12 @@ namespace Fettle.Console
                 {
                     OutputValidationErrors(validationErrors, outputWriter);
                     return ExitCodes.ConfigOrArgsAreInvalid;
+                }
+
+                if (!parsedArgs.Config.HasAnyMutatableDocuments().Result)
+                {
+                    outputWriter.WriteLine("No source files found to mutate (or none matched the filters), exiting.");
+                    return ExitCodes.Success;
                 }
 
                 var eventListener = CreateEventListener(outputWriter, isQuietModeEnabled: parsedArgs.ConsoleOptions.Quiet);
@@ -95,7 +101,7 @@ namespace Fettle.Console
                 else
                 {
                     outputWriter.WriteSuccessLine("No mutants survived.");
-                    return ExitCodes.NoMutantsSurvived;
+                    return ExitCodes.Success;
                 }
             }
             catch (Exception ex)
