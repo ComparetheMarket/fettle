@@ -25,9 +25,9 @@ namespace Fettle.Core.Internal
             
             var documentsToMutate = await config.FindMutatableDocuments();
 
-            for (var classIndex = 0; classIndex < documentsToMutate.Length; classIndex++)
+            for (var documentIndex = 0; documentIndex < documentsToMutate.Length; documentIndex++)
             {
-                var documentToMutate = documentsToMutate[classIndex];
+                var documentToMutate = documentsToMutate[documentIndex];
                 var documentSyntaxRoot = await documentToMutate.GetSyntaxRootAsync();
                 var documentSemanticModel = await documentToMutate.GetSemanticModelAsync();
 
@@ -75,7 +75,7 @@ namespace Fettle.Core.Internal
                         var jobMetadata = new MutationJobMetadata
                         {
                             SourceFilePath = documentToMutate.FilePath,
-                            SourceFileIndex = classIndex,
+                            SourceFileIndex = documentIndex,
                             SourceFilesTotal = documentsToMutate.Length,
 
                             MemberName = memberName,
