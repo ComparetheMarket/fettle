@@ -14,13 +14,13 @@ namespace Fettle.Core.Internal.RoslynExtensions
             {
                 var operatorFrom = binaryExpression.OperatorToken.ToString();
                 return MutatorsThatReplaceOperators(operatorFrom, 
-                               new[]
-                               {
-                                   new[] {"+", "-", "*", "/", "%"},
-                                   new[] {">", "<", ">=", "<="},
-                                   new[] {"==", "!="},
-                                   new[] {"&&", "||"}
-                               });
+                    new[]
+                    {
+                        new[] {"+", "-", "*", "/", "%"},
+                        new[] {">", "<", ">=", "<="},
+                        new[] {"==", "!="},
+                        new[] {"&&", "||"}
+                    });
             }
             else if (node is PrefixUnaryExpressionSyntax prefixUnaryExpression)
             {
@@ -31,6 +31,15 @@ namespace Fettle.Core.Internal.RoslynExtensions
             {
                 var operatorFrom = postfixUnaryExpression.OperatorToken.ToString();
                 return MutatorsThatReplaceOperators(operatorFrom, new[] { new[]{ "--", "++" } });
+            }
+            else if (node is AssignmentExpressionSyntax assignmentExpression)
+            {
+                var operatorFrom = assignmentExpression.OperatorToken.ToString();
+                return MutatorsThatReplaceOperators(operatorFrom,
+                    new []
+                    {
+                        new[]{ "+=", "-=", "*=", "/=", "%=" }
+                    });
             }
             else if (node is ConditionalExpressionSyntax)
             {
