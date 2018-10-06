@@ -20,6 +20,10 @@ namespace Fettle.Core
         //
         public string[] SourceFileFilters { get; set; }
  
+        // Auto-generated
+        //
+        public string[] LocallyModifiedSourceFiles { get; set; }
+
         public Config WithPathsRelativeTo(string baseDirectory)
         {
             return new Config

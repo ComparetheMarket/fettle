@@ -104,6 +104,7 @@
     <Compile Include="Core\ImplementationDetails\Mutation\Mathematical_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Relational_operators.cs" />
     <Compile Include="Core\ImplementationDetails\NUnitRunResults_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\ShouldMutateDocument_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\SurvivingMutant_Create_Tests.cs" />
     <Compile Include="Console\Invalid_config.cs" />
     <Compile Include="Core\Temporary_files.cs" />
