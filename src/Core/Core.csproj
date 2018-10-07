@@ -91,6 +91,7 @@
     <Compile Include="Internal\RoslynExtensions\SyntaxNodeExtensionsForSupportedMutators.cs" />
     <Compile Include="CoverageAnalyser.cs" />
     <Compile Include="Internal\RoslynExtensions\TextSpanExtensions.cs" />
+    <Compile Include="ISourceControlIntegration.cs" />
     <Compile Include="MSBuildWorkspaceFactory.cs" />
     <Compile Include="MutationTestRunner.cs" />
     <Compile Include="NullEventListener.cs" />

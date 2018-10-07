@@ -17,6 +17,7 @@ namespace Fettle.Tests.Console.Contexts
         
         protected Mock<ICoverageAnalyser> MockCoverageAnalyser { get; } = new Mock<ICoverageAnalyser>();
         protected Mock<IMutationTestRunner> MockMutationTestRunner { get; } = new Mock<IMutationTestRunner>();
+        protected Mock<ISourceControlIntegration> MockSourceControlIntegration { get; } = new Mock<ISourceControlIntegration>();
         protected SpyOutputWriter SpyOutputWriter = new SpyOutputWriter();
 
         protected int ExitCode { get; private set; }
@@ -210,11 +211,17 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
             {
                 return MockMutationTestRunner.Object;
             }
+
+            ISourceControlIntegration CreateMockSourceControlIntegration()
+            {
+                return MockSourceControlIntegration.Object;
+            }
             
             ExitCode = Program.InternalEntryPoint(
                 args: commandLineArgs.ToArray(),
                 mutationTestRunnerFactory: CreateMockMutationTestRunner,
                 coverageAnalyserFactory: CreateMockCoverageAnalyser,
+                sourceControlIntegrationFactory: CreateMockSourceControlIntegration,
                 outputWriter: SpyOutputWriter);
         }        
     }

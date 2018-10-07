@@ -23,11 +23,17 @@ namespace Fettle.Console
             {
                 return new CoverageAnalyser(eventListener);
             }
-            
+
+            ISourceControlIntegration CreateRealSourceControlIntegration()
+            {
+                return null;
+            }
+
             return InternalEntryPoint(
                 args, 
-                CreateRealMutationTestRunner, 
-                CreateRealCoverageAnalyser, 
+                CreateRealMutationTestRunner,
+                CreateRealCoverageAnalyser,
+                CreateRealSourceControlIntegration,
                 new ConsoleOutputWriter());
         }
         
@@ -43,6 +49,7 @@ namespace Fettle.Console
             string[] args,
             Func<IEventListener, ICoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
             Func<IEventListener, ICoverageAnalyser> coverageAnalyserFactory,
+            Func<ISourceControlIntegration> sourceControlIntegrationFactory,
             IOutputWriter outputWriter)
         {
             try
@@ -58,6 +65,12 @@ namespace Fettle.Console
                 {
                     OutputValidationErrors(validationErrors, outputWriter);
                     return ExitCodes.ConfigOrArgsAreInvalid;
+                }
+
+                if (parsedArgs.ConsoleOptions.ModificationsOnly)
+                {
+                    var sourceControlIntegration = sourceControlIntegrationFactory();
+                    parsedArgs.Config.LocallyModifiedSourceFiles = sourceControlIntegration.FindLocallyModifiedFiles(parsedArgs.Config);
                 }
 
                 if (!parsedArgs.Config.HasAnyMutatableDocuments().Result)

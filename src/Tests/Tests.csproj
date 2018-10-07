@@ -54,11 +54,15 @@
   <ItemGroup>
     <Compile Include="BuildConfig.cs" />
     <Compile Include="Console\Contexts\Default.cs" />
+    <Compile Include="Console\Contexts\SourceControlIntegration.cs" />
     <Compile Include="Console\Contexts\SpyOutputWriter.cs" />
     <Compile Include="Console\CoverageAnalysis\Coverage_analysis_disabled.cs" />
     <Compile Include="Console\CoverageAnalysis\Coverage_analysis_throws_an_exception.cs" />
     <Compile Include="Console\EndToEnd\Happy_path.cs" />
     <Compile Include="Console\CoverageAnalysis\Errors_occur_during_coverage_analysis.cs" />
+    <Compile Include="Console\SourceControlIntegration\Finding_local_modifications_throws_an_exception.cs" />
+    <Compile Include="Console\SourceControlIntegration\Local_modifications_only_option_disabled.cs" />
+    <Compile Include="Console\SourceControlIntegration\Local_modifications_only_option_enabled.cs" />
     <Compile Include="Console\MutationTesting\Errors_occur_during_mutation_testing.cs" />
     <Compile Include="Console\ImplementationDetails\VerboseEventListener_Tests.cs" />
     <Compile Include="Console\Missing_command_line_arguments.cs" />
