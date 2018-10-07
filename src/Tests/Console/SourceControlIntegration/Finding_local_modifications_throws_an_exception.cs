@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Fettle.Core;
 using NUnit.Framework;
 
 namespace Fettle.Tests.Console.SourceControlIntegration
@@ -10,7 +11,7 @@ namespace Fettle.Tests.Console.SourceControlIntegration
         {
             Given_a_valid_config_file();
             Given_additional_command_line_arguments("--modificationsonly");
-            Given_locally_modified_files_will_throw_an_exception(new InvalidOperationException("some source control error"));
+            Given_locally_modified_files_will_throw_an_exception(new SourceControlIntegrationException("some source control error"));
 
             When_running_the_fettle_console_app();
         }
@@ -19,6 +20,9 @@ namespace Fettle.Tests.Console.SourceControlIntegration
         public void Then_an_error_message_is_output()
         {
             Assert.That(SpyOutputWriter.WrittenFailureLines, Has.Count.GreaterThan(0));
+            Assert.That(SpyOutputWriter.WrittenFailureLines.SingleOrDefault(m =>
+                    m.Contains("Failed to find local modifications")),
+                Is.Not.Null);
             Assert.That(SpyOutputWriter.WrittenFailureLines.SingleOrDefault(m => 
                     m.Contains("some source control error")),
                 Is.Not.Null);

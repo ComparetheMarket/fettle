@@ -98,6 +98,7 @@
     <Compile Include="NullEventListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MutationTestResult.cs" />
+    <Compile Include="SourceControlIntegrationException.cs" />
     <Compile Include="SurvivingMutant.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -21,7 +21,7 @@ namespace Fettle.Console
             [Option('s', "skipcoverageanalysis", Required = false, HelpText = "If specified, the coverage analysis optimisation is skipped", DefaultValue = false)]
             public bool SkipCoverageAnalysis { get; set; }
 
-            [Option('m', "modificationsonly", Required = false, HelpText = "If specified, only locally-modified source files (according to source control) will be considered for mutation", DefaultValue = false)]
+            [Option('m', "modificationsonly", Required = false, HelpText = "If specified, only locally-modified source files (according to git) will be considered for mutation", DefaultValue = false)]
             public bool ModificationsOnly { get; set; }
 
             // ReSharper restore UnusedAutoPropertyAccessor.Local

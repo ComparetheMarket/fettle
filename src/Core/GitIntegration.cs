@@ -5,16 +5,6 @@ using System.Linq;
 
 namespace Fettle.Core
 {
-    public class GitStatusException : Exception
-    {
-        public GitStatusException(string output) : base(Description(output))
-        {
-        }
-
-        private static string Description(string output) =>
-            $"'git status' command failed.{Environment.NewLine}Output:{Environment.NewLine}{output}";
-    }
-
     public class GitIntegration : ISourceControlIntegration
     {
         public string[] FindLocallyModifiedFiles(Config config)
@@ -42,7 +32,8 @@ namespace Fettle.Core
             var output = process.StandardOutput.ReadToEnd();
             if (process.ExitCode != 0)
             {
-                throw new GitStatusException(output);
+                var message = $"'git status' command failed.{Environment.NewLine}Output:{Environment.NewLine}{output}";
+                throw new SourceControlIntegrationException(message);
             }
 
             return output;

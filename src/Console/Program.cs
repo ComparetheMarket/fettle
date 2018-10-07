@@ -24,16 +24,11 @@ namespace Fettle.Console
                 return new CoverageAnalyser(eventListener);
             }
 
-            ISourceControlIntegration CreateRealSourceControlIntegration()
-            {
-                return null;
-            }
-
             return InternalEntryPoint(
                 args, 
                 CreateRealMutationTestRunner,
                 CreateRealCoverageAnalyser,
-                CreateRealSourceControlIntegration,
+                new GitIntegration(),
                 new ConsoleOutputWriter());
         }
         
@@ -49,7 +44,7 @@ namespace Fettle.Console
             string[] args,
             Func<IEventListener, ICoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
             Func<IEventListener, ICoverageAnalyser> coverageAnalyserFactory,
-            Func<ISourceControlIntegration> sourceControlIntegrationFactory,
+            ISourceControlIntegration sourceControlIntegration,
             IOutputWriter outputWriter)
         {
             try
@@ -69,8 +64,14 @@ namespace Fettle.Console
 
                 if (parsedArgs.ConsoleOptions.ModificationsOnly)
                 {
-                    var sourceControlIntegration = sourceControlIntegrationFactory();
-                    parsedArgs.Config.LocallyModifiedSourceFiles = sourceControlIntegration.FindLocallyModifiedFiles(parsedArgs.Config);
+                    var result = FindLocallyModifiedSourceFiles(sourceControlIntegration, parsedArgs.Config, outputWriter);
+                    if (!result.Success)
+                    {
+                        outputWriter.WriteFailureLine("Failed to find local modifications.");
+                        return ExitCodes.UnexpectedError;
+                    }
+
+                    parsedArgs.Config.LocallyModifiedSourceFiles = result.Files;
                 }
 
                 if (!parsedArgs.Config.HasAnyMutatableDocuments().Result)
@@ -123,7 +124,30 @@ namespace Fettle.Console
                 return ExitCodes.UnexpectedError;
             }
         }
-        
+
+        private static (bool Success, string[] Files) FindLocallyModifiedSourceFiles(
+            ISourceControlIntegration sourceControlIntegration, 
+            Config config,
+            IOutputWriter outputWriter)
+        {
+            try
+            {
+                outputWriter.WriteLine("Finding local modifications...");
+
+                var files = sourceControlIntegration.FindLocallyModifiedFiles(config);
+
+                var noun = files.Length == 1 ? "file" : "files";
+                outputWriter.WriteLine($"Found {files.Length} modified {noun}.");
+
+                return (true, files);
+            }
+            catch (SourceControlIntegrationException ex)
+            {
+                outputWriter.WriteFailureLine(ex.Message);
+                return (false, null);
+            }
+        }
+
         private static IEventListener CreateEventListener(IOutputWriter outputWriter, bool isQuietModeEnabled)
         {
             return isQuietModeEnabled ? (IEventListener) new QuietEventListener(outputWriter)

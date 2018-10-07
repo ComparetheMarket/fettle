@@ -66,7 +66,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
 
                 var integration = new GitIntegration();
 
-                Assert.Throws<GitStatusException>(() => integration.FindLocallyModifiedFiles(Config));
+                Assert.Throws<SourceControlIntegrationException>(() => integration.FindLocallyModifiedFiles(Config));
             }
         }
     }

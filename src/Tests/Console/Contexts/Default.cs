@@ -212,16 +212,11 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
                 return MockMutationTestRunner.Object;
             }
 
-            ISourceControlIntegration CreateMockSourceControlIntegration()
-            {
-                return MockSourceControlIntegration.Object;
-            }
-            
             ExitCode = Program.InternalEntryPoint(
                 args: commandLineArgs.ToArray(),
                 mutationTestRunnerFactory: CreateMockMutationTestRunner,
                 coverageAnalyserFactory: CreateMockCoverageAnalyser,
-                sourceControlIntegrationFactory: CreateMockSourceControlIntegration,
+                sourceControlIntegration: MockSourceControlIntegration.Object,
                 outputWriter: SpyOutputWriter);
         }        
     }
