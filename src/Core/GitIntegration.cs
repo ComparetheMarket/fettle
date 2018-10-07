@@ -46,6 +46,7 @@ namespace Fettle.Core
             return output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                                      .Select(x => x.Split(' ').Last())
                                      .Where(x => IsPathWithinSolutionDirectory(x))
+                                     .Where(x => x.EndsWith(".cs", StringComparison.InvariantCultureIgnoreCase))
                                      .Select(x => x.Replace('/', '\\'))
                                      .ToArray();
         }

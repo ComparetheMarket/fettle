@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Fettle.Core;
 using NUnit.Framework;
 
@@ -11,30 +12,40 @@ namespace Fettle.Tests.Core.ImplementationDetails
         [TestFixture]
         class Modifications_exist : Contexts.Default
         {
-            private string tempFile;
+            private string[] tempFiles;
 
             [SetUp]
             public void SetUp()
             {
                 var baseDir = Path.GetDirectoryName(Config.SolutionFilePath);
-                tempFile = Path.Combine(baseDir, "Implementation", "TempFile.cs");
-                File.WriteAllText(tempFile, "public class DummyClass {}");
+                tempFiles = new[]
+                {
+                    Path.Combine(baseDir, "Implementation", "Temp.csproj"),
+                    Path.Combine(baseDir, "Implementation", "TempSourceFile.cs"),
+                    Path.Combine(baseDir, "Implementation", "OtherTempSourceFile.CS"),
+                    Path.Combine(baseDir, "Implementation", "Temp.txt")
+                };
+                tempFiles.ToList().ForEach(f => File.WriteAllText(f, "dummy file contents"));
             }
 
             [TearDown]
             public void TearDown()
             {
-                File.Delete(tempFile);
+                tempFiles.ToList().ForEach(f => File.Delete(f));
             }
 
             [Test]
-            public void When_locally_modified_files_exist_they_are_returned_relative_to_the_directory_of_the_solution_file()
+            public void When_locally_modified_csharp_files_exist_they_are_returned_relative_to_the_directory_of_the_solution_file()
             {
                 var integration = new GitIntegration();
 
                 var modifiedFiles = integration.FindLocallyModifiedFiles(Config);
 
-                Assert.That(modifiedFiles, Is.EquivalentTo(new[] {@"Implementation\TempFile.cs"}));
+                Assert.That(modifiedFiles, Is.EquivalentTo(new[] 
+                {
+                    @"Implementation\TempSourceFile.cs",
+                    @"Implementation\OtherTempSourceFile.CS"
+                }));
             }
         }
 
