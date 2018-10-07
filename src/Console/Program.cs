@@ -88,7 +88,6 @@ namespace Fettle.Console
                     var analyser = coverageAnalyserFactory(eventListener);
                     coverageResult = AnalyseCoverage(analyser, outputWriter, parsedArgs.Config);
 
-                    outputWriter.WriteLine(Environment.NewLine);
                     if (!coverageResult.WasSuccessful)
                     {
                         OutputCoverageAnalysisError(coverageResult.ErrorDescription, outputWriter);
@@ -159,8 +158,13 @@ namespace Fettle.Console
             IOutputWriter outputWriter,
             Config config)
         {
-            outputWriter.Write("Analysing test coverage");
-            return coverageAnalyser.AnalyseCoverage(config).Result;
+            outputWriter.WriteLine("Test coverage analysis starting...");
+
+            var result = coverageAnalyser.AnalyseCoverage(config).Result;
+
+            outputWriter.WriteLine($"Test coverage analysis complete.");
+
+            return result;
         }
 
         private static MutationTestResult PerformMutationTesting(
@@ -172,7 +176,6 @@ namespace Fettle.Console
             
             var result = mutationTestRunner.Run(config).Result;
             
-            outputWriter.Write(Environment.NewLine + Environment.NewLine);
             outputWriter.WriteLine("Mutation testing complete.");
 
             return result;

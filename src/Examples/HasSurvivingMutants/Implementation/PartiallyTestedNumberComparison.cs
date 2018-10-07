@@ -1,5 +1,6 @@
 ﻿namespace HasSurvivingMutants.Implementation
 {
+
     public static class PartiallyTestedNumberComparison
     {
         public static bool IsPositive(int a)
