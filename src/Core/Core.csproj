@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="CoverageAnalysisResult.cs" />
+    <Compile Include="GitIntegration.cs" />
     <Compile Include="ICoverageAnalysisResult.cs" />
     <Compile Include="ICoverageAnalyser.cs" />
     <Compile Include="IMutationTestRunner.cs" />
