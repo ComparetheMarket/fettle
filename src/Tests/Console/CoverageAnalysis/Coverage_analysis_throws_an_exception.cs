@@ -2,7 +2,7 @@
 using System.Linq;
 using NUnit.Framework;
 
-namespace Fettle.Tests.Console
+namespace Fettle.Tests.Console.CoverageAnalysis
 {
     class Coverage_analysis_throws_an_exception : Contexts.Default
     {
