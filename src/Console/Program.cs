@@ -135,8 +135,8 @@ namespace Fettle.Console
 
                 var files = sourceControlIntegration.FindLocallyModifiedFiles(config);
 
-                var noun = files.Length == 1 ? "file" : "files";
-                outputWriter.WriteLine($"Found {files.Length} modified {noun}.");
+                var noun = files.Length == 1 ? "change" : "changes";
+                outputWriter.WriteLine($"Found {files.Length} relevant {noun}.");
 
                 return (true, files);
             }

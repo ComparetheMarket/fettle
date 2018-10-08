@@ -12,16 +12,20 @@ namespace Fettle.Console
         {
             // ReSharper disable UnusedAutoPropertyAccessor.Local
 
-            [Option('c', "config", Required = true, HelpText = "Path to configuration file")]
+            [Option('c', "config", Required = true, 
+                HelpText = "Path to configuration file")]
             public string ConfigFilePath { get; set; }
 
-            [Option('q', "quiet", Required = false, HelpText = "If specified, less output will be produced", DefaultValue = false)]
+            [Option('q', "quiet", Required = false, DefaultValue = false,
+                HelpText = "If specified, less output will be produced")]
             public bool Quiet { get; set; }
             
-            [Option('s', "skipcoverageanalysis", Required = false, HelpText = "If specified, the coverage analysis optimisation is skipped", DefaultValue = false)]
+            [Option('s', "skipcoverageanalysis", Required = false, DefaultValue = false,
+                HelpText = "If specified, the coverage analysis optimisation is skipped.")]
             public bool SkipCoverageAnalysis { get; set; }
 
-            [Option('m', "modificationsonly", Required = false, HelpText = "If specified, only locally-modified source files (according to git) will be considered for mutation", DefaultValue = false)]
+            [Option('m', "modificationsonly", Required = false, DefaultValue = false,
+                HelpText = "If specified, only the .cs files you have changed locally will be considered for mutation. This requires your source-code to be within a git repository.")]
             public bool ModificationsOnly { get; set; }
 
             // ReSharper restore UnusedAutoPropertyAccessor.Local
@@ -32,7 +36,8 @@ namespace Fettle.Console
             {
                 var help = new HelpText
                 {
-                    AddDashesToOption = true
+                    AddDashesToOption = true,
+                    AdditionalNewLineAfterOption = true
                 };
                 help.AddPreOptionsLine("Usage: Fettle.Console.exe --config <file> [options]");
                 help.AddOptions(this);
