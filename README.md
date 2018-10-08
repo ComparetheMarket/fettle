@@ -4,7 +4,7 @@
 
 Fettle is an experimental [mutation testing](https://github.com/ComparetheMarket/fettle/wiki/What-Is-Mutation-Testing) tool for C#.  
 
-### Prerequisites
+## Prerequisites
 
 Right now Fettle can mutation-test your project if you use:
 * .NET Framework 4.x
@@ -12,16 +12,13 @@ Right now Fettle can mutation-test your project if you use:
 
 ## Getting Started
 
-To start using Fettle, see the [getting started guide](https://github.com/ComparetheMarket/fettle/wiki/Getting-Started).
-
+To start using Fettle, see the [getting started guide](https://github.com/ComparetheMarket/fettle/wiki/Getting-Started).  
 To build from source, see the [developer guide](https://github.com/ComparetheMarket/fettle/wiki/Developer-Guide).
 
 ## Features
 
 Fettle comes with some optimisations to make mutation testing faster:
-
 * It will [perform test impact analysis](https://github.com/ComparetheMarket/fettle/wiki/Coverage-Analysis) on your project to try and find the subset of tests to run for a given piece of source-code.
-
 * It can be configured to [only mutate your local changes](https://github.com/ComparetheMarket/fettle/wiki/Mutating-Modifications-Only) rather than your entire code-base.
 
 ## More Info
