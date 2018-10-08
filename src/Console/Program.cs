@@ -49,6 +49,8 @@ namespace Fettle.Console
         {
             try
             {
+                outputWriter.WriteLine($"Fettle v{AssemblyVersionInformation.AssemblyVersion}");
+
                 var parsedArgs = CommandLineArguments.Parse(args, outputWriter);
                 if (!parsedArgs.Success)
                 {
