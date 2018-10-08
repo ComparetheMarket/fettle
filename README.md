@@ -4,95 +4,32 @@
 
 Fettle is an experimental [mutation testing](https://github.com/ComparetheMarket/fettle/wiki/What-Is-Mutation-Testing) tool for C#.  
 
-## Getting Started
-
-The Fettle console application is [available on NuGet](https://www.nuget.org/packages/Fettle.Console/).
-
-To build from source, see the [developer guide](https://github.com/ComparetheMarket/fettle/wiki/Developer-Guide).
-
 ### Prerequisites
 
 Right now Fettle can mutation-test your project if you use:
 * .NET Framework 4.x
 * NUnit framework 3.x (version 3.10 or higher recommended)
 
-### Configuration
+## Getting Started
 
-You'll also need a configuration file (in YAML format) to tell Fettle what it should mutate.
+To start using Fettle, see the [getting started guide](https://github.com/ComparetheMarket/fettle/wiki/Getting-Started).
 
-Here's an example:
+To build from source, see the [developer guide](https://github.com/ComparetheMarket/fettle/wiki/Developer-Guide).
 
-```
-# Note: all paths are relative to this config file's location.
+## Features
 
-# [Required] The solution file that contains your C# code.
-solution: .\src\MyProject\MyProject.sln
+Fettle comes with some optimisations to make mutation testing faster:
 
-# [Required] The projects within the solution that contain C# code you want to be mutated.
-# In other words: the implementation code and not the tests.
-projectFilters:
-    - MyProject.App
-    - MyProject.Lib
+* It will [perform test impact analysis](https://github.com/ComparetheMarket/fettle/wiki/Coverage-Analysis) on your project to try and find the subset of tests to run for a given piece of source-code.
 
-# [Required] A list of the assemblies that contain your tests.
-testAssemblies:
-    - .\src\MyProject\Tests\bin\Release\Tests.dll
-    - .\src\MyProject\IntegrationTests\bin\Release\IntegrationTests.dll
-
-# [Optional] use a filter to define which source files to mutate.
-sourceFileFilters:
-    - Implementation\*.cs
-```
-
-### Catching Mutants
-
-Use the console runner to start a mutation test:
-
-```
-$ Fettle.console.exe --config <path-to-your-config-file> [--quiet]
-```
-
-Fettle will output information about any mutants that survived to the console.
-
-When mutants survive, Fettle outputs the source file and line number of the code that was mutated. It also shows what the line was originally, and what it was mutated to.
-
-For example:
-
-```
-(1) \Implementation\UntestedNumberComparison.cs:7
-  original: return a == 42;
-  mutated: return a != 42;
-
-(2) \Implementation\PartiallyTestedNumberComparison.cs:7
-  original: return a > 0;
-  mutated: return a >= 0;
-```
-
-## "Killing" Mutants
-
-To fix a gap in your tests that Fettle discovers (aka "killing a mutant") you can:
-1. *Improve the tests*  
-If at least one test fails when the mutation is made, then the mutant won't survive.  
-
-2. *Remove the mutated code*  
-Sometimes mutation testing highlights code that's not required and can be removed.  
-
-3. *Tell Fettle to ignore it*.  
-If you aren't able (or don't want to) do 1. or 2., you can mark lines to ignore via special comments.  
-For example:
-```
-// fettle: begin ignore
-// <No code in-between these lines will be mutated by Fettle>
-// fettle: end ignore
-```
+* It can be configured to [only mutate your local changes](https://github.com/ComparetheMarket/fettle/wiki/Mutating-Modifications-Only) rather than your entire code-base.
 
 ## More Info
 
 If you're having problems running Fettle see the [troubleshooting guide](https://github.com/ComparetheMarket/fettle/wiki/Troubleshooting).  
+If you're still having issues feel free to get in touch on the [gitter page](https://gitter.im/fettle-mutation-testing/Lobby#) or create an issue.
 
 There's also a [list of supported mutations](https://github.com/ComparetheMarket/fettle/wiki/Supported-Mutations).
-
-By default Fettle analyses your code's coverage. This allows the mutation testing to be done faster but will use more memory and will mean that only covered code is mutated. You can read more about this and how to disable it [here](https://github.com/ComparetheMarket/fettle/wiki/Coverage-Analysis).
 
 ## Built With
 
