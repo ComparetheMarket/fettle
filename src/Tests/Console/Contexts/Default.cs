@@ -17,6 +17,7 @@ namespace Fettle.Tests.Console.Contexts
         
         protected Mock<ICoverageAnalyser> MockCoverageAnalyser { get; } = new Mock<ICoverageAnalyser>();
         protected Mock<IMutationTestRunner> MockMutationTestRunner { get; } = new Mock<IMutationTestRunner>();
+        protected Mock<ISourceControlIntegration> MockSourceControlIntegration { get; } = new Mock<ISourceControlIntegration>();
         protected SpyOutputWriter SpyOutputWriter = new SpyOutputWriter();
 
         protected int ExitCode { get; private set; }
@@ -66,8 +67,22 @@ namespace Fettle.Tests.Console.Contexts
             commandLineArgs.Add("--config");
             commandLineArgs.Add(configFilePath);
         }
-        
+
         protected void Given_a_config_file_with_invalid_contents(Func<Config, Config> configModifier)
+        {
+            Given_a_config_file(configModifier);
+        }
+        
+        protected void Given_a_config_file_where_all_source_files_are_filtered_out()
+        {            
+            Given_a_config_file(config =>
+            {
+                config.SourceFileFilters = new []{ @"SomeDir\SomeNonExistentFile.cs" };
+                return config;
+            });
+        }
+
+        private void Given_a_config_file(Func<Config, Config> configModifier)
         {
             var defaultConfig = new Config
             {
@@ -196,11 +211,12 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
             {
                 return MockMutationTestRunner.Object;
             }
-            
+
             ExitCode = Program.InternalEntryPoint(
                 args: commandLineArgs.ToArray(),
                 mutationTestRunnerFactory: CreateMockMutationTestRunner,
                 coverageAnalyserFactory: CreateMockCoverageAnalyser,
+                sourceControlIntegration: MockSourceControlIntegration.Object,
                 outputWriter: SpyOutputWriter);
         }        
     }

@@ -1,9 +1,7 @@
 ﻿using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Fettle.Core.Internal;
 using Fettle.Core.Internal.NUnit;
-using Fettle.Core.Internal.RoslynExtensions;
 
 namespace Fettle.Core
 {
@@ -37,8 +35,8 @@ namespace Fettle.Core
             {
                 CreateTempDirectories(baseTempDirectory, config);
             
-                var mutationJobs = await CreateMutationJobs(config);
-                var survivingMutants = await mutationJobs.RunAll(config, testRunner, baseTempDirectory, eventListener);
+                var mutationJobs = await MutationJobList.Create(config, coverageAnalysisResult);
+                var survivingMutants = await mutationJobs.RunAll(testRunner, baseTempDirectory, eventListener);
                 
                 return new MutationTestResult().WithSurvivingMutants(survivingMutants);
             }
@@ -46,83 +44,6 @@ namespace Fettle.Core
             {
                 Directory.Delete(baseTempDirectory, recursive: true);
             }
-        }
-
-        private async Task<MutationJobList> CreateMutationJobs(Config config)
-        {
-            var jobs = new MutationJobList();
-
-            using (var workspace = MSBuildWorkspaceFactory.Create())
-            {
-                var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
-
-                var documentsToMutate = solution.MutatableClasses(config);
-                for (var classIndex = 0; classIndex < documentsToMutate.Length; classIndex++)
-                {
-                    var documentToMutate = documentsToMutate[classIndex];
-                    var documentSyntaxRoot = await documentToMutate.GetSyntaxRootAsync();
-                    var documentSemanticModel = await documentToMutate.GetSemanticModelAsync();
-
-                    var nodesToMutate = documentSyntaxRoot.DescendantNodes().ToArray();
-                    var isIgnoring = false;
-
-                    for (var nodeIndex = 0; nodeIndex < nodesToMutate.Length; nodeIndex++)
-                    {
-                        var nodeToMutate = nodesToMutate[nodeIndex];
-
-                        var memberName = nodeToMutate.NameOfContainingMember(documentSemanticModel);
-                        if (memberName == null)
-                        {
-                            // The node is not within a member (e.g. it's a class or namespace declaration)
-                            // Or, the node is within a member, but the member is not one Fettle supports.
-                            // Either way, there is no code to mutate.
-                            continue;
-                        }
-
-                        if (coverageAnalysisResult != null &&
-                            !coverageAnalysisResult.IsMemberCovered(memberName))
-                        {
-                            continue;
-                        }
-
-                        if (Ignoring.NodeHasBeginIgnoreComment(nodeToMutate)) isIgnoring = true;
-                        else if (Ignoring.NodeHasEndIgnoreComment(nodeToMutate)) isIgnoring = false;
-
-                        if (isIgnoring)
-                        {
-                            continue;
-                        }
-
-                        foreach (var mutator in nodeToMutate.SupportedMutators())
-                        {
-                            var job = new MutationJob(
-                                documentSyntaxRoot,
-                                nodeToMutate,
-                                documentToMutate,
-                                memberName,
-                                config,
-                                mutator,
-                                coverageAnalysisResult);
-
-                            var jobMetadata = new MutationJobMetadata
-                            {
-                                SourceFilePath = documentToMutate.FilePath,
-                                SourceFileIndex = classIndex,
-                                SourceFilesTotal = documentsToMutate.Length,
-
-                                MemberName = memberName,
-                                
-                                SyntaxNodeIndex = nodeIndex,
-                                SyntaxNodesTotal = nodesToMutate.Length
-                            };
-
-                            jobs.AddJob(job, jobMetadata);
-                        }
-                    }
-                }
-            }
-
-            return jobs;
         }
 
         private static void CreateTempDirectories(string baseTempDirectory, Config config)

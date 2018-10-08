@@ -23,17 +23,18 @@ namespace Fettle.Console
             {
                 return new CoverageAnalyser(eventListener);
             }
-            
+
             return InternalEntryPoint(
                 args, 
-                CreateRealMutationTestRunner, 
-                CreateRealCoverageAnalyser, 
+                CreateRealMutationTestRunner,
+                CreateRealCoverageAnalyser,
+                new GitIntegration(),
                 new ConsoleOutputWriter());
         }
         
         private static class ExitCodes
         {
-            public const int NoMutantsSurvived = 0;
+            public const int Success = 0;
             public const int SomeMutantsSurvived = 1;
             public const int ConfigOrArgsAreInvalid = 2;
             public const int UnexpectedError = 3;
@@ -43,6 +44,7 @@ namespace Fettle.Console
             string[] args,
             Func<IEventListener, ICoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
             Func<IEventListener, ICoverageAnalyser> coverageAnalyserFactory,
+            ISourceControlIntegration sourceControlIntegration,
             IOutputWriter outputWriter)
         {
             try
@@ -60,6 +62,24 @@ namespace Fettle.Console
                     return ExitCodes.ConfigOrArgsAreInvalid;
                 }
 
+                if (parsedArgs.ConsoleOptions.ModificationsOnly)
+                {
+                    var result = FindLocallyModifiedSourceFiles(sourceControlIntegration, parsedArgs.Config, outputWriter);
+                    if (!result.Success)
+                    {
+                        outputWriter.WriteFailureLine("Failed to find local modifications.");
+                        return ExitCodes.UnexpectedError;
+                    }
+
+                    parsedArgs.Config.LocallyModifiedSourceFiles = result.Files;
+                }
+
+                if (!parsedArgs.Config.HasAnyMutatableDocuments().Result)
+                {
+                    outputWriter.WriteLine("No source files found to mutate (or none matched the filters), exiting.");
+                    return ExitCodes.Success;
+                }
+
                 var eventListener = CreateEventListener(outputWriter, isQuietModeEnabled: parsedArgs.ConsoleOptions.Quiet);
 
                 ICoverageAnalysisResult coverageResult = null;
@@ -68,7 +88,6 @@ namespace Fettle.Console
                     var analyser = coverageAnalyserFactory(eventListener);
                     coverageResult = AnalyseCoverage(analyser, outputWriter, parsedArgs.Config);
 
-                    outputWriter.WriteLine(Environment.NewLine);
                     if (!coverageResult.WasSuccessful)
                     {
                         OutputCoverageAnalysisError(coverageResult.ErrorDescription, outputWriter);
@@ -95,7 +114,7 @@ namespace Fettle.Console
                 else
                 {
                     outputWriter.WriteSuccessLine("No mutants survived.");
-                    return ExitCodes.NoMutantsSurvived;
+                    return ExitCodes.Success;
                 }
             }
             catch (Exception ex)
@@ -104,7 +123,30 @@ namespace Fettle.Console
                 return ExitCodes.UnexpectedError;
             }
         }
-        
+
+        private static (bool Success, string[] Files) FindLocallyModifiedSourceFiles(
+            ISourceControlIntegration sourceControlIntegration, 
+            Config config,
+            IOutputWriter outputWriter)
+        {
+            try
+            {
+                outputWriter.WriteLine("Finding local modifications...");
+
+                var files = sourceControlIntegration.FindLocallyModifiedFiles(config);
+
+                var noun = files.Length == 1 ? "change" : "changes";
+                outputWriter.WriteLine($"Found {files.Length} relevant {noun}.");
+
+                return (true, files);
+            }
+            catch (SourceControlIntegrationException ex)
+            {
+                outputWriter.WriteFailureLine(ex.Message);
+                return (false, null);
+            }
+        }
+
         private static IEventListener CreateEventListener(IOutputWriter outputWriter, bool isQuietModeEnabled)
         {
             return isQuietModeEnabled ? (IEventListener) new QuietEventListener(outputWriter)
@@ -116,8 +158,13 @@ namespace Fettle.Console
             IOutputWriter outputWriter,
             Config config)
         {
-            outputWriter.Write("Analysing test coverage");
-            return coverageAnalyser.AnalyseCoverage(config).Result;
+            outputWriter.WriteLine("Test coverage analysis starting...");
+
+            var result = coverageAnalyser.AnalyseCoverage(config).Result;
+
+            outputWriter.WriteLine($"Test coverage analysis complete.");
+
+            return result;
         }
 
         private static MutationTestResult PerformMutationTesting(
@@ -129,7 +176,6 @@ namespace Fettle.Console
             
             var result = mutationTestRunner.Run(config).Result;
             
-            outputWriter.Write(Environment.NewLine + Environment.NewLine);
             outputWriter.WriteLine("Mutation testing complete.");
 
             return result;

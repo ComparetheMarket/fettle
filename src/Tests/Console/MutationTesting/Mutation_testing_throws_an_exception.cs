@@ -2,7 +2,7 @@
 using System.Linq;
 using NUnit.Framework;
 
-namespace Fettle.Tests.Console
+namespace Fettle.Tests.Console.MutationTesting
 {
     class Mutation_testing_throws_an_exception : Contexts.Default
     {

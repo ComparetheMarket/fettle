@@ -14,7 +14,7 @@ namespace Fettle.Core.Internal.RoslynExtensions
             var classesToMutate = projectsToMutate
                 .SelectMany(p => p.Documents)
                 .Where(c => !c.IsAutomaticallyGenerated())
-                .Where(c => Filtering.ShouldMutateClass(c, config))
+                .Where(c => Filtering.ShouldMutateDocument(c, config))
                 .ToArray();
 
             return classesToMutate;

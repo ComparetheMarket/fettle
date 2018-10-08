@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="CoverageAnalysisResult.cs" />
+    <Compile Include="GitIntegration.cs" />
     <Compile Include="ICoverageAnalysisResult.cs" />
     <Compile Include="ICoverageAnalyser.cs" />
     <Compile Include="IMutationTestRunner.cs" />
@@ -91,11 +92,13 @@
     <Compile Include="Internal\RoslynExtensions\SyntaxNodeExtensionsForSupportedMutators.cs" />
     <Compile Include="CoverageAnalyser.cs" />
     <Compile Include="Internal\RoslynExtensions\TextSpanExtensions.cs" />
+    <Compile Include="ISourceControlIntegration.cs" />
     <Compile Include="MSBuildWorkspaceFactory.cs" />
     <Compile Include="MutationTestRunner.cs" />
     <Compile Include="NullEventListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MutationTestResult.cs" />
+    <Compile Include="SourceControlIntegrationException.cs" />
     <Compile Include="SurvivingMutant.cs" />
   </ItemGroup>
   <ItemGroup>

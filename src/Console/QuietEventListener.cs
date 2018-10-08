@@ -1,16 +1,11 @@
-﻿using System;
-using Fettle.Core;
+﻿using Fettle.Core;
 
 namespace Fettle.Console
 {
     internal class QuietEventListener : IEventListener
     {
-        private readonly IOutputWriter outputWriter;
-        private bool isFirstFile;
-
-        public QuietEventListener(IOutputWriter outputWriter)
+        public QuietEventListener(IOutputWriter _)
         {
-            this.outputWriter = outputWriter;
         }
 
         public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
@@ -19,11 +14,6 @@ namespace Fettle.Console
 
         public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total)
         {
-            if (isFirstFile)
-            {
-                outputWriter.Write(Environment.NewLine);
-                isFirstFile = false;
-            }
         }
 
         public void MemberMutating(string name)
@@ -40,7 +30,6 @@ namespace Fettle.Console
 
         public void EndMutationOfFile(string filePath)
         {
-            outputWriter.Write(".");
         }
     }
 }

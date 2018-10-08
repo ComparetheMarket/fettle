@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Fettle.Tests.Console
+namespace Fettle.Tests.Console.MutationTesting
 {
     class No_surviving_mutants : Contexts.Default
     {

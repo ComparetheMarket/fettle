@@ -2,7 +2,7 @@
 using Moq;
 using NUnit.Framework;
 
-namespace Fettle.Tests.Console
+namespace Fettle.Tests.Console.CoverageAnalysis
 {
     class Coverage_analysis_disabled : Contexts.Default
     {

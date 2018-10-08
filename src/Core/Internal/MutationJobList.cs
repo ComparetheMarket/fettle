@@ -2,22 +2,102 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Fettle.Core.Internal.RoslynExtensions;
 using Microsoft.CodeAnalysis;
 
 namespace Fettle.Core.Internal
 {
     internal class MutationJobList
     {
+        private readonly Config config;
+
         private readonly Dictionary<MutationJobMetadata, MutationJob> jobsWithMetadata
             = new Dictionary<MutationJobMetadata, MutationJob>();
 
-        public void AddJob(MutationJob job, MutationJobMetadata metadata)
+        private MutationJobList(Config config)
+        {
+            this.config = config;
+        }
+
+        public static async Task<MutationJobList> Create(Config config, ICoverageAnalysisResult coverageAnalysisResult)
+        {
+            var jobs = new MutationJobList(config);
+            
+            var documentsToMutate = await config.FindMutatableDocuments();
+
+            for (var documentIndex = 0; documentIndex < documentsToMutate.Length; documentIndex++)
+            {
+                var documentToMutate = documentsToMutate[documentIndex];
+                var documentSyntaxRoot = await documentToMutate.GetSyntaxRootAsync();
+                var documentSemanticModel = await documentToMutate.GetSemanticModelAsync();
+
+                var nodesToMutate = documentSyntaxRoot.DescendantNodes().ToArray();
+                var isIgnoring = false;
+
+                for (var nodeIndex = 0; nodeIndex < nodesToMutate.Length; nodeIndex++)
+                {
+                    var nodeToMutate = nodesToMutate[nodeIndex];
+
+                    var memberName = nodeToMutate.NameOfContainingMember(documentSemanticModel);
+                    if (memberName == null)
+                    {
+                        // The node is not within a member (e.g. it's a class or namespace declaration)
+                        // Or, the node is within a member, but the member is not one Fettle supports.
+                        // Either way, there is no code to mutate.
+                        continue;
+                    }
+
+                    if (coverageAnalysisResult != null &&
+                        !coverageAnalysisResult.IsMemberCovered(memberName))
+                    {
+                        continue;
+                    }
+
+                    if (Ignoring.NodeHasBeginIgnoreComment(nodeToMutate)) isIgnoring = true;
+                    else if (Ignoring.NodeHasEndIgnoreComment(nodeToMutate)) isIgnoring = false;
+
+                    if (isIgnoring)
+                    {
+                        continue;
+                    }
+
+                    foreach (var mutator in nodeToMutate.SupportedMutators())
+                    {
+                        var job = new MutationJob(
+                            documentSyntaxRoot,
+                            nodeToMutate,
+                            documentToMutate,
+                            memberName,
+                            config,
+                            mutator,
+                            coverageAnalysisResult);
+
+                        var jobMetadata = new MutationJobMetadata
+                        {
+                            SourceFilePath = documentToMutate.FilePath,
+                            SourceFileIndex = documentIndex,
+                            SourceFilesTotal = documentsToMutate.Length,
+
+                            MemberName = memberName,
+                                
+                            SyntaxNodeIndex = nodeIndex,
+                            SyntaxNodesTotal = nodesToMutate.Length
+                        };
+
+                        jobs.AddJob(job, jobMetadata);
+                    }
+                }
+            }
+
+            return jobs;
+        }
+
+        private void AddJob(MutationJob job, MutationJobMetadata metadata)
         {
             jobsWithMetadata.Add(metadata, job);
         }
 
-        public async Task<IEnumerable<SurvivingMutant>> RunAll(
-            Config config, 
+        public async Task<IEnumerable<SurvivingMutant>> RunAll( 
             ITestRunner testRunner, 
             string baseTempDirectory, 
             IEventListener eventListener)

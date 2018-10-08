@@ -119,7 +119,7 @@ namespace Fettle.Core
             var modifiedSyntaxTrees = new List<SyntaxTree>();
 
             var classesToInstrument = project.Documents
-                .Where(d => Filtering.ShouldMutateClass(d, config))
+                .Where(d => Filtering.ShouldMutateDocument(d, config))
                 .Where(d => !d.IsAutomaticallyGenerated());
 
             foreach (var originalClass in classesToInstrument)
