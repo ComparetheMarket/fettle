@@ -1,6 +1,6 @@
 # Fettle
 
-[![Build status](https://ci.appveyor.com/api/projects/status/mdy537c3f6rjtlht/branch/master?svg=true)](https://ci.appveyor.com/project/oliwennell/fettle/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/mdy537c3f6rjtlht/branch/master?svg=true)](https://ci.appveyor.com/project/oliwennell/fettle/branch/master) [![nuget](https://buildstats.info/nuget/Fettle.Console)](https://nuget.org/packages/Fettle.Console/)
 
 Fettle is an experimental [mutation testing](https://github.com/ComparetheMarket/fettle/wiki/What-Is-Mutation-Testing) tool for C#.  
 
