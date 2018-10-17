@@ -36,9 +36,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="dotMemory.Unit, Version=109.0.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
-      <HintPath>..\packages\JetBrains.dotMemoryUnit.2.4.20170830.172630\lib\dotMemory.Unit.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.engine">
       <HintPath>..\..\packages\NUnit.ConsoleRunner\tools\nunit.engine.dll</HintPath>
     </Reference>
@@ -123,11 +120,12 @@
     <Compile Include="Core\No_mutants_survive.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Console\fettle.config.yml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
     <None Include="paket.references" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
