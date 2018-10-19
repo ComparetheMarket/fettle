@@ -5,7 +5,7 @@ source https://dotnet.myget.org/F/cli-deps/api/v3/index.json
 source https://www.nuget.org/api/v2/
 
 nuget NUnit == 3.10.1
-nuget Moq
+nuget Moq 4.7.142
 
 nuget Microsoft.Net.Compilers 2.6.1
 nuget Microsoft.CodeAnalysis 2.6.1
@@ -13,13 +13,12 @@ nuget Microsoft.Build.Locator 1.0.13
 
 nuget System.ValueTuple 4.4.0
 
-nuget DotNet.Glob
-nuget YamlDotNet
-nuget CommandLineParser
+nuget DotNet.Glob 1.6.9
+nuget YamlDotNet 4.2.2
+nuget CommandLineParser 1.9.71
 nuget NUnit.Console 3.8.0
 
 nuget NuGet.CommandLine 4.6.2
 nuget FAKE 4.61.2
-nuget NUnit.Console 3.8.0
 nuget OpenCover 4.6.519
 nuget reportgenerator 3.1.2
