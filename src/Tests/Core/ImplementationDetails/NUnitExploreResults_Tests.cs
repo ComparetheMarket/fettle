@@ -93,6 +93,29 @@ namespace Fettle.Tests.Core.ImplementationDetails
             Assert.That(testsFound, Has.Length.Zero);
         }
         
+        [Test]
+        public void Parameterized_tests_are_parsed()
+        {
+            var xmlNode = StringToXmlNode(@"
+<test-run>
+    <test-suite runstate=""Runnable"">
+        <test-suite runstate=""Runnable"" type=""ParameterizedMethod"" fullname=""HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred"">
+            <test-case fullname=""HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred(5)"" runstate=""Runnable"" />
+            <test-case fullname=""HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred(10)"" runstate=""Runnable"" />
+            <test-case fullname=""HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred(-1)"" runstate=""Runnable"" />
+        </test-suite>
+    </test-suite>
+</test-run>
+");
+
+            var testsFound = NUnitExploreResults.Parse(xmlNode);
+
+            Assert.That(testsFound, Is.EquivalentTo(new[]
+            {
+                "HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred"
+            }));
+        }
+
         private static XmlNode StringToXmlNode(string text)
         {
             var doc = new XmlDocument();
