@@ -46,8 +46,6 @@ namespace Fettle.Core.Internal.NUnit
             {
                 Status = runTestsResult.Status,
                 Error = runTestsResult.Error,
-                ConsoleOutput = runTestsResult.ConsoleOutput,
-
                 MembersAndCoveringTests = coverageCollector.MembersAndCoveringTests.ToDictionary(x => x.Key, x => x.Value)
             };
         }
