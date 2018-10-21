@@ -27,7 +27,8 @@ namespace Fettle.Core.Internal.NUnit
 
         public TestRunResult RunAllTests(IEnumerable<string> testAssemblyFilePaths)
         {
-            return RunTests(testAssemblyFilePaths, FindTests(testAssemblyFilePaths));
+            var testAssemblyFilePathsAsArray = testAssemblyFilePaths.ToArray();
+            return RunTests(testAssemblyFilePathsAsArray, FindTests(testAssemblyFilePathsAsArray));
         }
 
         public CoverageTestRunResult RunAllTestsAndAnalyseCoverage(
@@ -37,14 +38,14 @@ namespace Fettle.Core.Internal.NUnit
         {
             var coverageCollector = new NUnitCoverageCollector(memberIdsToNames, onAnalysingTestCase);
             
-            var runTestsResult = RunTests(testAssemblyFilePaths, FindTests(testAssemblyFilePaths), coverageCollector);
+            var testAssemblyFilePathsAsArray = testAssemblyFilePaths.ToArray();
+            var availableTests = FindTests(testAssemblyFilePathsAsArray);
+            var runTestsResult = RunTests(testAssemblyFilePathsAsArray, availableTests, coverageCollector);
 
             return new CoverageTestRunResult
             {
                 Status = runTestsResult.Status,
                 Error = runTestsResult.Error,
-                ConsoleOutput = runTestsResult.ConsoleOutput,
-
                 MembersAndCoveringTests = coverageCollector.MembersAndCoveringTests.ToDictionary(x => x.Key, x => x.Value)
             };
         }

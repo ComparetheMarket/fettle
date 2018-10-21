@@ -29,7 +29,7 @@ namespace Fettle.Core.Internal.NUnit
         {
             if (report.StartsWith("<test-suite"))
             {
-                HandleTestFixtureComplete(report);
+                HandleTestSuiteComplete(report);
             }
             else if (report.StartsWith("<start-test"))
             {
@@ -55,6 +55,13 @@ namespace Fettle.Core.Internal.NUnit
             var doc = XDocument.Parse(report);
 
             var testName = doc.Root.Attribute("fullname").Value;
+
+            var isParameterized = testName.EndsWith(")");
+            if (isParameterized)
+            {
+                testName = WithoutParameters(testName);
+            }
+
             testCasesWithinFixture.Add(testName);
 
             var calledMemberIds = ParseExecutedMemberIdsFromOutput(doc);
@@ -62,7 +69,7 @@ namespace Fettle.Core.Internal.NUnit
             onTestComplete(testName, calledMemberIds);
         }
 
-        private void HandleTestFixtureComplete(string report)
+        private void HandleTestSuiteComplete(string report)
         {
             var doc = XDocument.Parse(report);
 
@@ -71,6 +78,9 @@ namespace Fettle.Core.Internal.NUnit
 
             testCasesWithinFixture.Clear();
         }
+
+        private static string WithoutParameters(string testName) =>
+            testName.Substring(0, testName.IndexOf("(", StringComparison.InvariantCultureIgnoreCase));
 
         private static List<string> ParseExecutedMemberIdsFromOutput(XDocument doc)
         {

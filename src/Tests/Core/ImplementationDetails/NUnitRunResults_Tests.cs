@@ -80,57 +80,6 @@ namespace Fettle.Tests.Core.ImplementationDetails
                 Assert.That(result.Error, Does.Contain("error message 2"));
             });
         }
-       
-        [Test]
-        public void When_results_xml_contains_output_Then_all_ouput_is_collated()
-        {
-            var xmlNode = StringToXmlNode(
-                @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""no""?>
-                  <test-run id=""2"" result=""Failed"" total=""7"">
-                     <test-suite runstate=""Runnable"">
-                       <test-case>
-                         <output>
-                           <![CDATA[hello world
-hello world again
-]]>
-                         </output>
-                       </test-case>
-                     </test-suite>
-                     <test-suite runstate=""Runnable"">
-                       <test-case>
-                         <output>
-                           <![CDATA[wibble
-womble
-]]>
-                         </output>
-                       </test-case>
-                     </test-suite>
-                  </test-run>
-                ");
-
-            var result = NUnitRunResults.Parse(xmlNode);
-
-            Assert.That(result.ConsoleOutput, Is.EqualTo(
-@"hello world
-hello world again
-wibble
-womble
-"));
-        }
-
-        [Test]
-        public void When_results_xml_does_not_contain_output_Then_consoleOutput_is_empty()
-        {
-            var xmlNode = StringToXmlNode(
-                @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""no""?>
-                  <test-run id=""2"" result=""Failed"" total=""7"">
-                  </test-run>
-                ");
-
-            var result = NUnitRunResults.Parse(xmlNode);
-
-            Assert.That(result.ConsoleOutput, Is.EqualTo(""));
-        }
         
         [Test]
         public void When_results_xml_indicates_no_tests_were_run_Then_throws_an_exception()

@@ -110,8 +110,18 @@ namespace Fettle.Tests.Core.Coverage
             var coveringTests2 = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[1]);
             Assert.That(coveringTests2, Is.EquivalentTo(new[]
             {
-                "HasSurvivingMutants.MoreTests.MoreTests.PreIncrement2(1,2)",
-                "HasSurvivingMutants.MoreTests.MoreTests.PreIncrement2(4,5)",
+                "HasSurvivingMutants.MoreTests.MoreTests.PreIncrement2"
+            }));
+        }
+
+        [Test]
+        public void Then_members_can_be_covered_by_tests_with_test_case_sources()
+        {
+            const string memberName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Sum(System.Int32,System.Int32)";
+            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[1]);            
+            Assert.That(coveringTests, Is.EquivalentTo(new[]
+            {
+                "HasSurvivingMutants.MoreTests.MoreTests.Sum2"
             }));
         }
 
