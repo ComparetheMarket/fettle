@@ -90,15 +90,15 @@ let watchTarget() =
     watcher.Dispose() 
     
 let packageTarget() =
-    let outputDir = "."
-    CreateDir outputDir
+    let buildVersion = File.ReadAllText("./VERSION")
+
     NuGetPack (fun p ->
         {p with
             Version = buildVersion
-            ReleaseNotes = sprintf "https://github.com/ComparetheMarket/fettle/releases/tag/v%s" version
             WorkingDir = "."
+            ReleaseNotes = sprintf "https://github.com/ComparetheMarket/fettle/releases/tag/v%s" buildVersion
             Files = [ (sprintf @"src\Console\bin\%s\*.*" mode, Some "tools", None) ]
-            OutputPath = outputDir
+            OutputPath = "."
             Publish = false
         })
         "./Fettle.Console.nuspec"
