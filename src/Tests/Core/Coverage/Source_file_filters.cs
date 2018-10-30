@@ -25,9 +25,9 @@ namespace Fettle.Tests.Core.Coverage
         {
             const string memberName = "System.Void HasSurvivingMutants.Implementation.OtherMethods::ThrowingMethod()";
             
-            Assert.That(Config.TestAssemblyFilePaths, Has.Length.EqualTo(2));
-            Assert.That(Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[0]), Has.Length.Zero);
-            Assert.That(Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[1]), Is.EquivalentTo(new[]
+            Assert.That(Config.TestProjectFilters, Has.Length.EqualTo(2));
+            Assert.That(Result.TestsThatCoverMember(memberName, Config.TestProjectFilters[0]), Has.Length.Zero);
+            Assert.That(Result.TestsThatCoverMember(memberName, Config.TestProjectFilters[1]), Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.MoreTests.MoreTests.ThrowingMethod"
             }));

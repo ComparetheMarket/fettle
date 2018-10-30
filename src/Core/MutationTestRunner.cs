@@ -48,7 +48,7 @@ namespace Fettle.Core
 
         private static void CreateTempDirectories(string baseTempDirectory, Config config)
         {
-            foreach (var testAssemblyFilePath in config.TestAssemblyFilePaths)
+            foreach (var testAssemblyFilePath in config.TestProjectFilters)
             {
                 var from = Path.GetDirectoryName(testAssemblyFilePath);
                 var to = Path.Combine(baseTempDirectory, Path.GetFileNameWithoutExtension(testAssemblyFilePath));

@@ -87,8 +87,8 @@ namespace Fettle.Tests.Console.Contexts
             var defaultConfig = new Config
             {
                 SolutionFilePath = "../../../../../src/Examples/HasSurvivingMutants/HasSurvivingMutants.sln",
-                TestAssemblyFilePaths = new [] { $"../../../../../src/Examples/HasSurvivingMutants/Tests/bin/{BuildConfig.AsString}/HasSurvivingMutants.Tests.dll" },
                 ProjectFilters = new []{ "HasSurvivingMutants.Implementation" },
+                TestProjectFilters = new[] { "HasSurvivingMutants.Tests" },
                 SourceFileFilters = new []{ "Implementation/*.cs" }
             };
 
@@ -97,9 +97,9 @@ namespace Fettle.Tests.Console.Contexts
             var configFileContents = $@"
 solution: {modifiedConfig.SolutionFilePath}
 
-testAssemblies: {CollectionToYamlList(modifiedConfig.TestAssemblyFilePaths)}
-
 projectFilters: {CollectionToYamlList(modifiedConfig.ProjectFilters)}
+
+testProjectFilters: {CollectionToYamlList(modifiedConfig.TestProjectFilters)}
 
 sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
 ";

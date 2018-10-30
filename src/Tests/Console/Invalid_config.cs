@@ -11,14 +11,13 @@ namespace Fettle.Tests.Console
         private static readonly object[] TestCases =
         {
             new object[] { new Func<Config,Config>(WithNonExistentSolutionFile) },
-            new object[] { new Func<Config,Config>(WithNonExistentTestAssembly) },
             
-            new object[] { new Func<Config,Config>(WithNullTestAssembly) },
+            new object[] { new Func<Config,Config>(WithNullTestProject) },
             new object[] { new Func<Config,Config>(WithNullProjectFilter) },
             new object[] { new Func<Config,Config>(WithNullSourceFileFilter) },
 
             new object[] { new Func<Config,Config>(WithNoSolutionFile) },
-            new object[] { new Func<Config,Config>(WithNoTestAssemblies) }
+            new object[] { new Func<Config,Config>(WithNoTestProjects) }
         };
 
         public Invalid_config(Func<Config, Config> modifier)

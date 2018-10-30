@@ -41,7 +41,7 @@ namespace Fettle.Core
             {
                 var copiedTestAssemblyFilePaths = 
                     CopyTestAssembliesToTempDirectories(
-                        config.TestAssemblyFilePaths, 
+                        config.TestProjectFilters, 
                         baseTempDirectory)
                     .ToList();
 
@@ -59,7 +59,7 @@ namespace Fettle.Core
 
                     var result = new CoverageAnalysisResult();
 
-                    for (int testAssemblyIndex = 0; testAssemblyIndex < config.TestAssemblyFilePaths.Length; ++testAssemblyIndex)
+                    for (int testAssemblyIndex = 0; testAssemblyIndex < config.TestProjectFilters.Length; ++testAssemblyIndex)
                     {
                         var copiedTestAssemblyFilePath = copiedTestAssemblyFilePaths[testAssemblyIndex];
 
@@ -75,7 +75,7 @@ namespace Fettle.Core
                             return CoverageAnalysisResult.Error(runResult.Error);
                         }
 
-                        var originalTestAssemblyFilePath = config.TestAssemblyFilePaths[testAssemblyIndex];
+                        var originalTestAssemblyFilePath = config.TestProjectFilters[testAssemblyIndex];
                         result = result.WithCoveredMembers(runResult.MembersAndCoveringTests, originalTestAssemblyFilePath);
                     }
 

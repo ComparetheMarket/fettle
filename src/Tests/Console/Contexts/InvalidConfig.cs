@@ -10,17 +10,11 @@ namespace Fettle.Tests.Console.Contexts
             return config;
         }
         
-        protected static Config WithNonExistentTestAssembly(Config config)
+        protected static Config WithNullTestProject(Config config)
         {
-            config.TestAssemblyFilePaths = new[] { "non-existent-file" };
-            return config;
-        }
-        
-        protected static Config WithNullTestAssembly(Config config)
-        {
-            config.TestAssemblyFilePaths = new []
+            config.TestProjectFilters = new []
             {
-                $"../../../../../src/Examples/HasSurvivingMutants/Tests/bin/{BuildConfig.AsString}/HasSurvivingMutants.Tests.dll", 
+                "HasSurvivingMutants.Tests",
                 null
             };
             return config;
@@ -38,9 +32,9 @@ namespace Fettle.Tests.Console.Contexts
             return config;
         }
 
-        protected static Config WithNoTestAssemblies(Config config)
+        protected static Config WithNoTestProjects(Config config)
         {
-            config.TestAssemblyFilePaths = new string[0];
+            config.TestProjectFilters = new string[0];
             return config;
         }
 

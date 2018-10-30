@@ -20,13 +20,8 @@ namespace Fettle.Tests.Core.Contexts
                 "..", "..", "..", "Examples", "HasSurvivingMutants");
 
             config.SolutionFilePath = Path.Combine(baseDir, "HasSurvivingMutants.sln");
-
-            var binDir = Path.Combine(baseDir, "Tests", "bin", BuildConfig.AsString);
-
-            config.TestAssemblyFilePaths = new[]
-            {
-                Path.Combine(binDir, "HasSurvivingMutants.Tests.dll")
-            };
+            
+            config.TestProjectFilters = new[] { "HasSurvivingMutants.Tests" };
         }
         
         protected void When_mutation_testing_the_app()

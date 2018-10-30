@@ -34,7 +34,7 @@ namespace Fettle.Tests.Core
         private Dictionary<string, DateTime> ModificationTimesOfSourceAssemblies()
         {
             var result = new Dictionary<string, DateTime>();
-            foreach (var directory in Config.TestAssemblyFilePaths.Select(Path.GetDirectoryName))
+            foreach (var directory in Config.TestProjectFilters.Select(Path.GetDirectoryName))
             {
                 foreach (var filePath in Directory.GetFiles(directory, "*.dll", SearchOption.AllDirectories))
                 {

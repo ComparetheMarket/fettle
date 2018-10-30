@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ namespace Fettle.Core
         // Required
         //
         public string SolutionFilePath { get; set; }
-        public string[] TestAssemblyFilePaths { get; set; }
+        public string[] TestProjectFilters { get; set; }
         public string[] ProjectFilters { get; set; }
  
         // Optional
@@ -32,11 +31,8 @@ namespace Fettle.Core
                     ? Path.Combine(baseDirectory, SolutionFilePath)
                     : null,
 
-                TestAssemblyFilePaths = TestAssemblyFilePaths?
-                    .Select(x => x != null ? Path.Combine(baseDirectory, x) : null)
-                    .ToArray(),
-
                 ProjectFilters = ProjectFilters?.ToArray(),
+                TestProjectFilters = TestProjectFilters?.ToArray(),
                 SourceFileFilters = SourceFileFilters?.ToArray()
             };
         }
@@ -45,7 +41,7 @@ namespace Fettle.Core
         {
             return ValidateRequiredPropertiesArePresent()
                    .Concat(ValidateContentsOfCollections())
-                   .Concat(ValidateFilesArePresent());
+                   .Concat(ValidateSolutionFileIsPresent());
         }
 
         public async Task<Document[]> FindMutatableDocuments()
@@ -71,29 +67,17 @@ namespace Fettle.Core
                 yield return PropertyNotSpecified(nameof(SolutionFilePath));
             }
             
-            if (TestAssemblyFilePaths == null || !TestAssemblyFilePaths.Any())
+            if (TestProjectFilters == null || !TestProjectFilters.Any())
             {
-                yield return PropertyNotSpecified(nameof(TestAssemblyFilePaths));
+                yield return PropertyNotSpecified(nameof(TestProjectFilters));
             }
         }
 
-        private IEnumerable<string> ValidateFilesArePresent()
+        private IEnumerable<string> ValidateSolutionFileIsPresent()
         {
             if (SolutionFilePath != null && !File.Exists(SolutionFilePath))
             {
-                yield return
-                    $"The solution file was not found: \"{SolutionFilePath}\"";
-            }
-
-            if (TestAssemblyFilePaths != null)
-            {
-                var nonExistentTestAssemblies = TestAssemblyFilePaths.Where(f => !File.Exists(f)).ToList();
-                if (nonExistentTestAssemblies.Any())
-                {
-                    var filesListMessage = string.Join(Environment.NewLine, nonExistentTestAssemblies);
-                    yield return
-                        $"One or more test assemblies were not found:{Environment.NewLine}{filesListMessage}";
-                }
+                yield return $"The solution file was not found: \"{SolutionFilePath}\"";
             }
         }
 
@@ -101,9 +85,9 @@ namespace Fettle.Core
         {
             bool AnyItemsNull(IEnumerable<string> items) => items != null && items.Any(i => i == null);
 
-            if (AnyItemsNull(TestAssemblyFilePaths))
+            if (AnyItemsNull(TestProjectFilters))
             {
-                yield return "One or more items in the list of test assemblies is blank";
+                yield return "One or more items in the list of test projects filters is blank";
             }
 
             if (AnyItemsNull(ProjectFilters))

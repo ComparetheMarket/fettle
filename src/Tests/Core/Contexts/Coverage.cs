@@ -28,11 +28,8 @@ namespace Fettle.Tests.Core.Contexts
             {
                 SolutionFilePath = Path.Combine(baseExampleDir, "HasSurvivingMutants", "HasSurvivingMutants.sln"),
                 SourceFileFilters = new string[0],
-                TestAssemblyFilePaths = new[]
-                {
-                    Path.Combine(baseExampleDir, "HasSurvivingMutants", "Tests", "bin", BuildConfig.AsString, "HasSurvivingMutants.Tests.dll"),
-                    Path.Combine(baseExampleDir, "HasSurvivingMutants", "MoreTests", "bin", BuildConfig.AsString, "HasSurvivingMutants.MoreTests.dll")
-                }
+                TestProjectFilters = new[] { "HasSurvivingMutants.Tests" },
+                ProjectFilters = new string[0]
             };
         }
 
@@ -42,10 +39,8 @@ namespace Fettle.Tests.Core.Contexts
             {
                 SolutionFilePath = Path.Combine(baseExampleDir, "DoesNotCompile", "DoesNotCompile.sln"),
                 SourceFileFilters = new string[0],
-                TestAssemblyFilePaths = new[]
-                {
-                    Path.Combine(baseExampleDir, "DoesNotCompile", "Tests", "bin", BuildConfig.AsString, "Tests.dll")
-                }
+                TestProjectFilters = new[] { "HasSurvivingMutants.Tests" },
+                ProjectFilters = new string[0]
             };
         }
 
@@ -77,6 +72,11 @@ namespace Fettle.Tests.Core.Contexts
         protected void Given_project_filters(params string[] projectFilters)
         {
             Config.ProjectFilters = projectFilters;
+        }
+
+        protected void Given_test_project_filters(params string[] testProjectFilters)
+        {
+            Config.TestProjectFilters = testProjectFilters;
         }
 
         protected void Given_source_file_filters(params string[] sourceFileFilters)

@@ -1,11 +1,11 @@
 ﻿
 solution: ../../../../../src/Examples/HasSurvivingMutants/HasSurvivingMutants.sln
 
-testAssemblies:
-    - ../../../../../src/Examples/HasSurvivingMutants/Tests/bin/{0}/HasSurvivingMutants.Tests.dll
-
 projectFilters:
     - HasSurvivingMutants.Implementation
+
+testProjectFilters:
+    - HasSurvivingMutants.Tests
 
 sourceFileFilters:
     - Implementation/*.cs

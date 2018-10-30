@@ -55,9 +55,9 @@ namespace Fettle.Core.Internal
 
             var ranAnyTests = false;
 
-            for (var testAssemblyIndex = 0; testAssemblyIndex < config.TestAssemblyFilePaths.Length; ++testAssemblyIndex)
+            for (var testAssemblyIndex = 0; testAssemblyIndex < config.TestProjectFilters.Length; ++testAssemblyIndex)
             {
-                var originalTestAssemblyFilePath = config.TestAssemblyFilePaths[testAssemblyIndex];
+                var originalTestAssemblyFilePath = config.TestProjectFilters[testAssemblyIndex];
                 var tempTestAssemblyFilePath = copiedTempTestAssemblyFilePaths[testAssemblyIndex];
 
                 string[] testsToRun = null;
@@ -108,7 +108,7 @@ namespace Fettle.Core.Internal
             string tempDirectory,
             Config config)
         {
-            foreach (var originalTestAssemblyFilePath in config.TestAssemblyFilePaths)
+            foreach (var originalTestAssemblyFilePath in config.TestProjectFilters)
             {
                 var dir = Path.Combine(tempDirectory, Path.GetFileNameWithoutExtension(originalTestAssemblyFilePath));
                 File.Copy(mutatedAssemblyFilePath, Path.Combine(dir, Path.GetFileName(mutatedAssemblyFilePath)),
@@ -118,7 +118,7 @@ namespace Fettle.Core.Internal
 
         private static IEnumerable<string> TempTestAssemblyFilePaths(Config config, string tempDirectory)
         {
-            foreach (var originalTestAssemblyFilePath in config.TestAssemblyFilePaths)
+            foreach (var originalTestAssemblyFilePath in config.TestProjectFilters)
             {
                 var dir = Path.Combine(tempDirectory, Path.GetFileNameWithoutExtension(originalTestAssemblyFilePath));
 

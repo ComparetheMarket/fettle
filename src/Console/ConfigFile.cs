@@ -12,10 +12,9 @@ namespace Fettle.Console
 
         private class InternalConfigRepresentation
         {
-            public string Solution { get; set; }        
-            public string[] TestAssemblies { get; set; }
-
+            public string Solution { get; set; }
             public string[] ProjectFilters { get; set; }
+            public string[] TestProjectFilters { get; set; }
             public string[] SourceFileFilters { get; set; }
         
             public Config ToConfig()
@@ -23,8 +22,8 @@ namespace Fettle.Console
                 return new Config
                 {
                     SolutionFilePath = Solution,
-                    TestAssemblyFilePaths = TestAssemblies,
                     ProjectFilters = ProjectFilters,
+                    TestProjectFilters = TestProjectFilters,
                     SourceFileFilters = SourceFileFilters
                 };
             }

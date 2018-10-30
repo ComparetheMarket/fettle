@@ -11,6 +11,7 @@ namespace Fettle.Tests.Core.Coverage
         {
             Given_an_app_with_tests();
             Given_project_filters("HasSurvivingMutants.Implementation", "HasSurvivingMutants.MoreImplementation");
+            Given_test_project_filters("HasSurvivingMutants.Tests", "HasSurvivingMutants.MoreTests");
 
             When_analysing_coverage();
         }
@@ -25,7 +26,7 @@ namespace Fettle.Tests.Core.Coverage
         public void Then_members_are_covered_by_the_tests_that_call_them_during_testing()
         {
             const string memberName = "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IsPositive(System.Int32)";
-            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths.First());
+            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestProjectFilters.First());
             Assert.That(coveringTests, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsPositive",
@@ -38,7 +39,7 @@ namespace Fettle.Tests.Core.Coverage
         public void Then_members_that_are_not_called_are_recognised_as_not_covered_by_any_tests()
         {
             const string memberName = "System.Boolean HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::AddNumbers_should_be_ignored(System.Int32)";
-            foreach (var testAssemblyFilePath in Config.TestAssemblyFilePaths)
+            foreach (var testAssemblyFilePath in Config.TestProjectFilters)
             {
                 var coveringTests = Result.TestsThatCoverMember(memberName, testAssemblyFilePath);
                 Assert.That(coveringTests, Has.Length.Zero);
@@ -49,7 +50,7 @@ namespace Fettle.Tests.Core.Coverage
         public void Then_members_are_covered_by_the_test_cases_that_call_them_during_testing_even_if_they_are_empty()
         {
             const string memberName = "System.Void HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::EmptyMethod()";
-            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths.First());
+            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestProjectFilters.First());
             Assert.That(coveringTests, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.EmptyMethod",
@@ -60,7 +61,7 @@ namespace Fettle.Tests.Core.Coverage
         public void Then_members_are_considered_to_be_covered_by_test_cases_if_their_fixture_setup_or_teardown_methods_call_them()
         {
             const string memberName = "System.Boolean HasSurvivingMutants.MoreImplementation.CalledByTestFixture::IsFourtyTwo(System.Int32)";
-            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths.First());            
+            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestProjectFilters.First());            
             Assert.That(coveringTests, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.CalledByTestFixture_Constructor.TestCase",
@@ -75,12 +76,12 @@ namespace Fettle.Tests.Core.Coverage
         public void Then_members_can_be_covered_by_tests_from_multiple_projects()
         {
             const string memberName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Postincrement(System.Int32)";
-            var coveringTests1 = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[0]);            
+            var coveringTests1 = Result.TestsThatCoverMember(memberName, Config.TestProjectFilters[0]);            
             Assert.That(coveringTests1, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Postincrement",
             }));
-            var coveringTests2 = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[1]);
+            var coveringTests2 = Result.TestsThatCoverMember(memberName, Config.TestProjectFilters[1]);
             Assert.That(coveringTests2, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.MoreTests.MoreTests.PostIncrement2"
@@ -91,7 +92,7 @@ namespace Fettle.Tests.Core.Coverage
         public void Then_members_that_are_properties_can_be_covered_by_tests()
         {
             const string memberName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::IntegerProperty";
-            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[0]);
+            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestProjectFilters[0]);
             Assert.That(coveringTests, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.IntegerProperty",
@@ -102,12 +103,12 @@ namespace Fettle.Tests.Core.Coverage
         public void Then_members_can_be_covered_by_parameterised_tests()
         {
             const string memberName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Preincrement(System.Int32)";
-            var coveringTests1 = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[0]);            
+            var coveringTests1 = Result.TestsThatCoverMember(memberName, Config.TestProjectFilters[0]);            
             Assert.That(coveringTests1, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.Tests.PartialNumberComparisonTests.Preincrement",
             }));
-            var coveringTests2 = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[1]);
+            var coveringTests2 = Result.TestsThatCoverMember(memberName, Config.TestProjectFilters[1]);
             Assert.That(coveringTests2, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.MoreTests.MoreTests.PreIncrement2"
@@ -118,7 +119,7 @@ namespace Fettle.Tests.Core.Coverage
         public void Then_members_can_be_covered_by_tests_with_test_case_sources()
         {
             const string memberName = "System.Int32 HasSurvivingMutants.Implementation.PartiallyTestedNumberComparison::Sum(System.Int32,System.Int32)";
-            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[1]);            
+            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestProjectFilters[1]);            
             Assert.That(coveringTests, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.MoreTests.MoreTests.Sum2"
@@ -129,7 +130,7 @@ namespace Fettle.Tests.Core.Coverage
         public void Then_members_that_throw_an_exception_can_be_covered_by_tests()
         {
             const string memberName = "System.Void HasSurvivingMutants.Implementation.OtherMethods::ThrowingMethod()";
-            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestAssemblyFilePaths[1]);
+            var coveringTests = Result.TestsThatCoverMember(memberName, Config.TestProjectFilters[1]);
             Assert.That(coveringTests, Is.EquivalentTo(new[]
             {
                 "HasSurvivingMutants.MoreTests.MoreTests.ThrowingMethod"

@@ -1,8 +1,8 @@
 ﻿
 solution: .\src\Examples\HasSurvivingMutants\HasSurvivingMutants.sln
 
-testAssemblies:
-    - .\src\Examples\HasSurvivingMutants\Tests\bin\Debug\HasSurvivingMutants.Tests.dll
+testProjectFilters:
+    - HasSurvivingMutants.Tests
 
 projectFilters:
     - HasSurvivingMutants.Implementation

@@ -31,10 +31,7 @@ namespace Fettle.Tests.Core.Contexts
                 SolutionFilePath = Path.Combine(baseExampleDir, "HasSurvivingMutants.sln"),
                 SourceFileFilters = new []{ @"Implementation\**\*" },
                 ProjectFilters = new []{ "HasSurvivingMutants.Implementation" },
-                TestAssemblyFilePaths = new[]
-                {
-                    Path.Combine(baseExampleDir, "Tests", "bin", BuildConfig.AsString, "HasSurvivingMutants.Tests.dll")
-                }
+                TestProjectFilters = new[]{ "HasSurvivingMutants.Tests" }
             };
 
             MockTestRunner = new Mock<ITestRunner>();
