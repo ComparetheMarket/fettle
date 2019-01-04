@@ -23,6 +23,7 @@ let buildTarget() =
 
 let testTarget() =
     let testAssemblies = !! (sprintf "./src/**/bin/%s/*Tests.dll" mode)
+                         -- (sprintf "./src/**/bin/%s/*XUnit*" mode)
     let nUnitParams _ = 
         {
             NUnit3Defaults with 
