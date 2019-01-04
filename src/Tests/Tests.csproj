@@ -57,6 +57,7 @@
     <Compile Include="Console\CoverageAnalysis\Coverage_analysis_throws_an_exception.cs" />
     <Compile Include="Console\EndToEnd\Happy_path.cs" />
     <Compile Include="Console\CoverageAnalysis\Errors_occur_during_coverage_analysis.cs" />
+    <Compile Include="Console\ImplementationDetails\Config_file_parsing.cs" />
     <Compile Include="Console\SourceControlIntegration\Finding_local_modifications_throws_an_exception.cs" />
     <Compile Include="Console\SourceControlIntegration\Local_modifications_only_option_disabled.cs" />
     <Compile Include="Console\SourceControlIntegration\Local_modifications_only_option_enabled.cs" />

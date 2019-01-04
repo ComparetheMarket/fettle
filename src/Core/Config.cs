@@ -19,7 +19,8 @@ namespace Fettle.Core
         // Optional
         //
         public string[] SourceFileFilters { get; set; }
- 
+        public string CustomTestRunnerCommand { get; set; }
+
         // Auto-generated
         //
         public string[] LocallyModifiedSourceFiles { get; set; }
