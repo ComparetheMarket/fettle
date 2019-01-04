@@ -38,7 +38,8 @@ namespace Fettle.Core
                     .ToArray(),
 
                 ProjectFilters = ProjectFilters?.ToArray(),
-                SourceFileFilters = SourceFileFilters?.ToArray()
+                SourceFileFilters = SourceFileFilters?.ToArray(),
+                CustomTestRunnerCommand = CustomTestRunnerCommand
             };
         }
 

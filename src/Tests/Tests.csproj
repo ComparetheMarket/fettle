@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildConfig.cs" />
+    <Compile Include="Console\Configuration.cs" />
     <Compile Include="Console\Contexts\Default.cs" />
     <Compile Include="Console\Contexts\SourceControlIntegration.cs" />
     <Compile Include="Console\Contexts\SpyOutputWriter.cs" />
