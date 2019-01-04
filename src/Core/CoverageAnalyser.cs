@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,29 +40,25 @@ namespace Fettle.Core
 
             try
             {
-                var copiedTestAssemblyFilePaths = 
-                    CopyTestAssembliesToTempDirectories(
-                        config.TestProjectFilters, 
-                        baseTempDirectory)
-                    .ToList();
-
                 using (var workspace = MSBuildWorkspaceFactory.Create())
                 {
                     var solution = await workspace.OpenSolutionAsync(config.SolutionFilePath);
 
+                    var testAssemblyFilePaths = await CompileTestProjects(solution, config.TestProjectFilters, baseTempDirectory);
+                    
                     await InstrumentThenCompileMultipleProjects(
                         solution.Projects.Where(p => Filtering.ShouldMutateProject(p, config)),
                         config,
                         baseTempDirectory,
-                        copiedTestAssemblyFilePaths,
+                        testAssemblyFilePaths,
                         GenerateMemberId,
                         memberIdsToNames);
-
+                    
                     var result = new CoverageAnalysisResult();
 
                     for (int testAssemblyIndex = 0; testAssemblyIndex < config.TestProjectFilters.Length; ++testAssemblyIndex)
                     {
-                        var copiedTestAssemblyFilePath = copiedTestAssemblyFilePaths[testAssemblyIndex];
+                        var copiedTestAssemblyFilePath = testAssemblyFilePaths[testAssemblyIndex];
 
                         var numTests = testFinder.FindTests(new[]{ copiedTestAssemblyFilePath }).Length;
 
@@ -92,7 +89,7 @@ namespace Fettle.Core
             IEnumerable<Project> projects,
             Config config,
             string baseTempDirectory,
-            IList<string> copiedTestAssemblyFilePaths,
+            IEnumerable<string> copiedTestAssemblyFilePaths,
             Func<long> memberIdGenerator,
             IDictionary<string, string> memberIdsToNames)
         {
@@ -139,9 +136,35 @@ namespace Fettle.Core
                 .RemoveSyntaxTrees(originalSyntaxTrees)
                 .AddSyntaxTrees(modifiedSyntaxTrees);
 
-            var compilationResult = ProjectCompilation.CompileProject(
-                outputFilePath,
-                compilation);
+            CompileProject(outputFilePath, compilation);
+        }
+
+        private static async Task<string[]> CompileTestProjects(Solution solution, IEnumerable<string> testProjectFilters, string baseTempDirectory)
+        {
+            var outputFilePaths = new List<string>();
+
+            foreach (var testProjectName in testProjectFilters)
+            {
+                var testProject = solution.Projects.SingleOrDefault(p => string.Equals(p.Name, testProjectName));
+                if (testProject == null)
+                {
+                    continue;
+                }
+
+                var compilation = await testProject.GetCompilationAsync().ConfigureAwait(false);
+                var outputFilePath = Path.Combine(baseTempDirectory, $"{testProject.Name}.dll");
+                
+                CompileProject(outputFilePath, compilation);
+
+                outputFilePaths.Add(outputFilePath);
+            }
+
+            return outputFilePaths.ToArray();
+        }
+
+        private static void CompileProject(string outputFilePath, Compilation compilation)
+        {
+            var compilationResult = ProjectCompilation.CompileProject(outputFilePath, compilation);
             if (!compilationResult.Success)
             {
                 var diagnostics = string.Join(Environment.NewLine, compilationResult.Diagnostics);
@@ -160,21 +183,6 @@ namespace Fettle.Core
                     instrumentedAssemblyFilePath, 
                     Path.Combine(copiedTestAssemblyDirectory, Path.GetFileName(instrumentedAssemblyFilePath)),
                     overwrite: true);
-            }
-        }
-
-        private static IEnumerable<string> CopyTestAssembliesToTempDirectories(
-            IEnumerable<string> testAssemblyFilePaths,
-            string baseTempDirectory)
-        {
-            foreach (var testAssemblyFilePath in testAssemblyFilePaths)
-            {
-                var fromDir = Path.GetDirectoryName(testAssemblyFilePath);
-                var toDir = Path.Combine(baseTempDirectory, Path.GetFileNameWithoutExtension(testAssemblyFilePath));
-                Directory.CreateDirectory(toDir);
-                DirectoryUtils.CopyDirectoryContents(fromDir, toDir);
-
-                yield return Path.Combine(toDir, Path.GetFileName(testAssemblyFilePath));
             }
         }
     }
