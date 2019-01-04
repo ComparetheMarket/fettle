@@ -1,6 +1,7 @@
 RESTRICTION: == net461
 NUGET
   remote: https://www.nuget.org/api/v2
+    Autofac (4.8.1)
     Castle.Core (4.2.1)
     CommandLineParser (1.9.71)
     DotNet.Glob (1.6.9)

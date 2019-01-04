@@ -212,12 +212,12 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
                 return MockMutationTestRunner.Object;
             }
 
-            ExitCode = Program.InternalEntryPoint(
+            ExitCode = Program.Run(
                 args: commandLineArgs.ToArray(),
                 mutationTestRunnerFactory: CreateMockMutationTestRunner,
                 coverageAnalyserFactory: CreateMockCoverageAnalyser,
                 sourceControlIntegration: MockSourceControlIntegration.Object,
                 outputWriter: SpyOutputWriter);
-        }        
+        }
     }
 }

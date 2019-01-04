@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Autofac;
 using Fettle.Core;
 
 namespace Fettle.Console
@@ -19,17 +20,16 @@ namespace Fettle.Console
                     eventListener);
             }
 
-            ICoverageAnalyser CreateRealCoverageAnalyser(IEventListener eventListener)
-            {
-                return new CoverageAnalyser(eventListener);
-            }
+            ICoverageAnalyser CreateRealCoverageAnalyser(IEventListener eventListener) => new CoverageAnalyser(eventListener);
 
-            return InternalEntryPoint(
-                args, 
-                CreateRealMutationTestRunner,
-                CreateRealCoverageAnalyser,
-                new GitIntegration(),
-                new ConsoleOutputWriter());
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<GitIntegration>().As<ISourceControlIntegration>();
+            containerBuilder.RegisterType<ConsoleOutputWriter>().As<IOutputWriter>();
+            containerBuilder.RegisterInstance<Func<IEventListener, ICoverageAnalyser>>(CreateRealCoverageAnalyser);
+            containerBuilder.RegisterInstance<Func<IEventListener, ICoverageAnalysisResult, IMutationTestRunner>>(CreateRealMutationTestRunner);
+            var container = containerBuilder.Build();
+
+            return Run(args, container);
         }
         
         private static class ExitCodes
@@ -39,8 +39,18 @@ namespace Fettle.Console
             public const int ConfigOrArgsAreInvalid = 2;
             public const int UnexpectedError = 3;
         }
-        
-        internal static int InternalEntryPoint(
+
+        internal static int Run(string[] args, IContainer diContainer)
+        {
+            return Run(
+                args,
+                diContainer.Resolve<Func<IEventListener, ICoverageAnalysisResult, IMutationTestRunner>>(),
+                diContainer.Resolve<Func<IEventListener, ICoverageAnalyser>>(),
+                diContainer.Resolve<ISourceControlIntegration>(),
+                diContainer.Resolve<IOutputWriter>());
+        }
+
+        internal static int Run(
             string[] args,
             Func<IEventListener, ICoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
             Func<IEventListener, ICoverageAnalyser> coverageAnalyserFactory,
