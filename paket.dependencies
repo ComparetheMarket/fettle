@@ -22,3 +22,5 @@ nuget NuGet.CommandLine 4.6.2
 nuget FAKE 4.61.2
 nuget OpenCover 4.6.519
 nuget reportgenerator 3.1.2
+nuget xunit 2.4.1
+nuget xunit.runner.console 2.4.1
