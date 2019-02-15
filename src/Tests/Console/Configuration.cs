@@ -9,7 +9,7 @@ namespace Fettle.Tests.Console
     {
         public Configuration()
         {
-            Given_a_valid_config_file();
+            Given_a_valid_config_file_with_all_options_set();
 
             When_running_the_fettle_console_app();
         }

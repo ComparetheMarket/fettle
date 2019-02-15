@@ -9,3 +9,5 @@ projectFilters:
 
 sourceFileFilters:
     - Implementation/*.cs
+
+customTestRunnerCommand: src/Examples/HasSurvivingMutants/run-tests.bat arg=123

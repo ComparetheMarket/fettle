@@ -81,6 +81,12 @@ namespace Fettle.Console
                     return ExitCodes.ConfigOrArgsAreInvalid;
                 }
 
+                if (!string.IsNullOrEmpty(parsedArgs.Config.CustomTestRunnerCommand) &&
+                    !parsedArgs.ConsoleOptions.SkipCoverageAnalysis)
+                {
+                    WarnThatOptionsAreIncompatibleWithCoverageAnalysis(outputWriter);
+                }
+
                 if (parsedArgs.ConsoleOptions.ModificationsOnly)
                 {
                     var result = FindLocallyModifiedSourceFiles(sourceControlIntegration, parsedArgs.Config, outputWriter);
@@ -102,7 +108,8 @@ namespace Fettle.Console
                 var eventListener = CreateEventListener(outputWriter, isQuietModeEnabled: parsedArgs.ConsoleOptions.Quiet);
 
                 ICoverageAnalysisResult coverageResult = null;
-                if (!parsedArgs.ConsoleOptions.SkipCoverageAnalysis)
+                var shouldDoCoverageAnalysis = string.IsNullOrEmpty(parsedArgs.Config.CustomTestRunnerCommand) && !parsedArgs.ConsoleOptions.SkipCoverageAnalysis;
+                if (shouldDoCoverageAnalysis)
                 {
                     var analyser = coverageAnalyserFactory(eventListener);
                     coverageResult = AnalyseCoverage(analyser, outputWriter, parsedArgs.Config);
@@ -142,6 +149,14 @@ namespace Fettle.Console
                 outputWriter.WriteFailureLine($"An error ocurred that Fettle didn't expect.{Environment.NewLine}{ex}");
                 return ExitCodes.UnexpectedError;
             }
+        }
+
+        private static void WarnThatOptionsAreIncompatibleWithCoverageAnalysis(IOutputWriter outputWriter)
+        {
+            outputWriter.WriteWarningLine(@"Warning: you've specified a custom test runner command which means coverage analysis cannot be performed. This will likely make mutation testing take longer.
+Remove this warning by adding the --skipcoverageanalysis command-line option.
+More info at: https://github.com/ComparetheMarket/fettle/wiki/Coverage-Analysis
+");
         }
 
         private static (bool Success, string[] Files) FindLocallyModifiedSourceFiles(

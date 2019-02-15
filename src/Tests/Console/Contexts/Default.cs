@@ -57,10 +57,14 @@ namespace Fettle.Tests.Console.Contexts
                     Task.FromResult(CoverageAnalysisResult.Error("an example coverage analysis error")));
         }
 
-        protected void Given_a_valid_config_file()
+        protected void Given_a_valid_config_file_with_all_options_set() => Given_a_valid_config_file("fettle.config.alloptions.yml");
+
+        protected void Given_a_valid_config_file() => Given_a_valid_config_file("fettle.config.yml");
+
+        private void Given_a_valid_config_file(string filename)
         {
             var configFilePath =
-                Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", "fettle.config.yml");
+                Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", filename);
 
             var buildModeSpecificConfig = String.Format(File.ReadAllText(configFilePath), BuildConfig.AsString);
             File.WriteAllText(configFilePath, buildModeSpecificConfig);
@@ -73,7 +77,16 @@ namespace Fettle.Tests.Console.Contexts
         {
             Given_a_config_file(configModifier);
         }
-        
+
+        protected void Given_a_config_file_with_custom_test_runner_specified()
+        {
+            Given_a_config_file(config =>
+            {
+                config.CustomTestRunnerCommand = "mytestscript.bat";
+                return config;
+            });
+        }
+
         protected void Given_a_config_file_where_all_source_files_are_filtered_out()
         {            
             Given_a_config_file(config =>
@@ -103,9 +116,16 @@ testAssemblies: {CollectionToYamlList(modifiedConfig.TestAssemblyFilePaths)}
 projectFilters: {CollectionToYamlList(modifiedConfig.ProjectFilters)}
 
 sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
+
 ";
+
+            if (modifiedConfig.CustomTestRunnerCommand != null)
+            {
+                configFileContents += $"customTestRunnerCommand: {modifiedConfig.CustomTestRunnerCommand}";
+            }
+
             var configFilePath =
-                Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", "fettle.config.invalid.yml");
+                Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", "fettle.config.temp.yml");
 
             File.WriteAllText(configFilePath, configFileContents);
 

@@ -14,6 +14,11 @@ namespace Fettle.Console
             System.Console.WriteLine(output);
         }
 
+        public void WriteWarningLine(string output)
+        {
+            ColourWriteLine(output, ConsoleColor.Yellow);
+        }
+
         public void WriteFailureLine(string output)
         {
             ColourWriteLine(output, ConsoleColor.Red);

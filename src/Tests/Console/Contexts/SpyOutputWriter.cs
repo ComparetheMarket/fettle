@@ -8,10 +8,12 @@ namespace Fettle.Tests.Console.Contexts
         private readonly List<string> writtenLineSegments = new List<string>();
         private readonly List<string> writtenNormalLines = new List<string>();
         private readonly List<string> writtenFailureLines = new List<string>();
+        private readonly List<string> writtenWarningLines = new List<string>();
         private readonly List<string> writtenSuccessLines = new List<string>();
 
         public IReadOnlyList<string> WrittenLineSegments => writtenLineSegments;
         public IReadOnlyList<string> WrittenNormalLines => writtenNormalLines;
+        public IReadOnlyList<string> WrittenWarningLines => writtenWarningLines;
         public IReadOnlyList<string> WrittenFailureLines => writtenFailureLines;
         public IReadOnlyList<string> WrittenSuccessLines => writtenSuccessLines;
 
@@ -28,6 +30,11 @@ namespace Fettle.Tests.Console.Contexts
         public void WriteFailureLine(string output)
         {
             writtenFailureLines.Add(output);
+        }
+
+        public void WriteWarningLine(string output)
+        {
+            writtenWarningLines.Add(output);
         }
 
         public void WriteSuccessLine(string output)

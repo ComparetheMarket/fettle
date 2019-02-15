@@ -6,6 +6,8 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -56,6 +58,7 @@
     <Compile Include="Console\Contexts\SpyOutputWriter.cs" />
     <Compile Include="Console\CoverageAnalysis\Coverage_analysis_disabled.cs" />
     <Compile Include="Console\CoverageAnalysis\Coverage_analysis_throws_an_exception.cs" />
+    <Compile Include="Console\Custom_test_runner.cs" />
     <Compile Include="Console\EndToEnd\Happy_path.cs" />
     <Compile Include="Console\CoverageAnalysis\Errors_occur_during_coverage_analysis.cs" />
     <Compile Include="Console\ImplementationDetails\Config_file_parsing.cs" />
@@ -124,6 +127,9 @@
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="Console\fettle.config.alloptions.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Console\fettle.config.yml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
