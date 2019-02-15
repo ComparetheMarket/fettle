@@ -8,7 +8,7 @@ namespace HasSurvivingMutants.XUnitTests
         [Fact]
         public void IsPositiveReturnsTrueForPositiveNumbers()
         {
-            Assert.True(PartiallyTestedNumberComparison.IsPositive(-5));
+            Assert.True(PartiallyTestedNumberComparison.IsPositive(5));
         }
     }
 }
