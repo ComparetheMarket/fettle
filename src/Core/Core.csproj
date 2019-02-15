@@ -66,6 +66,7 @@
     <Compile Include="ICoverageAnalyser.cs" />
     <Compile Include="IMutationTestRunner.cs" />
     <Compile Include="Internal\CoverageTestRunResult.cs" />
+    <Compile Include="Internal\CustomTestRunner.cs" />
     <Compile Include="Internal\DocumentExtensions.cs" />
     <Compile Include="Internal\Filtering.cs" />
     <Compile Include="Internal\IgnoreComments.cs" />

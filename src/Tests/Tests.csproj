@@ -87,6 +87,7 @@
     <Compile Include="Core\Coverage\Source_file_filters.cs" />
     <Compile Include="Core\Coverage\Happy_path.cs" />
     <Compile Include="Core\Coverage\Tests_fail.cs" />
+    <Compile Include="Core\EndToEnd\Happy_path_mutating_custom_test_runner.cs" />
     <Compile Include="Core\ImplementationDetails\GitIntegration_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\Instrumentation\InstrumentationTestsBase.cs" />
     <Compile Include="Core\ImplementationDetails\Instrumentation\Instrumentation_of_fields_Tests.cs" />
@@ -118,7 +119,7 @@
     <Compile Include="Core\Temporary_files.cs" />
     <Compile Include="Core\Contexts\Coverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Core\EndToEnd\Happy_path.cs" />
+    <Compile Include="Core\EndToEnd\Happy_path_mutating_nunit_tests.cs" />
     <Compile Include="Core\Invalid_mutation.cs" />
     <Compile Include="Core\Events.cs" />
     <Compile Include="Core\Multiple_mutants_per_syntax_node.cs" />
