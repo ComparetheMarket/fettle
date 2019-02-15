@@ -1,12 +1,12 @@
-﻿namespace Fettle.Core.Internal
+﻿namespace Fettle.Core
 {
-    internal enum TestRunStatus
+    public enum TestRunStatus
     {
         AllTestsPassed,
         SomeTestsFailed
     }
 
-    internal class TestRunResult
+    public class TestRunResult
     {
         public TestRunStatus Status { get; set; }
         public string Error { get; set; }

@@ -1,56 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NUnit.Engine;
 using NUnit.Engine.Services;
 
 namespace Fettle.Core.Internal.NUnit
 {
-    internal class NUnitTestEngine : ITestFinder, ITestRunner
+    internal class NUnitTestEngine
     {
-        public string[] FindTests(IEnumerable<string> testAssemblyFilePaths)
-        {
-            var testPackage = CreateTestPackage(testAssemblyFilePaths);
-
-            using (var testEngine = CreateTestEngine())
-            using (var testRunner = testEngine.GetRunner(testPackage))
-            {
-                var results = testRunner.Explore(TestFilter.Empty);
-                return NUnitExploreResults.Parse(results);
-            }
-        }
-
-        public TestRunResult RunTests(IEnumerable<string> testAssemblyFilePaths, IEnumerable<string> testMethodNames)
-        {
-            return RunTests(testAssemblyFilePaths, testMethodNames, new NullEventListener());
-        }
-
-        public TestRunResult RunAllTests(IEnumerable<string> testAssemblyFilePaths)
-        {
-            var testAssemblyFilePathsAsArray = testAssemblyFilePaths.ToArray();
-            return RunTests(testAssemblyFilePathsAsArray, FindTests(testAssemblyFilePathsAsArray));
-        }
-
-        public CoverageTestRunResult RunAllTestsAndAnalyseCoverage(
-            IEnumerable<string> testAssemblyFilePaths,
-            IDictionary<string, string> memberIdsToNames,
-            Action<string, int> onAnalysingTestCase)
-        {
-            var coverageCollector = new NUnitCoverageCollector(memberIdsToNames, onAnalysingTestCase);
-            
-            var testAssemblyFilePathsAsArray = testAssemblyFilePaths.ToArray();
-            var availableTests = FindTests(testAssemblyFilePathsAsArray);
-            var runTestsResult = RunTests(testAssemblyFilePathsAsArray, availableTests, coverageCollector);
-
-            return new CoverageTestRunResult
-            {
-                Status = runTestsResult.Status,
-                Error = runTestsResult.Error,
-                MembersAndCoveringTests = coverageCollector.MembersAndCoveringTests.ToDictionary(x => x.Key, x => x.Value)
-            };
-        }
-
-        private static TestRunResult RunTests(
+        protected static TestRunResult RunTests(
             IEnumerable<string> testAssemblyFilePaths, 
             IEnumerable<string> testMethodNames,
             ITestEventListener testEventListener)
@@ -64,6 +21,18 @@ namespace Fettle.Core.Internal.NUnit
 
                 var results = testRunner.Run(testEventListener, filterBuilder.GetFilter());
                 return NUnitRunResults.Parse(results);
+            }
+        }
+
+        protected string[] FindTestsInAssemblies(IEnumerable<string> testAssemblyFilePaths)
+        {
+            var testPackage = CreateTestPackage(testAssemblyFilePaths);
+
+            using (var testEngine = CreateTestEngine())
+            using (var testRunner = testEngine.GetRunner(testPackage))
+            {
+                var results = testRunner.Explore(TestFilter.Empty);
+                return NUnitExploreResults.Parse(results);
             }
         }
 
@@ -95,7 +64,7 @@ namespace Fettle.Core.Internal.NUnit
             return testPackage;
         }
 
-        private class NullEventListener : ITestEventListener
+        protected class NullEventListener : ITestEventListener
         {
             public void OnTestEvent(string report)
             {

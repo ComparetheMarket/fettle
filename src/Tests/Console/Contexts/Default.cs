@@ -14,7 +14,8 @@ namespace Fettle.Tests.Console.Contexts
     {
         private readonly List<string> commandLineArgs = new List<string>();
         private IEventListener eventListener;
-        
+        private readonly Mock<ITestRunner> mockTestRunner = new Mock<ITestRunner>();
+
         protected Mock<ICoverageAnalyser> MockCoverageAnalyser { get; } = new Mock<ICoverageAnalyser>();
         protected Mock<IMutationTestRunner> MockMutationTestRunner { get; } = new Mock<IMutationTestRunner>();
         protected Mock<ISourceControlIntegration> MockSourceControlIntegration { get; } = new Mock<ISourceControlIntegration>();
@@ -206,14 +207,16 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
             }
 
             IMutationTestRunner CreateMockMutationTestRunner(
+                ITestRunner _,
                 IEventListener eventListenerIn, 
-                ICoverageAnalysisResult _)
+                ICoverageAnalysisResult __)
             {
                 return MockMutationTestRunner.Object;
             }
 
             ExitCode = Program.Run(
                 args: commandLineArgs.ToArray(),
+                testRunnerFactory: _ => mockTestRunner.Object,
                 mutationTestRunnerFactory: CreateMockMutationTestRunner,
                 coverageAnalyserFactory: CreateMockCoverageAnalyser,
                 sourceControlIntegration: MockSourceControlIntegration.Object,

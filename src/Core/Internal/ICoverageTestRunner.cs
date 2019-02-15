@@ -3,15 +3,8 @@ using System.Collections.Generic;
 
 namespace Fettle.Core.Internal
 {
-    internal interface ITestRunner
+    internal interface ICoverageTestRunner
     {
-        TestRunResult RunTests(
-            IEnumerable<string> testAssemblyFilePaths,
-            IEnumerable<string> testMethodNames);
-
-        TestRunResult RunAllTests(
-            IEnumerable<string> testAssemblyFilePaths);
-
         CoverageTestRunResult RunAllTestsAndAnalyseCoverage(
             IEnumerable<string> testAssemblyFilePaths,
             IDictionary<string, string> memberIdsToNames,

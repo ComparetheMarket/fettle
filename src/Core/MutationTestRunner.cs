@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Fettle.Core.Internal;
-using Fettle.Core.Internal.NUnit;
 
 namespace Fettle.Core
 {
@@ -12,13 +11,6 @@ namespace Fettle.Core
         private readonly IEventListener eventListener;
 
         public MutationTestRunner(
-            ICoverageAnalysisResult coverageAnalysisResult,
-            IEventListener eventListener = null) :
-            this(new NUnitTestEngine(), coverageAnalysisResult, eventListener)
-        {
-        }
-
-        internal MutationTestRunner(
             ITestRunner testRunner,
             ICoverageAnalysisResult coverageAnalysisResult,
             IEventListener eventListener = null)

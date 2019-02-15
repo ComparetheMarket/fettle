@@ -12,26 +12,31 @@ namespace Fettle.Console
         public static int Main(string[] args)
         {
             IMutationTestRunner CreateRealMutationTestRunner(
+                ITestRunner testRunner,
                 IEventListener eventListener,
                 ICoverageAnalysisResult coverageAnalysisResult)
             {
                 return new MutationTestRunner(
+                    testRunner,
                     coverageAnalysisResult, 
                     eventListener);
             }
 
             ICoverageAnalyser CreateRealCoverageAnalyser(IEventListener eventListener) => new CoverageAnalyser(eventListener);
 
+            ITestRunner CreateRealTestRunner(Config arg) => TestRunnerFactory.CreateNUnitTestRunner();
+
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterType<GitIntegration>().As<ISourceControlIntegration>();
             containerBuilder.RegisterType<ConsoleOutputWriter>().As<IOutputWriter>();
+            containerBuilder.RegisterInstance<Func<Config, ITestRunner>>(CreateRealTestRunner);
             containerBuilder.RegisterInstance<Func<IEventListener, ICoverageAnalyser>>(CreateRealCoverageAnalyser);
-            containerBuilder.RegisterInstance<Func<IEventListener, ICoverageAnalysisResult, IMutationTestRunner>>(CreateRealMutationTestRunner);
+            containerBuilder.RegisterInstance<Func<ITestRunner, IEventListener, ICoverageAnalysisResult, IMutationTestRunner>>(CreateRealMutationTestRunner);
             var container = containerBuilder.Build();
 
             return Run(args, container);
         }
-        
+
         private static class ExitCodes
         {
             public const int Success = 0;
@@ -44,7 +49,8 @@ namespace Fettle.Console
         {
             return Run(
                 args,
-                diContainer.Resolve<Func<IEventListener, ICoverageAnalysisResult, IMutationTestRunner>>(),
+                diContainer.Resolve<Func<Config, ITestRunner>>(),
+                diContainer.Resolve<Func<ITestRunner, IEventListener, ICoverageAnalysisResult, IMutationTestRunner>>(),
                 diContainer.Resolve<Func<IEventListener, ICoverageAnalyser>>(),
                 diContainer.Resolve<ISourceControlIntegration>(),
                 diContainer.Resolve<IOutputWriter>());
@@ -52,7 +58,8 @@ namespace Fettle.Console
 
         internal static int Run(
             string[] args,
-            Func<IEventListener, ICoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
+            Func<Config, ITestRunner> testRunnerFactory,
+            Func<ITestRunner, IEventListener, ICoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
             Func<IEventListener, ICoverageAnalyser> coverageAnalyserFactory,
             ISourceControlIntegration sourceControlIntegration,
             IOutputWriter outputWriter)
@@ -106,8 +113,9 @@ namespace Fettle.Console
                         return ExitCodes.ConfigOrArgsAreInvalid;
                     }
                 }
-                
-                var mutationTestRunner = mutationTestRunnerFactory(eventListener, coverageResult);
+
+                var testRunner = testRunnerFactory(parsedArgs.Config);
+                var mutationTestRunner = mutationTestRunnerFactory(testRunner, eventListener, coverageResult);
                 var mutationTestResult = PerformMutationTesting(mutationTestRunner, parsedArgs.Config, outputWriter);
                 if (mutationTestResult.Errors.Any())
                 {

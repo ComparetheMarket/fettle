@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Fettle.Core;
+using Fettle.Core.Internal.NUnit;
 using NUnit.Framework;
 
 namespace Fettle.Tests.Core.Contexts
@@ -34,7 +35,7 @@ namespace Fettle.Tests.Core.Contexts
             var coverageAnalysisResult = new CoverageAnalyser(new SpyEventListener())
                 .AnalyseCoverage(config).Result;
 
-            MutationTestResult = new MutationTestRunner(coverageAnalysisResult)
+            MutationTestResult = new MutationTestRunner(new NUnitTestRunner(), coverageAnalysisResult)
                 .Run(config)
                 .Result;
         }
