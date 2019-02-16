@@ -31,7 +31,7 @@ namespace Fettle.Tests.Core.Contexts
             };
             config.CustomTestRunnerCommand = null;
 
-            testRunner = TestRunnerFactory.CreateNUnitTestRunner();
+            testRunner = new TestRunnerFactory().CreateNUnitTestRunner();
             coverageAnalysisResult = new CoverageAnalyser(new SpyEventListener()).AnalyseCoverage(config).Result;
         }
 
@@ -47,7 +47,7 @@ namespace Fettle.Tests.Core.Contexts
             };
             config.CustomTestRunnerCommand = @".\src\Examples\HasSurvivingMutants\XUnitTests\run-example-xunit-tests.bat";
 
-            testRunner = TestRunnerFactory.CreateCustomTestRunner();
+            testRunner = new TestRunnerFactory().CreateCustomTestRunner();
             coverageAnalysisResult = null;
         }
 

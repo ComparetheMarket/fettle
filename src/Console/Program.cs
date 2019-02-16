@@ -24,12 +24,10 @@ namespace Fettle.Console
 
             ICoverageAnalyser CreateRealCoverageAnalyser(IEventListener eventListener) => new CoverageAnalyser(eventListener);
 
-            ITestRunner CreateRealTestRunner(Config arg) => TestRunnerFactory.CreateNUnitTestRunner();
-
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<TestRunnerFactory>().As<ITestRunnerFactory>();
             containerBuilder.RegisterType<GitIntegration>().As<ISourceControlIntegration>();
             containerBuilder.RegisterType<ConsoleOutputWriter>().As<IOutputWriter>();
-            containerBuilder.RegisterInstance<Func<Config, ITestRunner>>(CreateRealTestRunner);
             containerBuilder.RegisterInstance<Func<IEventListener, ICoverageAnalyser>>(CreateRealCoverageAnalyser);
             containerBuilder.RegisterInstance<Func<ITestRunner, IEventListener, ICoverageAnalysisResult, IMutationTestRunner>>(CreateRealMutationTestRunner);
             var container = containerBuilder.Build();
@@ -49,7 +47,7 @@ namespace Fettle.Console
         {
             return Run(
                 args,
-                diContainer.Resolve<Func<Config, ITestRunner>>(),
+                diContainer.Resolve<ITestRunnerFactory>(),
                 diContainer.Resolve<Func<ITestRunner, IEventListener, ICoverageAnalysisResult, IMutationTestRunner>>(),
                 diContainer.Resolve<Func<IEventListener, ICoverageAnalyser>>(),
                 diContainer.Resolve<ISourceControlIntegration>(),
@@ -58,7 +56,7 @@ namespace Fettle.Console
 
         internal static int Run(
             string[] args,
-            Func<Config, ITestRunner> testRunnerFactory,
+            ITestRunnerFactory testRunnerFactory,
             Func<ITestRunner, IEventListener, ICoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
             Func<IEventListener, ICoverageAnalyser> coverageAnalyserFactory,
             ISourceControlIntegration sourceControlIntegration,
@@ -108,7 +106,7 @@ namespace Fettle.Console
                 var eventListener = CreateEventListener(outputWriter, isQuietModeEnabled: parsedArgs.ConsoleOptions.Quiet);
 
                 ICoverageAnalysisResult coverageResult = null;
-                var shouldDoCoverageAnalysis = string.IsNullOrEmpty(parsedArgs.Config.CustomTestRunnerCommand) && !parsedArgs.ConsoleOptions.SkipCoverageAnalysis;
+                var shouldDoCoverageAnalysis = !parsedArgs.Config.HasCustomTestRunnerCommand && !parsedArgs.ConsoleOptions.SkipCoverageAnalysis;
                 if (shouldDoCoverageAnalysis)
                 {
                     var analyser = coverageAnalyserFactory(eventListener);
@@ -121,7 +119,7 @@ namespace Fettle.Console
                     }
                 }
 
-                var testRunner = testRunnerFactory(parsedArgs.Config);
+                var testRunner = parsedArgs.Config.HasCustomTestRunnerCommand ? testRunnerFactory.CreateCustomTestRunner() : testRunnerFactory.CreateNUnitTestRunner();
                 var mutationTestRunner = mutationTestRunnerFactory(testRunner, eventListener, coverageResult);
                 var mutationTestResult = PerformMutationTesting(mutationTestRunner, parsedArgs.Config, outputWriter);
                 if (mutationTestResult.Errors.Any())

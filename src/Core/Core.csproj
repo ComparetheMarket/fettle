@@ -98,6 +98,7 @@
     <Compile Include="Internal\RoslynExtensions\SolutionExtension.cs" />
     <Compile Include="Internal\RoslynExtensions\SyntaxNodeExtensions.cs" />
     <Compile Include="Internal\TempDirectory.cs" />
+    <Compile Include="ITestRunnerFactory.cs" />
     <Compile Include="TestRunnerFactory.cs" />
     <Compile Include="TestRunResult.cs" />
     <Compile Include="Internal\IMutator.cs" />

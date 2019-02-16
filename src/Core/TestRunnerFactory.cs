@@ -3,10 +3,10 @@ using Fettle.Core.Internal.NUnit;
 
 namespace Fettle.Core
 {
-    public static class TestRunnerFactory
+    public class TestRunnerFactory : ITestRunnerFactory
     {
-        public static ITestRunner CreateNUnitTestRunner() => new NUnitTestRunner();
+        public ITestRunner CreateNUnitTestRunner() => new NUnitTestRunner();
 
-        public static ITestRunner CreateCustomTestRunner() => new CustomTestRunner();
+        public ITestRunner CreateCustomTestRunner() => new CustomTestRunner();
     }
 }

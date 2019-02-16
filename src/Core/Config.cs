@@ -43,6 +43,8 @@ namespace Fettle.Core
             };
         }
 
+        public bool HasCustomTestRunnerCommand => !string.IsNullOrEmpty(CustomTestRunnerCommand);
+
         public IEnumerable<string> Validate()
         {
             return ValidateRequiredPropertiesArePresent()
