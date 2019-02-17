@@ -43,7 +43,8 @@ namespace Fettle.Tests.Core.ImplementationDetails
         {
             var testRunner = new CustomTestRunner(CustomTestRunnerFilePath("command-returning-three.bat"));
 
-            Assert.Catch(() => testRunner.RunAllTests(new[] { "a.dll" }));
+            var thrown = Assert.Catch(() => testRunner.RunAllTests(new[] { "a.dll" }));
+            Assert.That(thrown.Message, Does.Contain("3"));
         }
 
         [Test]

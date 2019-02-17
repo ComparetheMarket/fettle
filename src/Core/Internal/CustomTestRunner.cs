@@ -40,7 +40,7 @@ namespace Fettle.Core.Internal
             {
                 case 0: return TestRunStatus.AllTestsPassed;
                 case 1: return TestRunStatus.SomeTestsFailed;
-                default: throw new ApplicationException("");
+                default: throw new InvalidOperationException($"Custom test runner returned an unexpected exit code: {exitCode}");
             }
         }
 
