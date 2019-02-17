@@ -81,11 +81,11 @@ namespace Fettle.Tests.Console.Contexts
             Given_a_config_file(configModifier);
         }
 
-        protected void Given_a_config_file_with_custom_test_runner_specified()
+        protected void Given_a_config_file_with_custom_test_runner_specified(string testRunnerCommand)
         {
             Given_a_config_file(config =>
             {
-                config.CustomTestRunnerCommand = "mytestscript.bat";
+                config.CustomTestRunnerCommand = testRunnerCommand;
                 return config;
             });
         }

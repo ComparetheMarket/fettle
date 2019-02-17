@@ -47,7 +47,7 @@ namespace Fettle.Tests.Core.Contexts
             };
             config.CustomTestRunnerCommand = @".\src\Examples\HasSurvivingMutants\XUnitTests\run-example-xunit-tests.bat";
 
-            testRunner = new TestRunnerFactory().CreateCustomTestRunner();
+            testRunner = new TestRunnerFactory().CreateCustomTestRunner(config.CustomTestRunnerCommand);
             coverageAnalysisResult = null;
         }
 

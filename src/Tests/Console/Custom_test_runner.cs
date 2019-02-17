@@ -9,7 +9,7 @@ namespace Fettle.Tests.Console
     {
         public Custom_test_runner_specified()
         {
-            Given_a_config_file_with_custom_test_runner_specified();
+            Given_a_config_file_with_custom_test_runner_specified("runtests.bat");
 
             When_running_the_fettle_console_app();
         }
@@ -23,7 +23,7 @@ namespace Fettle.Tests.Console
         [Test]
         public void Then_the_custom_test_runner_is_used_instead_of_the_default_nunit_one()
         {
-            MockTestRunnerFactory.Verify(x => x.CreateCustomTestRunner(), Times.Once);
+            MockTestRunnerFactory.Verify(x => x.CreateCustomTestRunner("runtests.bat"), Times.Once);
             MockTestRunnerFactory.Verify(x => x.CreateNUnitTestRunner(), Times.Never);
         }
     }
@@ -47,7 +47,7 @@ namespace Fettle.Tests.Console
         public void Then_the_default_nunit_test_runner_is_used_instead_of_the_custom_one()
         {
             MockTestRunnerFactory.Verify(x => x.CreateNUnitTestRunner(), Times.Once);
-            MockTestRunnerFactory.Verify(x => x.CreateCustomTestRunner(), Times.Never);
+            MockTestRunnerFactory.Verify(x => x.CreateCustomTestRunner(It.IsAny<string>()), Times.Never);
         }
     }
 
@@ -55,7 +55,7 @@ namespace Fettle.Tests.Console
     {
         public Custom_test_runner_specified_and_coverage_analysis_skipped()
         {
-            Given_a_config_file_with_custom_test_runner_specified();
+            Given_a_config_file_with_custom_test_runner_specified("runtests.bat");
             Given_coverage_analysis_is_disabled_via_command_line_argument();
 
             When_running_the_fettle_console_app();
@@ -73,7 +73,7 @@ namespace Fettle.Tests.Console
     {
         public Custom_test_runner_command_specified_but_coverage_analysis_not_skipped()
         {
-            Given_a_config_file_with_custom_test_runner_specified();
+            Given_a_config_file_with_custom_test_runner_specified("runtests.bat");
 
             When_running_the_fettle_console_app();
         }

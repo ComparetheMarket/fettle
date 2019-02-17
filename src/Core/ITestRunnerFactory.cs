@@ -4,6 +4,6 @@
     {
         ITestRunner CreateNUnitTestRunner();
 
-        ITestRunner CreateCustomTestRunner();
+        ITestRunner CreateCustomTestRunner(string testRunnerCommand);
     }
 }
