@@ -1,30 +1,29 @@
 ﻿using System.IO;
+using Fettle.Console;
 using Fettle.Core;
+using Fettle.Tests.Console.ImplementationDetails;
 using NUnit.Framework;
 
 namespace Fettle.Tests.Core.Contexts
 {
     class EndToEnd
     {
-        private readonly Config config = new Config
-        {
-            ProjectFilters = new []{ "HasSurvivingMutants.Implementation" },
-            SourceFileFilters = new [] { @"Implementation\*" }
-        };
-
         protected MutationTestResult MutationTestResult { get; private set; }
         private ITestRunner testRunner;
         private ICoverageAnalysisResult coverageAnalysisResult;
+        private readonly Config config = new Config();
 
-        private string BaseDir => Path.Combine(TestContext.CurrentContext.TestDirectory,
+        private static string BaseDir => Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "..", "..", "..", "Examples", "HasSurvivingMutants");
 
         protected void Given_an_app_which_has_nunit_tests()
         {
             Given_an_app();
 
-            var binDir = Path.Combine(BaseDir, "Tests", "bin", BuildConfig.AsString);
+            config.ProjectFilters = new[] {"HasSurvivingMutants.Implementation"};
+            config.SourceFileFilters = new[] {@"Implementation\*"};
 
+            var binDir = Path.Combine(BaseDir, "Tests", "bin", BuildConfig.AsString);
             config.TestAssemblyFilePaths = new[]
             {
                 Path.Combine(binDir, "HasSurvivingMutants.Tests.dll")
@@ -37,10 +36,12 @@ namespace Fettle.Tests.Core.Contexts
 
         protected void Given_an_app_which_has_a_custom_test_runner()
         {
-            config.SolutionFilePath = Path.Combine(BaseDir, "HasSurvivingMutants.sln");
+            Given_an_app();
+ 
+            config.ProjectFilters = new[] {"HasSurvivingMutants.MoreImplementation"};
+            config.SourceFileFilters = new[] {@"MoreImplementation\MorePartiallyTestedNumberComparison.cs"};
 
             var binDir = Path.Combine(BaseDir, "XUnitTests", "bin", BuildConfig.AsString);
-
             config.TestAssemblyFilePaths = new[]
             {
                 Path.Combine(binDir, "HasSurvivingMutants.XUnitTests.dll")

@@ -46,12 +46,6 @@
     <Compile Include="PartialNumberComparisonTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Implementation\HasSurvivingMutants.Implementation.csproj">
-      <Project>{79ebcf73-afc0-45f4-b3a0-91adf1eb0edc}</Project>
-      <Name>HasSurvivingMutants.Implementation</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="paket.references" />
@@ -72,6 +66,12 @@
     <Analyzer Include="..\..\..\..\packages\xunit.analyzers\analyzers\dotnet\cs\xunit.analyzers.dll">
       <Paket>True</Paket>
     </Analyzer>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MoreImplementation\HasSurvivingMutants.MoreImplementation.csproj">
+      <Project>{f75582b2-6dc6-4a9f-94ea-92a28bb54620}</Project>
+      <Name>HasSurvivingMutants.MoreImplementation</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">

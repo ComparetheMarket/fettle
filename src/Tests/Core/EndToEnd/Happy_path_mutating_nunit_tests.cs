@@ -15,6 +15,12 @@ namespace Fettle.Tests.Core.EndToEnd
         }
 
         [Test]
+        public void Then_mutation_testing_is_successful()
+        {
+            Assert.That(MutationTestResult.Errors, Is.Empty);
+        }
+
+        [Test]
         public void Then_the_expected_surviving_mutants_are_returned()
         {
             Assert.That(MutationTestResult.SurvivingMutants.Count, Is.EqualTo(11),

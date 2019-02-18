@@ -1,4 +1,4 @@
-﻿using HasSurvivingMutants.Implementation;
+﻿using HasSurvivingMutants.MoreImplementation;
 using Xunit;
 
 namespace HasSurvivingMutants.XUnitTests
@@ -6,9 +6,9 @@ namespace HasSurvivingMutants.XUnitTests
     public class PartialNumberComparisonTests
     {
         [Fact]
-        public void IsPositiveReturnsTrueForPositiveNumbers()
+        public void IsMoreThanOneHundredReturnsTrueForNumbersGreaterThanOneHundred()
         {
-            Assert.True(PartiallyTestedNumberComparison.IsPositive(5));
+            Assert.True(MorePartiallyTestedNumberComparison.IsMoreThanOneHundred(101));
         }
     }
 }

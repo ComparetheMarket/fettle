@@ -5,6 +5,6 @@ testAssemblies:
     - .\src\Examples\HasSurvivingMutants\XUnitTests\bin\Debug\HasSurvivingMutants.XUnitTests.dll
 
 projectFilters:
-    - HasSurvivingMutants.Implementation
+    - HasSurvivingMutants.MoreImplementation
 
 customTestRunnerCommand: .\src\Examples\HasSurvivingMutants\XUnitTests\run-example-xunit-tests.bat
