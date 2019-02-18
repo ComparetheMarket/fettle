@@ -19,28 +19,33 @@ namespace Fettle.Core.Internal
 
             var process = Process.Start(new ProcessStartInfo
             {
-                FileName = "cmd",
+                FileName = "cmd.exe",
                 Arguments = fullCommand,
 
                 CreateNoWindow = true,
-                UseShellExecute = true,
-                WindowStyle = ProcessWindowStyle.Hidden
+                UseShellExecute = false,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
             });
             process.WaitForExit();
 
-            return new TestRunResult
-            {
-                Status = ExitCodeToTestRunStatus(process.ExitCode)
-            };
+            return CompletedProcessToTestRunResult(process);
         }
 
-        private static TestRunStatus ExitCodeToTestRunStatus(int exitCode)
+        private TestRunResult CompletedProcessToTestRunResult(Process process)
         {
-            switch (exitCode)
+            switch (process.ExitCode)
             {
-                case 0: return TestRunStatus.AllTestsPassed;
-                case 1: return TestRunStatus.SomeTestsFailed;
-                default: throw new InvalidOperationException($"Custom test runner returned an unexpected exit code: {exitCode}");
+                case 0:
+                    return new TestRunResult { Status = TestRunStatus.AllTestsPassed };
+                case 1:
+                    return new TestRunResult { Status = TestRunStatus.SomeTestsFailed };
+                default:
+                    throw new InvalidOperationException(
+$@"Custom test runner returned an unexpected exit code: {process.ExitCode}.
+StdOut: {process.StandardOutput.ReadToEnd()}
+StdErr: {process.StandardError.ReadToEnd()}");
             }
         }
 
