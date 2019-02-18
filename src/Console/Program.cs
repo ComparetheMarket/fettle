@@ -120,7 +120,7 @@ namespace Fettle.Console
                 }
 
                 var testRunner = parsedArgs.Config.HasCustomTestRunnerCommand ?
-                    testRunnerFactory.CreateCustomTestRunner(parsedArgs.Config.CustomTestRunnerCommand) :
+                    testRunnerFactory.CreateCustomTestRunner(parsedArgs.Config.CustomTestRunnerCommand, parsedArgs.Config.BaseDirectory) :
                     testRunnerFactory.CreateNUnitTestRunner();
 
                 var mutationTestRunner = mutationTestRunnerFactory(testRunner, eventListener, coverageResult);

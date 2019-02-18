@@ -24,6 +24,7 @@ namespace Fettle.Core
         // Auto-generated
         //
         public string[] LocallyModifiedSourceFiles { get; set; }
+        public string BaseDirectory { get; set; }
 
         public Config WithPathsRelativeTo(string baseDirectory)
         {

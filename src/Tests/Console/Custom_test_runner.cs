@@ -23,7 +23,7 @@ namespace Fettle.Tests.Console
         [Test]
         public void Then_the_custom_test_runner_is_used_instead_of_the_default_nunit_one()
         {
-            MockTestRunnerFactory.Verify(x => x.CreateCustomTestRunner("runtests.bat"), Times.Once);
+            MockTestRunnerFactory.Verify(x => x.CreateCustomTestRunner("runtests.bat", It.IsAny<string>()), Times.Once);
             MockTestRunnerFactory.Verify(x => x.CreateNUnitTestRunner(), Times.Never);
         }
     }
@@ -47,7 +47,7 @@ namespace Fettle.Tests.Console
         public void Then_the_default_nunit_test_runner_is_used_instead_of_the_custom_one()
         {
             MockTestRunnerFactory.Verify(x => x.CreateNUnitTestRunner(), Times.Once);
-            MockTestRunnerFactory.Verify(x => x.CreateCustomTestRunner(It.IsAny<string>()), Times.Never);
+            MockTestRunnerFactory.Verify(x => x.CreateCustomTestRunner(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
     }
 

@@ -7,10 +7,12 @@ namespace Fettle.Core.Internal
     internal class CustomTestRunner : ITestRunner
     {
         private readonly string testRunnerCommand;
+        private readonly string baseDirectory;
 
-        public CustomTestRunner(string testRunnerCommand)
+        public CustomTestRunner(string testRunnerCommand, string baseDirectory)
         {
             this.testRunnerCommand = testRunnerCommand;
+            this.baseDirectory = baseDirectory;
         }
 
         public TestRunResult RunAllTests(IEnumerable<string> testAssemblyFilePaths)
@@ -21,6 +23,7 @@ namespace Fettle.Core.Internal
             {
                 FileName = "cmd.exe",
                 Arguments = fullCommand,
+                WorkingDirectory = baseDirectory,
 
                 CreateNoWindow = true,
                 UseShellExecute = false,

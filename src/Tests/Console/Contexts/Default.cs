@@ -127,8 +127,8 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
                 configFileContents += $"customTestRunnerCommand: {modifiedConfig.CustomTestRunnerCommand}";
             }
 
-            var configFilePath =
-                Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", "fettle.config.temp.yml");
+            var baseDir = Path.Combine(TestContext.CurrentContext.TestDirectory, "Console");
+            var configFilePath = Path.Combine(baseDir, "fettle.config.temp.yml");
 
             File.WriteAllText(configFilePath, configFileContents);
 

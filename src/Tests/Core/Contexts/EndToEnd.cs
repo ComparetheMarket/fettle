@@ -45,9 +45,9 @@ namespace Fettle.Tests.Core.Contexts
             {
                 Path.Combine(binDir, "HasSurvivingMutants.XUnitTests.dll")
             };
-            config.CustomTestRunnerCommand = @".\src\Examples\HasSurvivingMutants\XUnitTests\run-example-xunit-tests.bat";
+            config.CustomTestRunnerCommand = @"XUnitTests\run-example-xunit-tests.bat";
 
-            testRunner = new TestRunnerFactory().CreateCustomTestRunner(config.CustomTestRunnerCommand);
+            testRunner = new TestRunnerFactory().CreateCustomTestRunner(config.CustomTestRunnerCommand, BaseDir);
             coverageAnalysisResult = null;
         }
 

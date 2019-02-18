@@ -7,6 +7,6 @@ namespace Fettle.Core
     {
         public ITestRunner CreateNUnitTestRunner() => new NUnitTestRunner();
 
-        public ITestRunner CreateCustomTestRunner(string testRunnerCommand) => new CustomTestRunner(testRunnerCommand);
+        public ITestRunner CreateCustomTestRunner(string testRunnerCommand, string baseDirectory) => new CustomTestRunner(testRunnerCommand, baseDirectory);
     }
 }
