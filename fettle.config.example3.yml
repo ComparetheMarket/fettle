@@ -7,4 +7,4 @@ testAssemblies:
 projectFilters:
     - HasSurvivingMutants.MoreImplementation
 
-customTestRunnerCommand: .\src\Examples\HasSurvivingMutants\XUnitTests\run-example-xunit-tests.bat
+customTestRunnerCommand: example-custom-test-runner.bat
