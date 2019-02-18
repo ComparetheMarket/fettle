@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using NUnit.Framework;
 
 namespace Fettle.Tests.Core.EndToEnd
@@ -23,6 +21,7 @@ namespace Fettle.Tests.Core.EndToEnd
         [Test]
         public void Then_the_expected_surviving_mutants_are_returned()
         {
+            Assert.That(MutationTestResult.SurvivingMutants.Count, Is.EqualTo(1));
             Assert.That(MutationTestResult.SurvivingMutants.SingleOrDefault(
                     sm => sm.SourceFilePath.EndsWith("MorePartiallyTestedNumberComparison.cs") &&
                           sm.SourceLine == 7 &&

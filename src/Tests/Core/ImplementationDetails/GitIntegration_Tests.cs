@@ -30,7 +30,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
             [TearDown]
             public void TearDown()
             {
-                tempFiles.ToList().ForEach(f => File.Delete(f));
+                tempFiles.ToList().ForEach(File.Delete);
             }
 
             [Test]
