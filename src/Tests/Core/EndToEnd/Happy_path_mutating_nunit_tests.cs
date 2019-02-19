@@ -5,13 +5,19 @@ using NUnit.Framework;
 
 namespace Fettle.Tests.Core.EndToEnd
 {
-    class Happy_path : Contexts.EndToEnd
+    class Happy_path_mutating_nunit_tests : Contexts.EndToEnd
     {
-        public Happy_path()
+        public Happy_path_mutating_nunit_tests()
         {
-            Given_an_app_which_has_gaps_in_its_tests();
+            Given_an_app_which_has_nunit_tests();
 
             When_mutation_testing_the_app();
+        }
+
+        [Test]
+        public void Then_mutation_testing_is_successful()
+        {
+            Assert.That(MutationTestResult.Errors, Is.Empty);
         }
 
         [Test]
@@ -40,31 +46,31 @@ namespace Fettle.Tests.Core.EndToEnd
                       sm.OriginalLine.EndsWith("return a == 0;") &&
                       sm.MutatedLine.EndsWith("return a != 0;")),
                 Is.Not.Null);
-            
+
             Assert.That(MutationTestResult.SurvivingMutants.SingleOrDefault(
                 sm => sm.SourceLine == 22 &&
                       sm.OriginalLine.EndsWith("return a == 0 && b == 0;") &&
                       sm.MutatedLine.EndsWith("return a == 0 || b == 0;")),
                 Is.Not.Null);
-            
+
             Assert.That(MutationTestResult.SurvivingMutants.SingleOrDefault(
                 sm => sm.SourceLine == 27 &&
                       sm.OriginalLine.EndsWith("return a + b;") &&
                       sm.MutatedLine.EndsWith("return a - b;")),
                 Is.Not.Null);
-            
+
             Assert.That(MutationTestResult.SurvivingMutants.SingleOrDefault(
                 sm => sm.SourceLine == 32 &&
                       sm.OriginalLine.EndsWith("return ++a;") &&
                       sm.MutatedLine.EndsWith("return --a;")),
                 Is.Not.Null);
-            
+
             Assert.That(MutationTestResult.SurvivingMutants.SingleOrDefault(
                 sm => sm.SourceLine == 37 &&
                       sm.OriginalLine.EndsWith("a++;") &&
                       sm.MutatedLine.EndsWith("a--;")),
                 Is.Not.Null);
-            
+
             Assert.That(MutationTestResult.SurvivingMutants.SingleOrDefault(
                 sm => sm.SourceLine == 43 &&
                       sm.OriginalLine.EndsWith("IsPositive(n) ? \"positive\" : \"negative\";") &&

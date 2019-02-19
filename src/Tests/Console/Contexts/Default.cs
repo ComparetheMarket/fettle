@@ -14,7 +14,9 @@ namespace Fettle.Tests.Console.Contexts
     {
         private readonly List<string> commandLineArgs = new List<string>();
         private IEventListener eventListener;
-        
+
+        protected Mock<ITestRunner> MockTestRunner { get; } = new Mock<ITestRunner>();
+        protected Mock<ITestRunnerFactory> MockTestRunnerFactory { get; } = new Mock<ITestRunnerFactory>();
         protected Mock<ICoverageAnalyser> MockCoverageAnalyser { get; } = new Mock<ICoverageAnalyser>();
         protected Mock<IMutationTestRunner> MockMutationTestRunner { get; } = new Mock<IMutationTestRunner>();
         protected Mock<ISourceControlIntegration> MockSourceControlIntegration { get; } = new Mock<ISourceControlIntegration>();
@@ -24,6 +26,8 @@ namespace Fettle.Tests.Console.Contexts
 
         public Default()
         {
+            MockTestRunnerFactory.Setup(x => x.CreateNUnitTestRunner()).Returns(MockTestRunner.Object);
+
             var emptyCoverageResult = new CoverageAnalysisResult();
             MockCoverageAnalyser
                 .Setup(x => x.AnalyseCoverage(It.IsAny<Config>()))
@@ -56,10 +60,14 @@ namespace Fettle.Tests.Console.Contexts
                     Task.FromResult(CoverageAnalysisResult.Error("an example coverage analysis error")));
         }
 
-        protected void Given_a_valid_config_file()
+        protected void Given_a_valid_config_file_with_all_options_set() => Given_a_valid_config_file("fettle.config.alloptions.yml");
+
+        protected void Given_a_valid_config_file() => Given_a_valid_config_file("fettle.config.yml");
+
+        private void Given_a_valid_config_file(string filename)
         {
             var configFilePath =
-                Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", "fettle.config.yml");
+                Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", filename);
 
             var buildModeSpecificConfig = String.Format(File.ReadAllText(configFilePath), BuildConfig.AsString);
             File.WriteAllText(configFilePath, buildModeSpecificConfig);
@@ -72,7 +80,16 @@ namespace Fettle.Tests.Console.Contexts
         {
             Given_a_config_file(configModifier);
         }
-        
+
+        protected void Given_a_config_file_with_custom_test_runner_specified(string testRunnerCommand)
+        {
+            Given_a_config_file(config =>
+            {
+                config.CustomTestRunnerCommand = testRunnerCommand;
+                return config;
+            });
+        }
+
         protected void Given_a_config_file_where_all_source_files_are_filtered_out()
         {            
             Given_a_config_file(config =>
@@ -102,9 +119,16 @@ testAssemblies: {CollectionToYamlList(modifiedConfig.TestAssemblyFilePaths)}
 projectFilters: {CollectionToYamlList(modifiedConfig.ProjectFilters)}
 
 sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
+
 ";
-            var configFilePath =
-                Path.Combine(TestContext.CurrentContext.TestDirectory, "Console", "fettle.config.invalid.yml");
+
+            if (modifiedConfig.CustomTestRunnerCommand != null)
+            {
+                configFileContents += $"customTestRunnerCommand: {modifiedConfig.CustomTestRunnerCommand}";
+            }
+
+            var baseDir = Path.Combine(TestContext.CurrentContext.TestDirectory, "Console");
+            var configFilePath = Path.Combine(baseDir, "fettle.config.temp.yml");
 
             File.WriteAllText(configFilePath, configFileContents);
 
@@ -206,18 +230,20 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
             }
 
             IMutationTestRunner CreateMockMutationTestRunner(
+                ITestRunner _,
                 IEventListener eventListenerIn, 
-                ICoverageAnalysisResult _)
+                ICoverageAnalysisResult __)
             {
                 return MockMutationTestRunner.Object;
             }
 
-            ExitCode = Program.InternalEntryPoint(
+            ExitCode = Program.Run(
                 args: commandLineArgs.ToArray(),
+                testRunnerFactory: MockTestRunnerFactory.Object,
                 mutationTestRunnerFactory: CreateMockMutationTestRunner,
                 coverageAnalyserFactory: CreateMockCoverageAnalyser,
                 sourceControlIntegration: MockSourceControlIntegration.Object,
                 outputWriter: SpyOutputWriter);
-        }        
+        }
     }
 }

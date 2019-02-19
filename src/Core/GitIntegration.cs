@@ -17,10 +17,12 @@ namespace Fettle.Core
         {
             var solutionDir = Path.GetFullPath(Path.GetDirectoryName(config.SolutionFilePath));
 
+            const string gitStatusWithParseableOutput = "git status --porcelain=2";
+
             var process = Process.Start(new ProcessStartInfo
             {
                 FileName = "cmd.exe",
-                Arguments = "/c git status --porcelain=2",
+                Arguments = $"/c {gitStatusWithParseableOutput}",
                 WorkingDirectory = solutionDir,
                 CreateNoWindow = true,
                 UseShellExecute = false,
@@ -45,7 +47,7 @@ namespace Fettle.Core
             
             return output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                                      .Select(x => x.Split(' ').Last())
-                                     .Where(x => IsPathWithinSolutionDirectory(x))
+                                     .Where(IsPathWithinSolutionDirectory)
                                      .Where(x => x.EndsWith(".cs", StringComparison.InvariantCultureIgnoreCase))
                                      .Select(x => x.Replace('/', '\\'))
                                      .ToArray();

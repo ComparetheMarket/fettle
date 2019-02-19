@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml;
+using Fettle.Core;
 using Fettle.Core.Internal;
 using Fettle.Core.Internal.NUnit;
 using NUnit.Framework;

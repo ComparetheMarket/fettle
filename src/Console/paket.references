@@ -1,6 +1,6 @@
 YamlDotNet
 CommandLineParser
-
+Autofac
 Microsoft.Net.Compilers
 Microsoft.CodeAnalysis
 Microsoft.Build.Locator

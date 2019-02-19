@@ -19,10 +19,12 @@ namespace Fettle.Core
         // Optional
         //
         public string[] SourceFileFilters { get; set; }
- 
+        public string CustomTestRunnerCommand { get; set; }
+
         // Auto-generated
         //
         public string[] LocallyModifiedSourceFiles { get; set; }
+        public string BaseDirectory { get; set; }
 
         public Config WithPathsRelativeTo(string baseDirectory)
         {
@@ -37,9 +39,12 @@ namespace Fettle.Core
                     .ToArray(),
 
                 ProjectFilters = ProjectFilters?.ToArray(),
-                SourceFileFilters = SourceFileFilters?.ToArray()
+                SourceFileFilters = SourceFileFilters?.ToArray(),
+                CustomTestRunnerCommand = CustomTestRunnerCommand
             };
         }
+
+        public bool HasCustomTestRunnerCommand => !string.IsNullOrEmpty(CustomTestRunnerCommand);
 
         public IEnumerable<string> Validate()
         {

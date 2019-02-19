@@ -14,14 +14,14 @@ namespace Fettle.Core
     {
         private readonly IEventListener eventListener;
         private readonly ITestFinder testFinder;
-        private readonly ITestRunner testRunner;
+        private readonly ICoverageTestRunner testRunner;
 
         public CoverageAnalyser(IEventListener eventListener) : 
-            this(eventListener, new NUnitTestEngine(), new NUnitTestEngine())
+            this(eventListener, new NUnitTestFinder(), new NUnitCoverageTestRunner())
         {
         }
 
-        internal CoverageAnalyser(IEventListener eventListener, ITestFinder testFinder, ITestRunner testRunner)
+        internal CoverageAnalyser(IEventListener eventListener, ITestFinder testFinder, ICoverageTestRunner testRunner)
         {
             this.eventListener = eventListener;
             this.testFinder = testFinder;

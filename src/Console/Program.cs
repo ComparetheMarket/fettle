@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Autofac;
 using Fettle.Core;
 
 namespace Fettle.Console
@@ -11,27 +12,29 @@ namespace Fettle.Console
         public static int Main(string[] args)
         {
             IMutationTestRunner CreateRealMutationTestRunner(
+                ITestRunner testRunner,
                 IEventListener eventListener,
                 ICoverageAnalysisResult coverageAnalysisResult)
             {
                 return new MutationTestRunner(
+                    testRunner,
                     coverageAnalysisResult, 
                     eventListener);
             }
 
-            ICoverageAnalyser CreateRealCoverageAnalyser(IEventListener eventListener)
-            {
-                return new CoverageAnalyser(eventListener);
-            }
+            ICoverageAnalyser CreateRealCoverageAnalyser(IEventListener eventListener) => new CoverageAnalyser(eventListener);
 
-            return InternalEntryPoint(
-                args, 
-                CreateRealMutationTestRunner,
-                CreateRealCoverageAnalyser,
-                new GitIntegration(),
-                new ConsoleOutputWriter());
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<TestRunnerFactory>().As<ITestRunnerFactory>();
+            containerBuilder.RegisterType<GitIntegration>().As<ISourceControlIntegration>();
+            containerBuilder.RegisterType<ConsoleOutputWriter>().As<IOutputWriter>();
+            containerBuilder.RegisterInstance<Func<IEventListener, ICoverageAnalyser>>(CreateRealCoverageAnalyser);
+            containerBuilder.RegisterInstance<Func<ITestRunner, IEventListener, ICoverageAnalysisResult, IMutationTestRunner>>(CreateRealMutationTestRunner);
+            var container = containerBuilder.Build();
+
+            return Run(args, container);
         }
-        
+
         private static class ExitCodes
         {
             public const int Success = 0;
@@ -39,10 +42,22 @@ namespace Fettle.Console
             public const int ConfigOrArgsAreInvalid = 2;
             public const int UnexpectedError = 3;
         }
-        
-        internal static int InternalEntryPoint(
+
+        internal static int Run(string[] args, IContainer diContainer)
+        {
+            return Run(
+                args,
+                diContainer.Resolve<ITestRunnerFactory>(),
+                diContainer.Resolve<Func<ITestRunner, IEventListener, ICoverageAnalysisResult, IMutationTestRunner>>(),
+                diContainer.Resolve<Func<IEventListener, ICoverageAnalyser>>(),
+                diContainer.Resolve<ISourceControlIntegration>(),
+                diContainer.Resolve<IOutputWriter>());
+        }
+
+        internal static int Run(
             string[] args,
-            Func<IEventListener, ICoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
+            ITestRunnerFactory testRunnerFactory,
+            Func<ITestRunner, IEventListener, ICoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
             Func<IEventListener, ICoverageAnalyser> coverageAnalyserFactory,
             ISourceControlIntegration sourceControlIntegration,
             IOutputWriter outputWriter)
@@ -62,6 +77,12 @@ namespace Fettle.Console
                 {
                     OutputValidationErrors(validationErrors, outputWriter);
                     return ExitCodes.ConfigOrArgsAreInvalid;
+                }
+
+                if (!string.IsNullOrEmpty(parsedArgs.Config.CustomTestRunnerCommand) &&
+                    !parsedArgs.ConsoleOptions.SkipCoverageAnalysis)
+                {
+                    WarnThatOptionsAreIncompatibleWithCoverageAnalysis(outputWriter);
                 }
 
                 if (parsedArgs.ConsoleOptions.ModificationsOnly)
@@ -85,7 +106,8 @@ namespace Fettle.Console
                 var eventListener = CreateEventListener(outputWriter, isQuietModeEnabled: parsedArgs.ConsoleOptions.Quiet);
 
                 ICoverageAnalysisResult coverageResult = null;
-                if (!parsedArgs.ConsoleOptions.SkipCoverageAnalysis)
+                var shouldDoCoverageAnalysis = !parsedArgs.Config.HasCustomTestRunnerCommand && !parsedArgs.ConsoleOptions.SkipCoverageAnalysis;
+                if (shouldDoCoverageAnalysis)
                 {
                     var analyser = coverageAnalyserFactory(eventListener);
                     coverageResult = AnalyseCoverage(analyser, outputWriter, parsedArgs.Config);
@@ -96,8 +118,12 @@ namespace Fettle.Console
                         return ExitCodes.ConfigOrArgsAreInvalid;
                     }
                 }
-                
-                var mutationTestRunner = mutationTestRunnerFactory(eventListener, coverageResult);
+
+                var testRunner = parsedArgs.Config.HasCustomTestRunnerCommand ?
+                    testRunnerFactory.CreateCustomTestRunner(parsedArgs.Config.CustomTestRunnerCommand, parsedArgs.Config.BaseDirectory) :
+                    testRunnerFactory.CreateNUnitTestRunner();
+
+                var mutationTestRunner = mutationTestRunnerFactory(testRunner, eventListener, coverageResult);
                 var mutationTestResult = PerformMutationTesting(mutationTestRunner, parsedArgs.Config, outputWriter);
                 if (mutationTestResult.Errors.Any())
                 {
@@ -124,6 +150,15 @@ namespace Fettle.Console
                 outputWriter.WriteFailureLine($"An error ocurred that Fettle didn't expect.{Environment.NewLine}{ex}");
                 return ExitCodes.UnexpectedError;
             }
+        }
+
+        private static void WarnThatOptionsAreIncompatibleWithCoverageAnalysis(IOutputWriter outputWriter)
+        {
+            outputWriter.WriteWarningLine(
+@"Warning: coverage analysis will be skipped because it's not compatible with a custom test runner command.
+To stop seeing this warning, add the --skipcoverageanalysis command-line option.
+More info at: https://github.com/ComparetheMarket/fettle/wiki/Custom-Test-Runners
+");
         }
 
         private static (bool Success, string[] Files) FindLocallyModifiedSourceFiles(

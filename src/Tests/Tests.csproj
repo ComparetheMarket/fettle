@@ -6,6 +6,8 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -50,13 +52,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildConfig.cs" />
+    <Compile Include="Console\Configuration.cs" />
     <Compile Include="Console\Contexts\Default.cs" />
+    <Compile Include="Console\Contexts\EndToEnd.cs" />
     <Compile Include="Console\Contexts\SourceControlIntegration.cs" />
     <Compile Include="Console\Contexts\SpyOutputWriter.cs" />
     <Compile Include="Console\CoverageAnalysis\Coverage_analysis_disabled.cs" />
     <Compile Include="Console\CoverageAnalysis\Coverage_analysis_throws_an_exception.cs" />
+    <Compile Include="Console\Custom_test_runner.cs" />
     <Compile Include="Console\EndToEnd\Happy_path.cs" />
     <Compile Include="Console\CoverageAnalysis\Errors_occur_during_coverage_analysis.cs" />
+    <Compile Include="Console\ImplementationDetails\Config_file_parsing.cs" />
     <Compile Include="Console\SourceControlIntegration\Finding_local_modifications_throws_an_exception.cs" />
     <Compile Include="Console\SourceControlIntegration\Local_modifications_only_option_disabled.cs" />
     <Compile Include="Console\SourceControlIntegration\Local_modifications_only_option_enabled.cs" />
@@ -81,6 +87,8 @@
     <Compile Include="Core\Coverage\Source_file_filters.cs" />
     <Compile Include="Core\Coverage\Happy_path.cs" />
     <Compile Include="Core\Coverage\Tests_fail.cs" />
+    <Compile Include="Core\EndToEnd\Happy_path_mutating_custom_test_runner.cs" />
+    <Compile Include="Core\ImplementationDetails\CustomTestRunner_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\GitIntegration_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\Instrumentation\InstrumentationTestsBase.cs" />
     <Compile Include="Core\ImplementationDetails\Instrumentation\Instrumentation_of_fields_Tests.cs" />
@@ -112,7 +120,7 @@
     <Compile Include="Core\Temporary_files.cs" />
     <Compile Include="Core\Contexts\Coverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Core\EndToEnd\Happy_path.cs" />
+    <Compile Include="Core\EndToEnd\Happy_path_mutating_nunit_tests.cs" />
     <Compile Include="Core\Invalid_mutation.cs" />
     <Compile Include="Core\Events.cs" />
     <Compile Include="Core\Multiple_mutants_per_syntax_node.cs" />
@@ -123,7 +131,22 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Console\fettle.config.alloptions.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Console\fettle.config.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\ImplementationDetails\TestData\command-returning-zero-when-correct-arguments-given.bat.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\ImplementationDetails\TestData\command-returning-three.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\ImplementationDetails\TestData\command-returning-one.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\ImplementationDetails\TestData\command-returning-zero.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="paket.references" />
@@ -161,6 +184,17 @@
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
+        <Reference Include="Autofac">
+          <HintPath>..\..\packages\Autofac\lib\net45\Autofac.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
+      <ItemGroup>
         <Reference Include="System.Configuration">
           <Paket>True</Paket>
         </Reference>
@@ -180,6 +214,7 @@
       <Paket>True</Paket>
     </Analyzer>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>

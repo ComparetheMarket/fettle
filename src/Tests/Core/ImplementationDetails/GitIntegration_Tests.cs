@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using Fettle.Core;
 using NUnit.Framework;
@@ -31,7 +30,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
             [TearDown]
             public void TearDown()
             {
-                tempFiles.ToList().ForEach(f => File.Delete(f));
+                tempFiles.ToList().ForEach(File.Delete);
             }
 
             [Test]

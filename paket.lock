@@ -1,6 +1,7 @@
 RESTRICTION: == net461
 NUGET
   remote: https://www.nuget.org/api/v2
+    Autofac (4.8.1)
     Castle.Core (4.2.1)
     CommandLineParser (1.9.71)
     DotNet.Glob (1.6.9)
@@ -155,4 +156,19 @@ NUGET
     System.Xml.XPath (4.3)
     System.Xml.XPath.XDocument (4.3)
       System.Xml.XPath (>= 4.3)
+    xunit (2.4.1)
+      xunit.analyzers (>= 0.10)
+      xunit.assert (2.4.1)
+      xunit.core (2.4.1)
+    xunit.abstractions (2.0.3)
+    xunit.analyzers (0.10)
+    xunit.assert (2.4.1)
+    xunit.core (2.4.1)
+      xunit.extensibility.core (2.4.1)
+      xunit.extensibility.execution (2.4.1)
+    xunit.extensibility.core (2.4.1)
+      xunit.abstractions (>= 2.0.3)
+    xunit.extensibility.execution (2.4.1)
+      xunit.extensibility.core (2.4.1)
+    xunit.runner.console (2.4.1)
     YamlDotNet (4.2.2)

@@ -14,7 +14,7 @@ namespace Fettle.Tests.Core.Contexts
         private readonly string baseExampleDir = Path.Combine(TestContext.CurrentContext.TestDirectory,
             "..", "..", "..", "Examples");
 
-        private ITestRunner testRunner = new NUnitTestEngine();
+        private ICoverageTestRunner testRunner = new NUnitCoverageTestRunner();
 
         protected Config Config { get; private set; }
 
@@ -51,20 +51,9 @@ namespace Fettle.Tests.Core.Contexts
 
         protected void Given_some_failing_tests(string failingTest)
         {
-            var mockTestRunner = new Mock<ITestRunner>();
+            var mockTestRunner = new Mock<ICoverageTestRunner>();
             mockTestRunner
-                .Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
-                .Returns(new TestRunResult
-                {
-                    Status = TestRunStatus.SomeTestsFailed,
-                    Error = $"{failingTest} failed"
-                });
-
-            mockTestRunner
-                .Setup(x => x.RunAllTestsAndAnalyseCoverage(
-                    It.IsAny<IEnumerable<string>>(),
-                    It.IsAny<IDictionary<string,string>>(),
-                    It.IsAny<Action<string,int>>()))
+                .Setup(x => x.RunAllTestsAndAnalyseCoverage(It.IsAny<IEnumerable<string>>(), It.IsAny<IDictionary<string,string>>(), It.IsAny<Action<string,int>>()))
                 .Returns(new CoverageTestRunResult
                 {
                     Status = TestRunStatus.SomeTestsFailed,
@@ -90,7 +79,7 @@ namespace Fettle.Tests.Core.Contexts
             {
                 var analyser = new CoverageAnalyser(
                     eventListener: MockEventListener.Object,
-                    testFinder: new NUnitTestEngine(), 
+                    testFinder: new NUnitTestFinder(), 
                     testRunner: testRunner);
 
                 Result = analyser.AnalyseCoverage(Config).Result;
