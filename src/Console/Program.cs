@@ -235,7 +235,7 @@ More info at: https://github.com/ComparetheMarket/fettle/wiki/Custom-Test-Runner
         }
 
         private static void OutputAllSurvivorInfo(
-            IReadOnlyCollection<SurvivingMutant> survivingMutants,
+            IReadOnlyCollection<Mutant> survivingMutants,
             IOutputWriter outputWriter, 
             Config config)
         {
@@ -247,7 +247,7 @@ More info at: https://github.com/ComparetheMarket/fettle/wiki/Custom-Test-Runner
                 .ForEach(item => OutputSurvivorInfo(item.sm, item.index, config, outputWriter));
         }
         
-        private static void OutputSurvivorInfo(SurvivingMutant survivor, int index, Config config, IOutputWriter outputWriter)
+        private static void OutputSurvivorInfo(Mutant survivor, int index, Config config, IOutputWriter outputWriter)
         {
             string ToRelativePath(string filePath)
             {

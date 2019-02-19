@@ -37,7 +37,7 @@ namespace Fettle.Tests.Core.Contexts
             HaveAnySyntaxNodesBegun = true;
         }
 
-        public void MutantSurvived(SurvivingMutant survivingMutant)
+        public void MutantSurvived(Mutant survivingMutant)
         {
             HaveAnyMutantsSurvived = true;
         }

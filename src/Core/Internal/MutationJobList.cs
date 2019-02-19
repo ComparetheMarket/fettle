@@ -97,12 +97,12 @@ namespace Fettle.Core.Internal
             jobsWithMetadata.Add(metadata, job);
         }
 
-        public async Task<IEnumerable<SurvivingMutant>> RunAll( 
+        public async Task<IEnumerable<Mutant>> RunAll( 
             ITestRunner testRunner, 
             string baseTempDirectory, 
             IEventListener eventListener)
         {
-            var survivingMutants = new List<SurvivingMutant>();
+            var survivingMutants = new List<Mutant>();
             var survivingSyntaxNodes = new HashSet<SyntaxNode>();
             var reportedMembers = new HashSet<string>();
 
@@ -134,13 +134,17 @@ namespace Fettle.Core.Internal
                     }
                     eventListener.SyntaxNodeMutating(metadata.SyntaxNodeIndex, metadata.SyntaxNodesTotal);
 
-                    var survivingMutant = await mutationJob.Run(testRunner, baseTempDirectory, eventListener);
-                    if (survivingMutant != null)
+                    var (status, mutant) = await mutationJob.Run(testRunner, baseTempDirectory);
+                    if (status == MutantStatus.Alive)
                     {
-                        survivingMutants.Add(survivingMutant);
+                        survivingMutants.Add(mutant);
 
                         survivingSyntaxNodes.Add(mutationJob.OriginalNode);
-                        eventListener.MutantSurvived(survivingMutant);
+                        eventListener.MutantSurvived(mutant);
+                    }
+                    else
+                    {
+                        eventListener.MutantKilled(mutant);
                     }
                 }
 

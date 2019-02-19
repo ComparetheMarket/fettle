@@ -24,7 +24,7 @@ namespace Fettle.Console
         {
         }
 
-        public void MutantSurvived(SurvivingMutant survivor)
+        public void MutantSurvived(Mutant survivor)
         {
         }
 

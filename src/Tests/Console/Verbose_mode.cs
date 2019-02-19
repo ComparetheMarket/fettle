@@ -26,9 +26,11 @@ namespace Fettle.Tests.Console
         [Test]
         public void Then_detailed_mutation_testing_progress_is_output()
         {
-            Assert.That(SpyOutputWriter.WrittenNormalLines.Concat(SpyOutputWriter.WrittenLineSegments)
-                    .Any(l => l.Contains("a > 0") && l.Contains("a >= 0")),
-                Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(SpyOutputWriter.WrittenNormalLines, Has.Some.Contains("a > 0").And.Some.Contains("a >= 0"));
+                Assert.That(SpyOutputWriter.WrittenNormalLines, Has.Some.Contains("mutant killed").IgnoreCase);
+            });
         }
     }
     
@@ -53,9 +55,11 @@ namespace Fettle.Tests.Console
         [Test]
         public void Then_detailed_mutation_testing_progress_is_not_output()
         {
-            Assert.That(SpyOutputWriter.WrittenNormalLines.Concat(SpyOutputWriter.WrittenLineSegments)
-                    .Any(l => l.Contains("a > 0") && l.Contains("a >= 0")),
-                Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(SpyOutputWriter.WrittenNormalLines, Has.None.Contains("a > 0").Or.Contains("a >= 0"));
+                Assert.That(SpyOutputWriter.WrittenNormalLines, Has.None.Contains("mutant killed").IgnoreCase);
+            });
         }
     }
 }

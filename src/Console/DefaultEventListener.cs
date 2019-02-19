@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Fettle.Core;
 
 namespace Fettle.Console
@@ -41,12 +40,8 @@ namespace Fettle.Console
 
         public void MemberMutating(string name)
         {
-            var tokensInReverseOrder = name.Split(new[] {"::"}, StringSplitOptions.None).Reverse().ToArray();
-            var memberNameWithoutParens = tokensInReverseOrder.First().Split('(').First();
-            var className = tokensInReverseOrder.Skip(1).First().Split('.').Last();
-
             outputWriter.Write(Environment.NewLine);
-            outputWriter.Write($"  Found: {className}.{memberNameWithoutParens}\t");
+            outputWriter.Write($"  Found: {MemberName.Simplify(name)}\t");
 
             anyMutationsMadeForCurrentFile = true;
         }
@@ -56,7 +51,7 @@ namespace Fettle.Console
             outputWriter.Write(".");
         }
 
-        public void MutantSurvived(SurvivingMutant survivingMutant)
+        public void MutantSurvived(Mutant survivingMutant)
         {
             outputWriter.Write("✗");
         }

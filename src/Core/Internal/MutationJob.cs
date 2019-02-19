@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,17 +38,19 @@ namespace Fettle.Core.Internal
             this.coverageAnalysisResult = coverageAnalysisResult;
         }
 
-        public async Task<SurvivingMutant> Run(ITestRunner testRunner, string tempDirectory, IEventListener eventListener)
+        public async Task<(MutantStatus, Mutant)> Run(ITestRunner testRunner, string tempDirectory)
         {
             var mutatedNode = mutator.Mutate(OriginalNode);
             MutatedSyntaxRoot = originalSyntaxRoot.ReplaceNode(OriginalNode, mutatedNode);
+
+            var mutant = await Mutant.Create(OriginalClass, OriginalNode, MutatedSyntaxRoot);
 
             var compilationResult = await CompileContainingProject(tempDirectory);
             if (!compilationResult.Success)
             {
                 // Not all mutations are valid in all circumstances, and therefore may not compile.
                 // E.g. "a + b" => "a - b" works when a and b are integers but not when they're strings.
-                return null;
+                return (MutantStatus.Irrelevant, mutant);
             }
 
             CopyMutatedAssemblyIntoTempTestAssemblyDirectories(compilationResult.OutputFilePath, tempDirectory, config);
@@ -70,21 +73,24 @@ namespace Fettle.Core.Internal
                     }
                 }
 
-                ranAnyTests = true;
-
                 var result = testsToRun != null ?
                     testRunner.RunTests(new[] {tempTestAssemblyFilePath}, testsToRun) :
                     testRunner.RunAllTests(new[] {tempTestAssemblyFilePath});
 
+                ranAnyTests = true;
+
                 if (result.Status == TestRunStatus.SomeTestsFailed)
                 {
-                    return null;
+                    return (MutantStatus.Dead, mutant);
                 }
             }
 
-            return ranAnyTests ? 
-                await SurvivingMutant.Create(OriginalClass, OriginalNode, MutatedSyntaxRoot) 
-                : null;
+            if (!ranAnyTests)
+            {
+                return (MutantStatus.Irrelevant, mutant);
+            }
+
+            return (MutantStatus.Alive, mutant);
         }
 
         private async Task<(bool Success, string OutputFilePath)> CompileContainingProject(string outputDirectory)

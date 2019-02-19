@@ -55,6 +55,7 @@
     <Compile Include="ConfigFile.cs" />
     <Compile Include="ConsoleOptions.cs" />
     <Compile Include="ConsoleOutputWriter.cs" />
+    <Compile Include="MemberName.cs" />
     <Compile Include="VerboseEventListener.cs" />
     <Compile Include="QuietEventListener.cs" />
     <Compile Include="DefaultEventListener.cs" />

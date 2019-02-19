@@ -161,7 +161,7 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
         {
             var baseSlnDir = Path.Combine(TestContext.CurrentContext.TestDirectory, "..", "..", "..", "..");
 
-            var survivingMutant = new SurvivingMutant
+            var survivingMutant = new Mutant
             {
                 SourceFilePath = Path.Combine(baseSlnDir, "someclass.cs"),
                 SourceLine = 123,

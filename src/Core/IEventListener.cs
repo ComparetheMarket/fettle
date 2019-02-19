@@ -7,7 +7,7 @@
         void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total);
         void MemberMutating(string name);
         void SyntaxNodeMutating(int index, int total);
-        void MutantSurvived(SurvivingMutant survivingMutant);
+        void MutantSurvived(Mutant survivingMutant);
         void MutantKilled(Mutant killedMutant);
         void EndMutationOfFile(string filePath);
     }
