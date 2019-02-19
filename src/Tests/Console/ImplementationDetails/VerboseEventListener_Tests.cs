@@ -75,13 +75,15 @@ namespace Fettle.Tests.Console.ImplementationDetails
             [Test]
             public void Then_output_indicates_when_a_mutant_is_killed()
             {
+                Assert.That(spyOutputWriter.WrittenSuccessLines, Has.One.Contains("killed").IgnoreCase);
                 Assert.That(spyOutputWriter.WrittenNormalLines, Has.One.Contains("a > 0"));
             }
             
             [Test]
             public void Then_output_indicates_when_a_mutant_survives()
             {
-                Assert.That(spyOutputWriter.WrittenFailureLines, Has.One.Contains("a && b"));
+                Assert.That(spyOutputWriter.WrittenFailureLines, Has.One.Contains("survived").IgnoreCase);
+                Assert.That(spyOutputWriter.WrittenNormalLines, Has.One.Contains("a && b"));
             }
         }
 
