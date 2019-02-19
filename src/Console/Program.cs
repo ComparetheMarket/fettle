@@ -157,7 +157,7 @@ namespace Fettle.Console
             outputWriter.WriteWarningLine(
 @"Warning: coverage analysis will be skipped because it's not compatible with a custom test runner command.
 To stop seeing this warning, add the --skipcoverageanalysis command-line option.
-More info at: https://github.com/ComparetheMarket/fettle/wiki/Coverage-Analysis
+More info at: https://github.com/ComparetheMarket/fettle/wiki/Custom-Test-Runners
 ");
         }
 
