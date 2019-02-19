@@ -16,10 +16,14 @@ namespace Fettle.Console
                 HelpText = "Path to configuration file")]
             public string ConfigFilePath { get; set; }
 
-            [Option('q', "quiet", Required = false, DefaultValue = false,
+            [Option('q', "quiet", Required = false, DefaultValue = false, 
                 HelpText = "If specified, less output will be produced")]
             public bool Quiet { get; set; }
-            
+
+            [Option('v', "verbose", Required = false, DefaultValue = false,
+                HelpText = "If specified, detailed output will be produced")]
+            public bool Verbose { get; set; }
+
             [Option('s', "skipcoverageanalysis", Required = false, DefaultValue = false,
                 HelpText = "If specified, the coverage analysis optimisation is skipped.")]
             public bool SkipCoverageAnalysis { get; set; }
@@ -67,18 +71,39 @@ namespace Fettle.Console
                 return (false, null, null);
             }
 
+            if (parsedArgs.Quiet && parsedArgs.Verbose)
+            {
+                outputWriter.WriteFailureLine("Both quiet and verbose options were specified, but only one or the other is allowed.");
+                return (false, null, null);
+            }
+
             var configFileContents = File.ReadAllText(configFilePath);
             var config = ConfigFile.Parse(configFileContents)
                 .WithPathsRelativeTo(baseDirectory: Path.GetDirectoryName(configFilePath));
             
             var consoleOptions = new ConsoleOptions
             {
-                Quiet = parsedArgs.Quiet,
+                Verbosity = ParsedArgsToVerbosity(parsedArgs),
                 SkipCoverageAnalysis = parsedArgs.SkipCoverageAnalysis,
                 ModificationsOnly = parsedArgs.ModificationsOnly,
             };
 
             return (true, config, consoleOptions);
+        }
+
+        private static Verbosity ParsedArgsToVerbosity(Arguments parsedArgs)
+        {
+            if (parsedArgs.Quiet)
+            {
+                return Verbosity.Quiet;
+            }
+
+            if (parsedArgs.Verbose)
+            {
+                return Verbosity.Verbose;
+            }
+
+            return Verbosity.Default;
         }
     }
 }

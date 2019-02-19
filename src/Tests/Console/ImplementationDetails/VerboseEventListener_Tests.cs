@@ -17,7 +17,7 @@ namespace Fettle.Tests.Console.ImplementationDetails
             public When_performing_mutation_testing()
             {
                 spyOutputWriter = new SpyOutputWriter();
-                var listener = new VerboseEventListener(spyOutputWriter);
+                var listener = new DefaultEventListener(spyOutputWriter);
                 
                 listener.BeginMutationOfFile(@"c:\some-project\src\Class1.cs", @"c:\some-project", 0, 2);
                 listener.MemberMutating("System.Void SomeProject.Class1::MethodA(System.Int32)");
@@ -79,7 +79,7 @@ namespace Fettle.Tests.Console.ImplementationDetails
             public When_performing_mutation_testing_but_nothing_found_to_mutate()
             {
                 spyOutputWriter = new SpyOutputWriter();
-                var listener = new VerboseEventListener(spyOutputWriter);
+                var listener = new DefaultEventListener(spyOutputWriter);
 
                 listener.BeginMutationOfFile(@"c:\some-project\src\Class1.cs", @"c:\some-project", 0, 2);
                 listener.EndMutationOfFile(@"c:\some-project\src\Class1.cs");
@@ -100,7 +100,7 @@ namespace Fettle.Tests.Console.ImplementationDetails
             public When_performing_coverage_analysis()
             {
                 spyOutputWriter = new SpyOutputWriter();
-                var listener = new VerboseEventListener(spyOutputWriter);
+                var listener = new DefaultEventListener(spyOutputWriter);
 
                 for (var testIndex = 0; testIndex < 15; ++testIndex)
                 {

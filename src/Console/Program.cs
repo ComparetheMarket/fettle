@@ -103,7 +103,7 @@ namespace Fettle.Console
                     return ExitCodes.Success;
                 }
 
-                var eventListener = CreateEventListener(outputWriter, isQuietModeEnabled: parsedArgs.ConsoleOptions.Quiet);
+                var eventListener = CreateEventListener(outputWriter, parsedArgs.ConsoleOptions.Verbosity);
 
                 ICoverageAnalysisResult coverageResult = null;
                 var shouldDoCoverageAnalysis = !parsedArgs.Config.HasCustomTestRunnerCommand && !parsedArgs.ConsoleOptions.SkipCoverageAnalysis;
@@ -184,10 +184,14 @@ More info at: https://github.com/ComparetheMarket/fettle/wiki/Custom-Test-Runner
             }
         }
 
-        private static IEventListener CreateEventListener(IOutputWriter outputWriter, bool isQuietModeEnabled)
+        private static IEventListener CreateEventListener(IOutputWriter outputWriter, Verbosity verbosity)
         {
-            return isQuietModeEnabled ? (IEventListener) new QuietEventListener(outputWriter)
-                                      : (IEventListener) new VerboseEventListener(outputWriter);
+            switch (verbosity)
+            {
+                case Verbosity.Quiet: return new QuietEventListener(outputWriter);
+                case Verbosity.Verbose: return new VerboseEventListener(outputWriter);
+                default: return new DefaultEventListener(outputWriter);
+            }
         }
 
         private static ICoverageAnalysisResult AnalyseCoverage(
