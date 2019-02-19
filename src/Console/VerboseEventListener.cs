@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using Fettle.Core;
 
 namespace Fettle.Console
@@ -8,6 +10,7 @@ namespace Fettle.Console
         private readonly IOutputWriter outputWriter;
         private bool anyMutationsMadeForCurrentFile;
         private string baseSourceDir;
+        private readonly Stopwatch stopwatch = new Stopwatch();
 
         public VerboseEventListener(IOutputWriter outputWriter)
         {
@@ -16,7 +19,7 @@ namespace Fettle.Console
 
         public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
         {
-            outputWriter.WriteLine($"Analysing coverage [{index+1,3}/{total}]: {fullTestName}");
+            outputWriter.WriteLine($"Analysing coverage [{index+1}/{total}]: {fullTestName}");
         }
 
         public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total)
@@ -24,36 +27,39 @@ namespace Fettle.Console
             baseSourceDir = baseSourceDirectory;
             anyMutationsMadeForCurrentFile = false;
 
-            outputWriter.WriteLine("");
-            outputWriter.WriteLine("");
-            outputWriter.WriteLine($">>>>> Found file: {ToRelativePath(filePath)}");
+            outputWriter.WriteLine($"{Indentation(0)}Found file: {ToRelativePath(filePath)}");
         }
 
         public void MemberMutating(string name)
         {
             anyMutationsMadeForCurrentFile = true;
 
-            outputWriter.WriteLine("");
-            outputWriter.WriteLine($"Found member {MemberName.Simplify(name)}");
+            outputWriter.WriteLine($"{Indentation(1)}Found member {MemberName.Simplify(name)}");
         }
 
         public void SyntaxNodeMutating(int index, int total)
         {
-            outputWriter.WriteLine($"Mutating syntax node {index+1}");
+            outputWriter.WriteLine($"{Indentation(2)}Mutating syntax node {index+1}");
+
+            stopwatch.Restart();
         }
 
         public void MutantSurvived(Mutant survivingMutant)
         {
-            outputWriter.WriteFailureLine($"Mutant SURVIVED at line {survivingMutant.SourceLine}");
-            outputWriter.WriteFailureLine($"   Original: {survivingMutant.OriginalLine}");
-            outputWriter.WriteFailureLine($"   Mutated:  {survivingMutant.MutatedLine}");
+            stopwatch.Stop();
+
+            outputWriter.WriteFailureLine($"{Indentation(3)}Mutant SURVIVED in {FormatMutationDuration(stopwatch.Elapsed)} at line {survivingMutant.SourceLine}");
+            outputWriter.WriteLine($"{Indentation(4)}Original: {survivingMutant.OriginalLine}");
+            outputWriter.WriteLine($"{Indentation(4)}Mutated:  {survivingMutant.MutatedLine}");
         }
 
         public void MutantKilled(Mutant killedMutant)
         {
-            outputWriter.WriteLine($"Mutant killed at line {killedMutant.SourceLine}");
-            outputWriter.WriteLine($"   Original: {killedMutant.OriginalLine}");
-            outputWriter.WriteLine($"   Mutated:  {killedMutant.MutatedLine}");
+            stopwatch.Stop();
+
+            outputWriter.WriteSuccessLine($"{Indentation(3)}Mutant killed in {FormatMutationDuration(stopwatch.Elapsed)} at line {killedMutant.SourceLine}");
+            outputWriter.WriteLine($"{Indentation(4)}Original: {killedMutant.OriginalLine}");
+            outputWriter.WriteLine($"{Indentation(4)}Mutated:  {killedMutant.MutatedLine}");
         }
 
         public void EndMutationOfFile(string filePath)
@@ -65,9 +71,13 @@ namespace Fettle.Console
             else
             {
                 outputWriter.Write(Environment.NewLine);
-                outputWriter.Write("  Nothing found to mutate.");
+                outputWriter.Write($"{Indentation(0)}Nothing found to mutate.");
             }
         }
+
+        private static string FormatMutationDuration(TimeSpan duration) => $"{duration.TotalMilliseconds:.}ms";
+
+        private static string Indentation(int level) => new string(Enumerable.Repeat(' ', level*3).ToArray());
 
         private string ToRelativePath(string filePath) => filePath.Substring(baseSourceDir.Length + 1);
     }
