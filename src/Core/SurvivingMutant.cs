@@ -1,18 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Fettle.Core.Internal.RoslynExtensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Fettle.Core
 {
-    public class SurvivingMutant
+    public class SurvivingMutant : Mutant
     {
-        public string SourceFilePath { get; set; }
-        public int SourceLine { get; set; }
-        public string OriginalLine { get; set; }
-        public string MutatedLine { get; set; }
-        
         internal static async Task<SurvivingMutant> Create(
             Document originalDocument,
             SyntaxNode originalNode,

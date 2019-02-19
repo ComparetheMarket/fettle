@@ -62,6 +62,10 @@ namespace Fettle.Console
             outputWriter.Write("✗");
         }
 
+        public void MutantKilled(Mutant killedMutant)
+        {
+        }
+
         public void EndMutationOfFile(string filePath)
         {
             if (anyMutationsMadeForCurrentFile)

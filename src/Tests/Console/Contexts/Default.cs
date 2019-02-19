@@ -169,6 +169,14 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
                 MutatedLine = "a-b"
             };
 
+            var killedMutant = new Mutant
+            {
+                SourceFilePath = Path.Combine(baseSlnDir, "someotherclass.cs"),
+                SourceLine = 321,
+                OriginalLine = "a > 0",
+                MutatedLine = "a >= 0"
+            };
+
             MockMutationTestRunner
                 .Setup(r => r.Run(It.IsAny<Config>()))
                 .Callback(() =>
@@ -179,6 +187,7 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
                     eventListener.MemberMutating("System.Void SomeProject.SomeOtherNamespace.SomeClass::SomeMethod(System.Int32)");
                     eventListener.SyntaxNodeMutating(0, 1);
                     eventListener.MutantSurvived(survivingMutant);
+                    eventListener.MutantKilled(killedMutant);
                     eventListener.EndMutationOfFile(classFilePath);
                 })
                 .Returns(Task.FromResult(new MutationTestResult().WithSurvivingMutants(new []{ survivingMutant })));

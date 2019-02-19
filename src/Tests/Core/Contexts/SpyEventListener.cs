@@ -42,6 +42,10 @@ namespace Fettle.Tests.Core.Contexts
             HaveAnyMutantsSurvived = true;
         }
 
+        public void MutantKilled(Mutant killedMutant)
+        {
+        }
+
         public void EndMutationOfFile(string filePath)
         {
             HaveAnyFilesEnded = true;

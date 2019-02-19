@@ -8,6 +8,7 @@
         public void MemberMutating(string name) {}
         public void SyntaxNodeMutating(int index, int total) {}
         public void MutantSurvived(SurvivingMutant survivingMutant) {}
+        public void MutantKilled(Mutant killedMutant) {}
         public void EndMutationOfFile(string filePath) {}
     }
 }

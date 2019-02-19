@@ -28,6 +28,10 @@ namespace Fettle.Console
         {
         }
 
+        public void MutantKilled(Mutant killedMutant)
+        {
+        }
+
         public void EndMutationOfFile(string filePath)
         {
         }
