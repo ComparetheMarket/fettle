@@ -19,7 +19,7 @@ namespace Fettle.Console
 
         public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
         {
-            outputWriter.WriteLine($"Analysing coverage [{index+1}/{total}]: {fullTestName}");
+            outputWriter.WriteLine($"Analysing coverage: {fullTestName}");
         }
 
         public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total)
@@ -48,18 +48,22 @@ namespace Fettle.Console
         {
             stopwatch.Stop();
 
-            outputWriter.WriteFailureLine($"{Indentation(3)}Mutant SURVIVED in {FormatMutationDuration(stopwatch.Elapsed)} at line {survivingMutant.SourceLine}");
+            outputWriter.WriteLine($"{Indentation(3)}Mutated in {FormatMutationDuration(stopwatch.Elapsed)}");
+            outputWriter.WriteLine($"{Indentation(3)}Line {survivingMutant.SourceLine}:");
             outputWriter.WriteLine($"{Indentation(4)}Original: {survivingMutant.OriginalLine}");
             outputWriter.WriteLine($"{Indentation(4)}Mutated:  {survivingMutant.MutatedLine}");
+            outputWriter.WriteFailureLine($"{Indentation(3)}Mutant SURVIVED");
         }
 
         public void MutantKilled(Mutant killedMutant)
         {
             stopwatch.Stop();
 
-            outputWriter.WriteSuccessLine($"{Indentation(3)}Mutant killed in {FormatMutationDuration(stopwatch.Elapsed)} at line {killedMutant.SourceLine}");
+            outputWriter.WriteLine($"{Indentation(3)}Mutated in {FormatMutationDuration(stopwatch.Elapsed)}");
+            outputWriter.WriteLine($"{Indentation(3)}Line {killedMutant.SourceLine}:");
             outputWriter.WriteLine($"{Indentation(4)}Original: {killedMutant.OriginalLine}");
             outputWriter.WriteLine($"{Indentation(4)}Mutated:  {killedMutant.MutatedLine}");
+            outputWriter.WriteSuccessLine($"{Indentation(3)}Mutant killed");
         }
 
         public void EndMutationOfFile(string filePath)

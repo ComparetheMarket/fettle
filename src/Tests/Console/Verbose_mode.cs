@@ -29,7 +29,7 @@ namespace Fettle.Tests.Console
             Assert.Multiple(() =>
             {
                 Assert.That(SpyOutputWriter.WrittenNormalLines, Has.Some.Contains("a > 0").And.Some.Contains("a >= 0"));
-                Assert.That(SpyOutputWriter.WrittenNormalLines, Has.Some.Contains("mutant killed").IgnoreCase);
+                Assert.That(SpyOutputWriter.WrittenSuccessLines, Has.Some.Contains("mutant killed").IgnoreCase);
             });
         }
     }
