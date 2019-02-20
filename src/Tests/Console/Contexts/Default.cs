@@ -193,7 +193,7 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
                     eventListener.MemberMutating("System.Void SomeProject.SomeOtherNamespace.SomeClass::SomeMethod(System.Int32)");
                     eventListener.SyntaxNodeMutating(0, 1);
                     eventListener.MutantSurvived(survivingMutant);
-                    eventListener.MutantKilled(killedMutant);
+                    eventListener.MutantKilled(killedMutant, "Expected true but was false");
                     eventListener.MutantSkipped(skippedMutant, "skip reason");
                     eventListener.EndMutationOfFile(classFilePath);
                 })

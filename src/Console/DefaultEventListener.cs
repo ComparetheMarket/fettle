@@ -56,7 +56,7 @@ namespace Fettle.Console
             outputWriter.Write("✗");
         }
 
-        public void MutantKilled(Mutant killedMutant)
+        public void MutantKilled(Mutant killedMutant, string testFailureDescription)
         {
         }
 

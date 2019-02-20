@@ -8,7 +8,7 @@
         void MemberMutating(string name);
         void SyntaxNodeMutating(int index, int total);
         void MutantSurvived(Mutant survivingMutant);
-        void MutantKilled(Mutant killedMutant);
+        void MutantKilled(Mutant killedMutant, string testFailureDescription);
         void MutantSkipped(Mutant skippedMutant, string reason);
         void EndMutationOfFile(string filePath);
     }

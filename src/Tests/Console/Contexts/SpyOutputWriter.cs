@@ -51,6 +51,11 @@ namespace Fettle.Tests.Console.Contexts
             writtenSuccessLines.Add(output);
         }
 
+        public void WriteDebugLine(string output)
+        {
+            allOutput.AppendLine(output);
+        }
+
         public void ClearLine()
         {
         }

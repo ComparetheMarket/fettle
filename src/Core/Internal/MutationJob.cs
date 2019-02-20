@@ -82,7 +82,7 @@ namespace Fettle.Core.Internal
 
                 if (result.Status == TestRunStatus.SomeTestsFailed)
                 {
-                    eventListener.MutantKilled(mutant);
+                    eventListener.MutantKilled(mutant, result.Error);
                     return (MutantStatus.Dead, mutant);
                 }
             }

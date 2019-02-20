@@ -82,7 +82,7 @@ namespace Fettle.Tests.Console.ImplementationDetails
                 spyOutputWriter = new SpyOutputWriter();
                 var listener = new DefaultEventListener(spyOutputWriter);
 
-                listener.MutantKilled(new Mutant());
+                listener.MutantKilled(new Mutant(), "Expected true but was false");
                 listener.MutantSkipped(new Mutant(), "reason");
             }
 

@@ -55,7 +55,7 @@ namespace Fettle.Console
             outputWriter.WriteFailureLine($"{Indentation(3)}Mutant SURVIVED");
         }
 
-        public void MutantKilled(Mutant killedMutant)
+        public void MutantKilled(Mutant killedMutant, string testFailureDescription)
         {
             stopwatch.Stop();
 
@@ -63,7 +63,8 @@ namespace Fettle.Console
             outputWriter.WriteLine($"{Indentation(3)}Line {killedMutant.SourceLine}:");
             outputWriter.WriteLine($"{Indentation(4)}Original: {killedMutant.OriginalLine}");
             outputWriter.WriteLine($"{Indentation(4)}Mutated:  {killedMutant.MutatedLine}");
-            outputWriter.WriteSuccessLine($"{Indentation(3)}Mutant killed");
+            outputWriter.WriteSuccessLine($"{Indentation(3)}Mutant killed because of test failure:");
+            outputWriter.WriteDebugLine($"{FormatTestFailureDescription(testFailureDescription)}");
         }
 
         public void MutantSkipped(Mutant skippedMutant, string reason)
@@ -87,6 +88,14 @@ namespace Fettle.Console
                 outputWriter.Write(Environment.NewLine);
                 outputWriter.Write($"{Indentation(0)}Nothing found to mutate.");
             }
+        }
+
+        private string FormatTestFailureDescription(string testFailureDescription)
+        {
+            var modifiedLines = testFailureDescription.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries)
+                                                      .Select(line => line.TrimStart())
+                                                      .Select(line => $"{Indentation(4)}{line}");
+            return string.Join(Environment.NewLine, modifiedLines);
         }
 
         private static string FormatMutationDuration(TimeSpan duration) => $"{duration.TotalMilliseconds:.}ms";

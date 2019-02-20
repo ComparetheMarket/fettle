@@ -45,7 +45,7 @@ namespace Fettle.Tests.Console.ImplementationDetails
                         MutatedLine = "a >= 0",
                         SourceFilePath = @"c:\some-project\src\Class2.cs",
                         SourceLine = 20
-                    });
+                    }, "Expected true but was false");
                 listener.SyntaxNodeMutating(1, 2);
                 listener.MutantSurvived(
                     new Mutant
@@ -85,6 +85,7 @@ namespace Fettle.Tests.Console.ImplementationDetails
             {
                 Assert.That(spyOutputWriter.WrittenSuccessLines, Has.One.Contains("killed").IgnoreCase);
                 Assert.That(spyOutputWriter.WrittenNormalLines, Has.One.Contains("a > 0"));
+                Assert.That(spyOutputWriter.AllOutput, Does.Contain("Expected true but was false"));
             }
 
             [Test]

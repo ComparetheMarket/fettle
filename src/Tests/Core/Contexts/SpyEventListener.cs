@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Castle.Components.DictionaryAdapter;
 using Fettle.Core;
 
 namespace Fettle.Tests.Core.Contexts
@@ -11,7 +13,10 @@ namespace Fettle.Tests.Core.Contexts
 
         private readonly List<string> begunMembers = new List<string>();
         public IReadOnlyList<string> BegunMembers => begunMembers;
-        
+
+        private readonly List<Tuple<Mutant, string>> killedMutantsAndTheirTestFailures = new List<Tuple<Mutant, string>>();
+        public IReadOnlyList<Tuple<Mutant, string>> KilledMutantsAndTheirTestFailures => killedMutantsAndTheirTestFailures;
+
         public bool HaveAnyFilesBegun => begunFiles.Any();
         public bool HaveAnyMembersBegun => begunMembers.Any();
         public bool HaveAnySyntaxNodesBegun { get; private set; }
@@ -44,7 +49,7 @@ namespace Fettle.Tests.Core.Contexts
             HaveAnyMutantsSurvived = true;
         }
 
-        public void MutantKilled(Mutant killedMutant)
+        public void MutantKilled(Mutant killedMutant, string testFailureDescription)
         {
             HaveAnyMutantsBeenKilled = true;
         }

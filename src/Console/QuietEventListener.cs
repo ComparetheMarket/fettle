@@ -28,7 +28,7 @@ namespace Fettle.Console
         {
         }
 
-        public void MutantKilled(Mutant killedMutant)
+        public void MutantKilled(Mutant killedMutant, string testFailureDescription)
         {
         }
 
