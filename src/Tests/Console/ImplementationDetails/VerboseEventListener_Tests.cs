@@ -25,6 +25,14 @@ namespace Fettle.Tests.Console.ImplementationDetails
                 listener.MemberMutating("System.Int32 SomeProject.Class1::PropertyA");
                 listener.SyntaxNodeMutating(0, 2);
                 listener.SyntaxNodeMutating(1, 2);
+                listener.MutantSkipped(
+                    new Mutant
+                    {
+                        OriginalLine = "a == 0",
+                        MutatedLine = "a != 0",
+                        SourceFilePath = @"c:\some-project\src\Class1.cs",
+                        SourceLine = 14
+                    }, "filtered out");
                 listener.EndMutationOfFile(@"src\Class1.cs");
 
                 listener.BeginMutationOfFile(@"c:\some-project\src\Class2.cs", @"c:\some-project", 1, 2);
@@ -78,7 +86,15 @@ namespace Fettle.Tests.Console.ImplementationDetails
                 Assert.That(spyOutputWriter.WrittenSuccessLines, Has.One.Contains("killed").IgnoreCase);
                 Assert.That(spyOutputWriter.WrittenNormalLines, Has.One.Contains("a > 0"));
             }
-            
+
+            [Test]
+            public void Then_output_indicates_when_a_mutant_is_skipped()
+            {
+                Assert.That(spyOutputWriter.WrittenNormalLines, Has.One.Contains("skipped").IgnoreCase);
+                Assert.That(spyOutputWriter.WrittenNormalLines, Has.One.Contains("filtered out").IgnoreCase);
+                Assert.That(spyOutputWriter.WrittenNormalLines, Has.One.Contains("a != 0"));
+            }
+
             [Test]
             public void Then_output_indicates_when_a_mutant_survives()
             {

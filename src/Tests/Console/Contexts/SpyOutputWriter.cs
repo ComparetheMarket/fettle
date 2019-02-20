@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 using Fettle.Console;
 
 namespace Fettle.Tests.Console.Contexts
@@ -17,28 +18,36 @@ namespace Fettle.Tests.Console.Contexts
         public IReadOnlyList<string> WrittenFailureLines => writtenFailureLines;
         public IReadOnlyList<string> WrittenSuccessLines => writtenSuccessLines;
 
+        private readonly StringBuilder allOutput = new StringBuilder();
+        public string AllOutput => allOutput.ToString();
+
         public void Write(string output)
         {
+            allOutput.Append(output);
             writtenLineSegments.Add(output);
         }
 
         public void WriteLine(string output)
         {
+            allOutput.AppendLine(output);
             writtenNormalLines.Add(output);
         }
 
         public void WriteFailureLine(string output)
         {
+            allOutput.AppendLine(output);
             writtenFailureLines.Add(output);
         }
 
         public void WriteWarningLine(string output)
         {
+            allOutput.AppendLine(output);
             writtenWarningLines.Add(output);
         }
 
         public void WriteSuccessLine(string output)
         {
+            allOutput.AppendLine(output);
             writtenSuccessLines.Add(output);
         }
 

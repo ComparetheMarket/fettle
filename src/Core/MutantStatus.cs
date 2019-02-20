@@ -4,6 +4,6 @@
     {
         Alive,
         Dead,
-        Irrelevant
+        Skipped
     }
 }

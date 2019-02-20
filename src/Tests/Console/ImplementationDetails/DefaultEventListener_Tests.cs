@@ -73,16 +73,17 @@ namespace Fettle.Tests.Console.ImplementationDetails
         }
 
         [TestFixture]
-        public class When_a_mutant_is_killed_during_mutation_testing
+        public class When_a_mutant_is_killed_or_skipped_during_mutation_testing
         {
             private readonly SpyOutputWriter spyOutputWriter;
 
-            public When_a_mutant_is_killed_during_mutation_testing()
+            public When_a_mutant_is_killed_or_skipped_during_mutation_testing()
             {
                 spyOutputWriter = new SpyOutputWriter();
                 var listener = new DefaultEventListener(spyOutputWriter);
 
                 listener.MutantKilled(new Mutant());
+                listener.MutantSkipped(new Mutant(), "reason");
             }
 
             [Test]

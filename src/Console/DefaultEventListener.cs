@@ -60,6 +60,10 @@ namespace Fettle.Console
         {
         }
 
+        public void MutantSkipped(Mutant skippedMutant, string reason)
+        {
+        }
+
         public void EndMutationOfFile(string filePath)
         {
             if (anyMutationsMadeForCurrentFile)

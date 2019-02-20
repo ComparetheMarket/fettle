@@ -66,6 +66,16 @@ namespace Fettle.Console
             outputWriter.WriteSuccessLine($"{Indentation(3)}Mutant killed");
         }
 
+        public void MutantSkipped(Mutant skippedMutant, string reason)
+        {
+            stopwatch.Stop();
+
+            outputWriter.WriteLine($"{Indentation(3)}Mutation skipped due to ${reason}");
+            outputWriter.WriteLine($"{Indentation(3)}Line {skippedMutant.SourceLine}:");
+            outputWriter.WriteLine($"{Indentation(4)}Original: {skippedMutant.OriginalLine}");
+            outputWriter.WriteLine($"{Indentation(4)}Mutated:  {skippedMutant.MutatedLine}");
+        }
+
         public void EndMutationOfFile(string filePath)
         {
             if (anyMutationsMadeForCurrentFile)

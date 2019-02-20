@@ -17,6 +17,8 @@ namespace Fettle.Tests.Core.Contexts
         public bool HaveAnySyntaxNodesBegun { get; private set; }
         public bool HaveAnyFilesEnded { get; private set; }
         public bool HaveAnyMutantsSurvived { get; private set; }
+        public bool HaveAnyMutantsBeenKilled { get; private set; }
+        public bool HaveAnyMutantsBeenSkipped { get; private set; }
 
         public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
         {
@@ -44,6 +46,12 @@ namespace Fettle.Tests.Core.Contexts
 
         public void MutantKilled(Mutant killedMutant)
         {
+            HaveAnyMutantsBeenKilled = true;
+        }
+
+        public void MutantSkipped(Mutant skippedMutant, string reason)
+        {
+            HaveAnyMutantsBeenSkipped = true;
         }
 
         public void EndMutationOfFile(string filePath)

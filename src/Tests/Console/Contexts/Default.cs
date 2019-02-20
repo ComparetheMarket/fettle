@@ -168,13 +168,19 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
                 OriginalLine = "a+b",
                 MutatedLine = "a-b"
             };
-
             var killedMutant = new Mutant
             {
                 SourceFilePath = Path.Combine(baseSlnDir, "someotherclass.cs"),
                 SourceLine = 321,
                 OriginalLine = "a > 0",
                 MutatedLine = "a >= 0"
+            };
+            var skippedMutant = new Mutant
+            {
+                SourceFilePath = Path.Combine(baseSlnDir, "yetanotherclass.cs"),
+                SourceLine = 456,
+                OriginalLine = "a == 0",
+                MutatedLine = "a != 0"
             };
 
             MockMutationTestRunner
@@ -188,6 +194,7 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
                     eventListener.SyntaxNodeMutating(0, 1);
                     eventListener.MutantSurvived(survivingMutant);
                     eventListener.MutantKilled(killedMutant);
+                    eventListener.MutantSkipped(skippedMutant, "skip reason");
                     eventListener.EndMutationOfFile(classFilePath);
                 })
                 .Returns(Task.FromResult(new MutationTestResult().WithSurvivingMutants(new []{ survivingMutant })));

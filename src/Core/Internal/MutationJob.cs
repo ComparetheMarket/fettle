@@ -38,7 +38,7 @@ namespace Fettle.Core.Internal
             this.coverageAnalysisResult = coverageAnalysisResult;
         }
 
-        public async Task<(MutantStatus, Mutant)> Run(ITestRunner testRunner, string tempDirectory)
+        public async Task<(MutantStatus, Mutant)> Run(ITestRunner testRunner, string tempDirectory, IEventListener eventListener)
         {
             var mutatedNode = mutator.Mutate(OriginalNode);
             MutatedSyntaxRoot = originalSyntaxRoot.ReplaceNode(OriginalNode, mutatedNode);
@@ -50,7 +50,7 @@ namespace Fettle.Core.Internal
             {
                 // Not all mutations are valid in all circumstances, and therefore may not compile.
                 // E.g. "a + b" => "a - b" works when a and b are integers but not when they're strings.
-                return (MutantStatus.Irrelevant, mutant);
+                return (MutantStatus.Skipped, mutant);
             }
 
             CopyMutatedAssemblyIntoTempTestAssemblyDirectories(compilationResult.OutputFilePath, tempDirectory, config);
@@ -81,15 +81,18 @@ namespace Fettle.Core.Internal
 
                 if (result.Status == TestRunStatus.SomeTestsFailed)
                 {
+                    eventListener.MutantKilled(mutant);
                     return (MutantStatus.Dead, mutant);
                 }
             }
 
             if (!ranAnyTests)
             {
-                return (MutantStatus.Irrelevant, mutant);
+                eventListener.MutantSkipped(mutant, "no covering tests");
+                return (MutantStatus.Skipped, mutant);
             }
 
+            eventListener.MutantSurvived(mutant);
             return (MutantStatus.Alive, mutant);
         }
 

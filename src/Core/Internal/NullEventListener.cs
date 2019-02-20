@@ -9,6 +9,8 @@
         public void SyntaxNodeMutating(int index, int total) {}
         public void MutantSurvived(Mutant survivingMutant) {}
         public void MutantKilled(Mutant killedMutant) {}
+        public void MutantSkipped(Mutant skippedMutant, string reason) {}
+
         public void EndMutationOfFile(string filePath) {}
     }
 }

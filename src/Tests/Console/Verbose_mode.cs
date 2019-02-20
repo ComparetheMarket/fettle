@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Fettle.Tests.Console
 {
@@ -28,8 +27,9 @@ namespace Fettle.Tests.Console
         {
             Assert.Multiple(() =>
             {
-                Assert.That(SpyOutputWriter.WrittenNormalLines, Has.Some.Contains("a > 0").And.Some.Contains("a >= 0"));
-                Assert.That(SpyOutputWriter.WrittenSuccessLines, Has.Some.Contains("mutant killed").IgnoreCase);
+                Assert.That(SpyOutputWriter.AllOutput, Does.Contain("a > 0").And.Contains("a >= 0"));
+                Assert.That(SpyOutputWriter.AllOutput, Does.Contain("killed").IgnoreCase);
+                Assert.That(SpyOutputWriter.AllOutput, Does.Contain("skipped").And.Contains("skip reason").IgnoreCase);
             });
         }
     }
@@ -57,8 +57,9 @@ namespace Fettle.Tests.Console
         {
             Assert.Multiple(() =>
             {
-                Assert.That(SpyOutputWriter.WrittenNormalLines, Has.None.Contains("a > 0").Or.Contains("a >= 0"));
-                Assert.That(SpyOutputWriter.WrittenNormalLines, Has.None.Contains("mutant killed").IgnoreCase);
+                Assert.That(SpyOutputWriter.AllOutput, Does.Not.Contain("a > 0").Or.Contains("a >= 0"));
+                Assert.That(SpyOutputWriter.AllOutput, Does.Not.Contain("killed").IgnoreCase);
+                Assert.That(SpyOutputWriter.AllOutput, Does.Not.Contain("skipped").IgnoreCase);
             });
         }
     }

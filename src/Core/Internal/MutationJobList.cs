@@ -134,17 +134,11 @@ namespace Fettle.Core.Internal
                     }
                     eventListener.SyntaxNodeMutating(metadata.SyntaxNodeIndex, metadata.SyntaxNodesTotal);
 
-                    var (status, mutant) = await mutationJob.Run(testRunner, baseTempDirectory);
+                    var (status, mutant) = await mutationJob.Run(testRunner, baseTempDirectory, eventListener);
                     if (status == MutantStatus.Alive)
                     {
                         survivingMutants.Add(mutant);
-
                         survivingSyntaxNodes.Add(mutationJob.OriginalNode);
-                        eventListener.MutantSurvived(mutant);
-                    }
-                    else
-                    {
-                        eventListener.MutantKilled(mutant);
                     }
                 }
 
