@@ -2,8 +2,10 @@
 
 namespace Fettle.Console
 {
-    internal class QuietEventListener
+    internal class QuietEventListener : IEventListener
     {
+        public QuietEventListener(IOutputWriter _) {}
+
         public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total) { }
 
         public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total) { }
