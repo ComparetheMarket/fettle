@@ -70,7 +70,7 @@ namespace Fettle.Console
         {
             stopwatch.Stop();
 
-            outputWriter.WriteLine($"{Indentation(3)}Mutation skipped due to ${reason}");
+            outputWriter.WriteLine($"{Indentation(3)}Mutation skipped, reason: {reason}");
             outputWriter.WriteLine($"{Indentation(3)}Line {skippedMutant.SourceLine}:");
             outputWriter.WriteLine($"{Indentation(4)}Original: {skippedMutant.OriginalLine}");
             outputWriter.WriteLine($"{Indentation(4)}Mutated:  {skippedMutant.MutatedLine}");
