@@ -91,6 +91,11 @@ namespace Fettle.Tests.Core.Contexts
             Config.ProjectFilters = filters;
         }
 
+        protected void Given_a_single_file_is_mutated(string fileName)
+        {
+            Given_source_file_filters($@"**\*{fileName}");
+        }
+
         protected void Given_source_file_filters(params string[] filters)
         {
             Config.SourceFileFilters = filters;

@@ -50,6 +50,7 @@ namespace Fettle.Core.Internal
             {
                 // Not all mutations are valid in all circumstances, and therefore may not compile.
                 // E.g. "a + b" => "a - b" works when a and b are integers but not when they're strings.
+                eventListener.MutantSkipped(mutant, "mutation resulted in invalid code");
                 return (MutantStatus.Skipped, mutant);
             }
 
