@@ -9,10 +9,7 @@ namespace Fettle.Console
         private string baseSourceDir;
         private bool anyMutationsMadeForCurrentFile;
 
-        public DefaultEventListener(IOutputWriter outputWriter)
-        {
-            this.outputWriter = outputWriter;
-        }
+        public DefaultEventListener(IOutputWriter outputWriter) => this.outputWriter = outputWriter;
 
         public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
         {
@@ -46,23 +43,13 @@ namespace Fettle.Console
             anyMutationsMadeForCurrentFile = true;
         }
 
-        public void SyntaxNodeMutating(int index, int total)
-        {
-            outputWriter.Write(".");
-        }
+        public void SyntaxNodeMutating(int index, int total) => outputWriter.Write(".");
 
-        public void MutantSurvived(Mutant survivingMutant)
-        {
-            outputWriter.Write("✗");
-        }
+        public void MutantSurvived(Mutant survivingMutant) => outputWriter.Write("✗");
 
-        public void MutantKilled(Mutant killedMutant, string testFailureDescription)
-        {
-        }
+        public void MutantKilled(Mutant killedMutant, string testFailureDescription) {}
 
-        public void MutantSkipped(Mutant skippedMutant, string reason)
-        {
-        }
+        public void MutantSkipped(Mutant skippedMutant, string reason) {}
 
         public void EndMutationOfFile(string filePath)
         {

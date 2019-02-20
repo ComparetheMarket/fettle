@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.Components.DictionaryAdapter;
 using Fettle.Core;
 
 namespace Fettle.Tests.Core.Contexts
@@ -25,43 +24,20 @@ namespace Fettle.Tests.Core.Contexts
         public bool HaveAnyMutantsBeenKilled { get; private set; }
         public bool HaveAnyMutantsBeenSkipped { get; private set; }
 
-        public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
-        {
-        }
+        public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total) {}
 
-        public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total)
-        {
-            begunFiles.Add(filePath);
-        }
+        public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total) => begunFiles.Add(filePath);
 
-        public void MemberMutating(string name)
-        {
-            begunMembers.Add(name);    
-        }
+        public void MemberMutating(string name) => begunMembers.Add(name);
 
-        public void SyntaxNodeMutating(int index, int total)
-        {
-            HaveAnySyntaxNodesBegun = true;
-        }
+        public void SyntaxNodeMutating(int index, int total) => HaveAnySyntaxNodesBegun = true;
 
-        public void MutantSurvived(Mutant survivingMutant)
-        {
-            HaveAnyMutantsSurvived = true;
-        }
+        public void MutantSurvived(Mutant survivingMutant) => HaveAnyMutantsSurvived = true;
 
-        public void MutantKilled(Mutant killedMutant, string testFailureDescription)
-        {
-            HaveAnyMutantsBeenKilled = true;
-        }
+        public void MutantKilled(Mutant killedMutant, string testFailureDescription) => HaveAnyMutantsBeenKilled = true;
 
-        public void MutantSkipped(Mutant skippedMutant, string reason)
-        {
-            HaveAnyMutantsBeenSkipped = true;
-        }
+        public void MutantSkipped(Mutant skippedMutant, string reason) => HaveAnyMutantsBeenSkipped = true;
 
-        public void EndMutationOfFile(string filePath)
-        {
-            HaveAnyFilesEnded = true;
-        }
+        public void EndMutationOfFile(string filePath) => HaveAnyFilesEnded = true;
     }
 }

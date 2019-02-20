@@ -1,4 +1,4 @@
-﻿namespace Fettle.Core
+﻿namespace Fettle.Core.Internal
 {
     internal class NullEventListener : IEventListener
     {
