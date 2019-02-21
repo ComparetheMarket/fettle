@@ -18,10 +18,7 @@ namespace Fettle.Console
             this.outputWriter = outputWriter;
         }
 
-        public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
-        {
-            outputWriter.WriteLine($"Analysing test: {fullTestName}");
-        }
+        public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total) {}
 
         private readonly HashSet<string> coveredMembers = new HashSet<string>();
 
