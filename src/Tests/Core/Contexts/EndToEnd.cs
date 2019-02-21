@@ -1,20 +1,20 @@
 ﻿using System.IO;
-using Fettle.Console;
 using Fettle.Core;
-using Fettle.Tests.Console.ImplementationDetails;
 using NUnit.Framework;
 
 namespace Fettle.Tests.Core.Contexts
 {
     class EndToEnd
     {
-        protected MutationTestResult MutationTestResult { get; private set; }
         private ITestRunner testRunner;
         private ICoverageAnalysisResult coverageAnalysisResult;
         private readonly Config config = new Config();
 
         private static string BaseDir => Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "..", "..", "..", "Examples", "HasSurvivingMutants");
+
+        protected MutationTestResult MutationTestResult { get; private set; }
+        protected SpyEventListener SpyEventListener { get; } = new SpyEventListener();
 
         protected void Given_an_app_which_has_nunit_tests()
         {
@@ -31,7 +31,7 @@ namespace Fettle.Tests.Core.Contexts
             config.CustomTestRunnerCommand = null;
 
             testRunner = new TestRunnerFactory().CreateNUnitTestRunner();
-            coverageAnalysisResult = new CoverageAnalyser(new SpyEventListener()).AnalyseCoverage(config).Result;
+            coverageAnalysisResult = new CoverageAnalyser(SpyEventListener).AnalyseCoverage(config).Result;
         }
 
         protected void Given_an_app_which_has_a_custom_test_runner()
@@ -54,7 +54,7 @@ namespace Fettle.Tests.Core.Contexts
 
         protected void When_mutation_testing_the_app()
         {
-            MutationTestResult = new MutationTestRunner(testRunner, coverageAnalysisResult)
+            MutationTestResult = new MutationTestRunner(testRunner, coverageAnalysisResult, SpyEventListener)
                 .Run(config)
                 .Result;
         }

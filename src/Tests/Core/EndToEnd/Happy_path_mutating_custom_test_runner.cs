@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NUnit.Framework;
 
 namespace Fettle.Tests.Core.EndToEnd
@@ -28,6 +29,13 @@ namespace Fettle.Tests.Core.EndToEnd
                           sm.OriginalLine.EndsWith("return n > 100;") &&
                           sm.MutatedLine.EndsWith("return n >= 100;")),
                 Is.Not.Null);
+        }
+
+        [Test]
+        public void Then_events_raised_when_mutations_fail_include_a_description_of_the_test_failure()
+        {
+            Assert.That(SpyEventListener.KilledMutantsAndTheirTestFailures.All(x => !string.IsNullOrEmpty(x.Item2)), Is.True,
+                message: $"actual: {string.Join(Environment.NewLine, SpyEventListener.KilledMutantsAndTheirTestFailures.Select(x => x.Item2))}");
         }
     }
 }

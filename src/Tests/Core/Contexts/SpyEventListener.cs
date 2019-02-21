@@ -34,7 +34,11 @@ namespace Fettle.Tests.Core.Contexts
 
         public void MutantSurvived(Mutant survivingMutant) => HaveAnyMutantsSurvived = true;
 
-        public void MutantKilled(Mutant killedMutant, string testFailureDescription) => HaveAnyMutantsBeenKilled = true;
+        public void MutantKilled(Mutant killedMutant, string testFailureDescription)
+        {
+            HaveAnyMutantsBeenKilled = true;
+            killedMutantsAndTheirTestFailures.Add(new Tuple<Mutant, string>(killedMutant, testFailureDescription));
+        }
 
         public void MutantSkipped(Mutant skippedMutant, string reason) => HaveAnyMutantsBeenSkipped = true;
 

@@ -41,15 +41,27 @@ namespace Fettle.Core.Internal
             switch (process.ExitCode)
             {
                 case 0:
-                    return new TestRunResult { Status = TestRunStatus.AllTestsPassed };
+                    return new TestRunResult
+                    {
+                        Status = TestRunStatus.AllTestsPassed
+                    };
                 case 1:
-                    return new TestRunResult { Status = TestRunStatus.SomeTestsFailed };
+                    return new TestRunResult
+                    {
+                        Status = TestRunStatus.SomeTestsFailed,
+                        Error = FormattedOutput(process)
+                    };
                 default:
                     throw new InvalidOperationException(
-$@"Custom test runner returned an unexpected exit code: {process.ExitCode}.
-StdOut: {process.StandardOutput.ReadToEnd()}
-StdErr: {process.StandardError.ReadToEnd()}");
+                        $@"Custom test runner returned an unexpected exit code: {process.ExitCode}.{FormattedOutput(process)}");
             }
+        }
+
+        private static string FormattedOutput(Process process)
+        {
+            return 
+$@"StdOut: {process.StandardOutput.ReadToEnd()}
+StdErr: { process.StandardError.ReadToEnd()}";
         }
 
         public TestRunResult RunTests(IEnumerable<string> testAssemblyFilePaths, IEnumerable<string> testMethodNames)
