@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Fettle.Core;
@@ -22,8 +23,15 @@ namespace Fettle.Console
             outputWriter.WriteLine($"Analysing test: {fullTestName}");
         }
 
+        private readonly HashSet<string> coveredMembers = new HashSet<string>();
+
         public void MemberCoveredByTests(string memberName)
         {
+            if (!coveredMembers.Contains(memberName))
+            {
+                outputWriter.WriteSuccessLine($"{Indentation(1)}{memberName} is covered by tests");
+                coveredMembers.Add(memberName);
+            }
         }
 
         public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total)

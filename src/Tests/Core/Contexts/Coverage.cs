@@ -53,7 +53,8 @@ namespace Fettle.Tests.Core.Contexts
         {
             var mockTestRunner = new Mock<ICoverageTestRunner>();
             mockTestRunner
-                .Setup(x => x.RunAllTestsAndAnalyseCoverage(It.IsAny<IEnumerable<string>>(), It.IsAny<IDictionary<string,string>>(), It.IsAny<Action<string,int>>()))
+                .Setup(x => x.RunAllTestsAndAnalyseCoverage(
+                    It.IsAny<IEnumerable<string>>(), It.IsAny<IDictionary<string,string>>(), It.IsAny<Action<string,int>>(), It.IsAny<Action<string>>()))
                 .Returns(new CoverageTestRunResult
                 {
                     Status = TestRunStatus.SomeTestsFailed,
