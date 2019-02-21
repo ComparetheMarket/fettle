@@ -8,6 +8,7 @@ namespace Fettle.Core.Internal
         CoverageTestRunResult RunAllTestsAndAnalyseCoverage(
             IEnumerable<string> testAssemblyFilePaths,
             IDictionary<string, string> memberIdsToNames,
-            Action<string, int> onAnalysingTestCase);
+            Action<string, int> onAnalysingTestCase,
+            Action<string> onMemberExecuted);
     }
 }

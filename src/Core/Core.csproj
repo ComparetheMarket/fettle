@@ -99,6 +99,7 @@
     <Compile Include="Internal\RoslynExtensions\SyntaxNodeExtensions.cs" />
     <Compile Include="Internal\TempDirectory.cs" />
     <Compile Include="ITestRunnerFactory.cs" />
+    <Compile Include="MutantStatus.cs" />
     <Compile Include="TestRunnerFactory.cs" />
     <Compile Include="TestRunResult.cs" />
     <Compile Include="Internal\IMutator.cs" />
@@ -112,7 +113,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MutationTestResult.cs" />
     <Compile Include="SourceControlIntegrationException.cs" />
-    <Compile Include="SurvivingMutant.cs" />
+    <Compile Include="Mutant.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

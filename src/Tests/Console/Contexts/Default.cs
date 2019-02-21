@@ -161,12 +161,26 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
         {
             var baseSlnDir = Path.Combine(TestContext.CurrentContext.TestDirectory, "..", "..", "..", "..");
 
-            var survivingMutant = new SurvivingMutant
+            var survivingMutant = new Mutant
             {
                 SourceFilePath = Path.Combine(baseSlnDir, "someclass.cs"),
                 SourceLine = 123,
                 OriginalLine = "a+b",
                 MutatedLine = "a-b"
+            };
+            var killedMutant = new Mutant
+            {
+                SourceFilePath = Path.Combine(baseSlnDir, "someotherclass.cs"),
+                SourceLine = 321,
+                OriginalLine = "a > 0",
+                MutatedLine = "a >= 0"
+            };
+            var skippedMutant = new Mutant
+            {
+                SourceFilePath = Path.Combine(baseSlnDir, "yetanotherclass.cs"),
+                SourceLine = 456,
+                OriginalLine = "a == 0",
+                MutatedLine = "a != 0"
             };
 
             MockMutationTestRunner
@@ -179,6 +193,8 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
                     eventListener.MemberMutating("System.Void SomeProject.SomeOtherNamespace.SomeClass::SomeMethod(System.Int32)");
                     eventListener.SyntaxNodeMutating(0, 1);
                     eventListener.MutantSurvived(survivingMutant);
+                    eventListener.MutantKilled(killedMutant, "Expected true but was false");
+                    eventListener.MutantSkipped(skippedMutant, "skip reason");
                     eventListener.EndMutationOfFile(classFilePath);
                 })
                 .Returns(Task.FromResult(new MutationTestResult().WithSurvivingMutants(new []{ survivingMutant })));
@@ -194,6 +210,7 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
                     for (var i = 0; i < 10; ++i)
                     {
                         eventListener.BeginCoverageAnalysisOfTestCase($"Test{i}", i, 10);
+                        eventListener.MemberCoveredByTests("example.methodA");
                     }
                 })
                 .Returns(

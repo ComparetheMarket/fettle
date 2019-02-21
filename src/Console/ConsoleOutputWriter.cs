@@ -29,6 +29,11 @@ namespace Fettle.Console
             ColourWriteLine(output, ConsoleColor.Green);
         }
 
+        public void WriteDebugLine(string output)
+        {
+            ColourWriteLine(output, ConsoleColor.DarkGray);
+        }
+
         public void ClearLine()
         {            
             int currentLineCursor = System.Console.CursorTop;

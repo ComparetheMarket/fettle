@@ -68,7 +68,8 @@ namespace Fettle.Core
                         var runResult = testRunner.RunAllTestsAndAnalyseCoverage(
                             testAssemblyFilePaths: new [] { copiedTestAssemblyFilePath },
                             memberIdsToNames: memberIdsToNames, 
-                            onAnalysingTestCase: (test, index) => eventListener.BeginCoverageAnalysisOfTestCase(test, index, numTests));
+                            onAnalysingTestCase: (test, index) => eventListener.BeginCoverageAnalysisOfTestCase(test, index, numTests),
+                            onMemberExecuted: memberName => eventListener.MemberCoveredByTests(memberName));
 
                         if (runResult.Status != TestRunStatus.AllTestsPassed)
                         {

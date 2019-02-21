@@ -11,6 +11,7 @@ namespace Fettle.Core.Internal.NUnit
     {
         private readonly IDictionary<string, string> memberIdsToNames;
         private readonly Action<string, int> onAnalysingTestCase;
+        private readonly Action<string> onMemberExecuted;
         private int numTestCasesExecuted;
         private NUnitEventListener TestEventListener { get; }
             
@@ -19,10 +20,14 @@ namespace Fettle.Core.Internal.NUnit
 
         public IReadOnlyDictionary<string, ImmutableHashSet<string>> MembersAndCoveringTests { get; }
 
-        public NUnitCoverageCollector(IDictionary<string, string> memberIdsToNames, Action<string, int> onAnalysingTestCase)
+        public NUnitCoverageCollector(
+            IDictionary<string, string> memberIdsToNames, 
+            Action<string, int> onAnalysingTestCase,
+            Action<string> onMemberExecuted)
         {
             this.memberIdsToNames = memberIdsToNames;
             this.onAnalysingTestCase = onAnalysingTestCase;
+            this.onMemberExecuted = onMemberExecuted;
 
             MembersAndCoveringTests = new ReadOnlyDictionary<string, ImmutableHashSet<string>>(membersAndCoveringTests);
             TestEventListener = new NUnitEventListener(OnTestStarting, OnTestComplete, OnTestFixtureComplete);
@@ -66,6 +71,8 @@ namespace Fettle.Core.Internal.NUnit
 
                 if (!membersAndCoveringTests.ContainsKey(executedMemberName))
                     membersAndCoveringTests.Add(executedMemberName, ImmutableHashSet<string>.Empty);
+
+                onMemberExecuted(executedMemberName);
 
                 membersAndCoveringTests[executedMemberName] =
                     membersAndCoveringTests[executedMemberName].Add(testMethodName);

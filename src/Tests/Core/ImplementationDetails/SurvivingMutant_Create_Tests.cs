@@ -95,7 +95,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
             }
         }
 
-        private async Task<SurvivingMutant> CreateSurvivingMutantFromExpression(
+        private async Task<Mutant> CreateSurvivingMutantFromExpression(
             string originalExpression, 
             string mutatedExpression)
         {
@@ -117,10 +117,10 @@ $@"namespace DummyNamespace
 
             var mutatedRoot = originalSyntaxRoot.ReplaceNode(originalNode, mutatedNode);
 
-            return await SurvivingMutant.Create(originalDocument, originalNode, mutatedRoot);
+            return await Mutant.Create(originalDocument, originalNode, mutatedRoot);
         }
         
-        private async Task<SurvivingMutant> CreateSurvivingMutantFromIfStatement(
+        private async Task<Mutant> CreateSurvivingMutantFromIfStatement(
             string originalExpression, 
             string mutatedExpression)
         {
@@ -146,7 +146,7 @@ $@"namespace DummyNamespace
 
             var mutatedRoot = originalSyntaxRoot.ReplaceNode(originalNode, mutatedNode);
 
-            return await SurvivingMutant.Create(originalDocument, originalNode, mutatedRoot);
+            return await Mutant.Create(originalDocument, originalNode, mutatedRoot);
         }
     }
 }

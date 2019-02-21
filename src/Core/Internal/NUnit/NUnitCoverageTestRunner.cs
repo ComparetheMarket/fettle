@@ -9,9 +9,10 @@ namespace Fettle.Core.Internal.NUnit
         public CoverageTestRunResult RunAllTestsAndAnalyseCoverage(
             IEnumerable<string> testAssemblyFilePaths,
             IDictionary<string, string> memberIdsToNames,
-            Action<string, int> onAnalysingTestCase)
+            Action<string, int> onAnalysingTestCase,
+            Action<string> onMemberExecuted)
         {
-            var coverageCollector = new NUnitCoverageCollector(memberIdsToNames, onAnalysingTestCase);
+            var coverageCollector = new NUnitCoverageCollector(memberIdsToNames, onAnalysingTestCase, onMemberExecuted);
 
             var testAssemblyFilePathsAsArray = testAssemblyFilePaths.ToArray();
             var availableTests = FindTestsInAssemblies(testAssemblyFilePathsAsArray);
