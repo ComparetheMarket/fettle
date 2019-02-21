@@ -134,22 +134,13 @@ namespace Fettle.Tests.Console.ImplementationDetails
             {
                 spyOutputWriter = new SpyOutputWriter();
                 var listener = new VerboseEventListener(spyOutputWriter);
-                
+
                 listener.BeginCoverageAnalysisOfTestCase("Tests.TestA", 0, 3);
                 listener.BeginCoverageAnalysisOfTestCase("Tests.TestB", 1, 3);
                 listener.BeginCoverageAnalysisOfTestCase("Tests.TestC", 2, 3);
-                
-                listener.MemberCoveredByTests("example.methodA");
-                listener.MemberCoveredByTests("example.methodA");
-            }
 
-            [Test]
-            public void Then_output_indicates_when_each_test_case_is_run()
-            {
-                Assert.That(string.Join("", spyOutputWriter.WrittenNormalLines),
-                    Does.Contain("TestA").And
-                        .Contains("TestB").And
-                        .Contains("TestC"));
+                listener.MemberCoveredByTests("example.methodA");
+                listener.MemberCoveredByTests("example.methodA");
             }
 
             [Test]
