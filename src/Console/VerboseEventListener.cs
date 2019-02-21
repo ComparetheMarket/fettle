@@ -19,7 +19,11 @@ namespace Fettle.Console
 
         public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
         {
-            outputWriter.WriteLine($"Analysing coverage: {fullTestName}");
+            outputWriter.WriteLine($"Analysing test: {fullTestName}");
+        }
+
+        public void MemberCoveredByTests(string memberName)
+        {
         }
 
         public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total)

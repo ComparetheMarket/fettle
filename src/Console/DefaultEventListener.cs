@@ -25,6 +25,8 @@ namespace Fettle.Console
             }
         }
 
+        public void MemberCoveredByTests(string memberName) {}
+
         public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total)
         {
             baseSourceDir = baseSourceDirectory;

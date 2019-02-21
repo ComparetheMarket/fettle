@@ -12,6 +12,9 @@ namespace Fettle.Tests.Core.Contexts
 
         private readonly List<string> begunMembers = new List<string>();
         public IReadOnlyList<string> BegunMembers => begunMembers;
+        
+        private readonly List<string> coveredMembers = new List<string>();
+        public IReadOnlyList<string> CoveredMembers => coveredMembers;
 
         private readonly List<Tuple<Mutant, string>> killedMutantsAndTheirTestFailures = new List<Tuple<Mutant, string>>();
         public IReadOnlyList<Tuple<Mutant, string>> KilledMutantsAndTheirTestFailures => killedMutantsAndTheirTestFailures;
@@ -25,6 +28,8 @@ namespace Fettle.Tests.Core.Contexts
         public bool HaveAnyMutantsBeenSkipped { get; private set; }
 
         public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total) {}
+
+        public void MemberCoveredByTests(string memberName) => coveredMembers.Add(memberName);
 
         public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total) => begunFiles.Add(filePath);
 

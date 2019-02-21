@@ -210,6 +210,7 @@ sourceFileFilters: {CollectionToYamlList(modifiedConfig.SourceFileFilters)}
                     for (var i = 0; i < 10; ++i)
                     {
                         eventListener.BeginCoverageAnalysisOfTestCase($"Test{i}", i, 10);
+                        eventListener.MemberCoveredByTests("example.methodA");
                     }
                 })
                 .Returns(

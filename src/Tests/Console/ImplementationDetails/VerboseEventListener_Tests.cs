@@ -138,6 +138,9 @@ namespace Fettle.Tests.Console.ImplementationDetails
                 listener.BeginCoverageAnalysisOfTestCase("Tests.TestA", 0, 3);
                 listener.BeginCoverageAnalysisOfTestCase("Tests.TestB", 1, 3);
                 listener.BeginCoverageAnalysisOfTestCase("Tests.TestC", 2, 3);
+                
+                listener.MemberCoveredByTests("example.methodA");
+                listener.MemberCoveredByTests("example.methodA");
             }
 
             [Test]
@@ -147,6 +150,12 @@ namespace Fettle.Tests.Console.ImplementationDetails
                     Does.Contain("TestA").And
                         .Contains("TestB").And
                         .Contains("TestC"));
+            }
+
+            [Test]
+            public void Then_output_includes_the_distinct_set_of_covered_methods()
+            {
+                Assert.That(spyOutputWriter.WrittenSuccessLines, Has.One.Contains("example.methodA"));
             }
         }
     }

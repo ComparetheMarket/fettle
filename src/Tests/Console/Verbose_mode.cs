@@ -23,6 +23,12 @@ namespace Fettle.Tests.Console
         }
 
         [Test]
+        public void Then_detailed_coverage_analysis_progress_is_output()
+        {
+            Assert.That(SpyOutputWriter.AllOutput, Does.Contain("is covered").IgnoreCase);
+        }
+
+        [Test]
         public void Then_detailed_mutation_testing_progress_is_output()
         {
             Assert.Multiple(() =>
@@ -50,6 +56,12 @@ namespace Fettle.Tests.Console
         public void Verbose_mode_is_not_a_required_command_line_argument()
         {
             Assert.That(ExitCode, Is.Not.EqualTo(2));
+        }
+
+        [Test]
+        public void Then_detailed_coverage_analysis_progress_is_not_output()
+        {
+            Assert.That(SpyOutputWriter.AllOutput, Does.Not.Contain("is covered").IgnoreCase);
         }
 
         [Test]
