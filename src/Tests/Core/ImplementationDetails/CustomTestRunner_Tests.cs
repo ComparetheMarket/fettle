@@ -36,6 +36,7 @@ namespace Fettle.Tests.Core.ImplementationDetails
             var result = testRunner.RunAllTests(new[] { "a.dll" });
 
             Assert.That(result.Status, Is.EqualTo(TestRunStatus.SomeTestsFailed));
+            Assert.That(result.Error, Does.Contain("StdOut:").And.Contains("StdErr:"));
         }
 
         [Test]
