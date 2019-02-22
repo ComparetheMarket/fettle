@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 
 namespace Fettle.Core.Internal
 {
@@ -31,14 +32,26 @@ namespace Fettle.Core.Internal
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
             });
+
+            var capturedStdOut = new StringBuilder();
+            var capturedStdErr = new StringBuilder();
+            process.OutputDataReceived += (sender, args) => capturedStdOut.Append(args.Data);
+            process.ErrorDataReceived += (sender, args) => capturedStdErr.Append(args.Data);
+
+            process.BeginErrorReadLine();
+            process.BeginOutputReadLine();
+
             process.WaitForExit();
 
-            return CompletedProcessToTestRunResult(process);
+            var exitCode = process.ExitCode;
+            process.Close();
+
+            return CompletedProcessToTestRunResult(exitCode, capturedStdOut.ToString(), capturedStdErr.ToString());
         }
 
-        private TestRunResult CompletedProcessToTestRunResult(Process process)
+        private TestRunResult CompletedProcessToTestRunResult(int exitCode, string stdOut, string stdErr)
         {
-            switch (process.ExitCode)
+            switch (exitCode)
             {
                 case 0:
                     return new TestRunResult
@@ -49,19 +62,19 @@ namespace Fettle.Core.Internal
                     return new TestRunResult
                     {
                         Status = TestRunStatus.SomeTestsFailed,
-                        Error = FormattedOutput(process)
+                        Error = FormattedOutput(stdOut, stdErr)
                     };
                 default:
                     throw new InvalidOperationException(
-                        $@"Custom test runner returned an unexpected exit code: {process.ExitCode}.{FormattedOutput(process)}");
+                        $@"Custom test runner returned an unexpected exit code: {exitCode}.{FormattedOutput(stdOut, stdErr)}");
             }
         }
 
-        private static string FormattedOutput(Process process)
+        private static string FormattedOutput(string stdOut, string stdErr)
         {
             return 
-$@"StdOut: {process.StandardOutput.ReadToEnd()}
-StdErr: { process.StandardError.ReadToEnd()}";
+$@"StdOut: {stdOut}
+StdErr: {stdErr}";
         }
 
         public TestRunResult RunTests(IEnumerable<string> testAssemblyFilePaths, IEnumerable<string> testMethodNames)
