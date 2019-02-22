@@ -13,11 +13,11 @@
     <releaseNotes>@releaseNotes@</releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
-An experimental mutation testing tool for C# code.
-      
-Fettle currently supports project that use:
-* .NET Framework 4.x
-* NUnit framework 3.x (version 3.10 or higher recommended)
+Fettle is an experimental mutation testing tool for C# code.
+It can mutate C# code that runs on the .NET Framework (Mono or .NET Core are not supported).
+
+If your tests use NUnit 3, Fettle will use them by default (version 3.10 or higher recommended).
+Or if you use another framework, or need to run them in a special way, then you can use a custom test runner command.
     </description>
     <!--<releaseNotes>@releaseNotes@</releaseNotes>-->
     <copyright>Copyright CompareTheMarket 2018</copyright>
