@@ -93,7 +93,6 @@ namespace Fettle.Tests.Console.ImplementationDetails
             {
                 Assert.That(spyOutputWriter.WrittenSuccessLines, Has.One.Contains("killed").IgnoreCase);
                 Assert.That(spyOutputWriter.WrittenNormalLines, Has.One.Contains("a > 0"));
-                Assert.That(spyOutputWriter.AllOutput, Does.Contain("Expected true but was false"));
             }
 
             [Test]
