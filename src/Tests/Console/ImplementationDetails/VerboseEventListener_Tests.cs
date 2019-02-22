@@ -17,7 +17,14 @@ namespace Fettle.Tests.Console.ImplementationDetails
             {
                 spyOutputWriter = new SpyOutputWriter();
                 var listener = new VerboseEventListener(spyOutputWriter);
-                
+
+                var testFailureDescription = 
+@"       Expected:
+            true
+         but was:
+            false";
+
+
                 listener.BeginMutationOfFile(@"c:\some-project\src\Class1.cs", @"c:\some-project", 0, 2);
                 listener.MemberMutating("System.Void SomeProject.Class1::MethodA(System.Int32)");
                 listener.SyntaxNodeMutating(0, 2);
@@ -45,7 +52,8 @@ namespace Fettle.Tests.Console.ImplementationDetails
                         MutatedLine = "a >= 0",
                         SourceFilePath = @"c:\some-project\src\Class2.cs",
                         SourceLine = 20
-                    }, "Expected true but was false");
+                    }, 
+                    testFailureDescription);
                 listener.SyntaxNodeMutating(1, 2);
                 listener.MutantSurvived(
                     new Mutant
@@ -86,6 +94,15 @@ namespace Fettle.Tests.Console.ImplementationDetails
                 Assert.That(spyOutputWriter.WrittenSuccessLines, Has.One.Contains("killed").IgnoreCase);
                 Assert.That(spyOutputWriter.WrittenNormalLines, Has.One.Contains("a > 0"));
                 Assert.That(spyOutputWriter.AllOutput, Does.Contain("Expected true but was false"));
+            }
+
+            [Test]
+            public void Then_output_contains_formatted_test_failure_description_when_mutant_is_killed()
+            {
+                Assert.That(spyOutputWriter.AllOutput, Does.Contain("            Expected:"));
+                Assert.That(spyOutputWriter.AllOutput, Does.Contain("            true"));
+                Assert.That(spyOutputWriter.AllOutput, Does.Contain("            but was:"));
+                Assert.That(spyOutputWriter.AllOutput, Does.Contain("            false"));
             }
 
             [Test]
