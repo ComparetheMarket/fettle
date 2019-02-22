@@ -6,9 +6,11 @@ Fettle is an experimental [mutation testing](https://github.com/ComparetheMarket
 
 ## Prerequisites
 
-Right now Fettle can mutation-test your project if you use:
-* .NET Framework 4.x
-* NUnit framework 3.x (version 3.10 or higher recommended)
+Fettle can mutate C# code that runs on the .NET Framework (Mono or .NET Core are not supported).  
+
+If your tests use NUnit 3, Fettle will use them by default (version 3.10 or higher recommended).  
+
+Or if you use another framework, or need to run them in a special way, then you can use a [custom test runner command](https://github.com/ComparetheMarket/fettle/wiki/Custom-Test-Runners).
 
 ## Getting Started
 
