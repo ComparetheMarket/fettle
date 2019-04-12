@@ -109,6 +109,7 @@
     <Compile Include="Core\ImplementationDetails\Mutation\Assignment_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Conditional_operator.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\If_statement_condition.cs" />
+    <Compile Include="Core\ImplementationDetails\Mutation\Null_coalescing_operator.cs" />
     <Compile Include="Core\ImplementationDetails\NameOfContainingMember_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\NUnitExploreResults_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Increment_and_decrement_operators.cs" />

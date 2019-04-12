@@ -76,6 +76,7 @@
     <Compile Include="Internal\ITestFinder.cs" />
     <Compile Include="Internal\ICoverageTestRunner.cs" />
     <Compile Include="Internal\Mutators\InvertIfStatementConditionMutator.cs" />
+    <Compile Include="Internal\Mutators\InvertNullCoalescingOperatorMutator.cs" />
     <Compile Include="Internal\NUnit\NUnitCoverageTestRunner.cs" />
     <Compile Include="Internal\NUnit\NUnitTestFinder.cs" />
     <Compile Include="Internal\NUnit\NUnitTestRunner.cs" />
