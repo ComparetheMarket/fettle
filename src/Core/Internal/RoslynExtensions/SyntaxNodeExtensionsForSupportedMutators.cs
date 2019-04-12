@@ -2,6 +2,7 @@
 using System.Linq;
 using Fettle.Core.Internal.Mutators;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Fettle.Core.Internal.RoslynExtensions
@@ -12,8 +13,8 @@ namespace Fettle.Core.Internal.RoslynExtensions
         {
             switch (node)
             {
-                case BinaryExpressionSyntax binaryExpression: 
-                    return MutatorsThatReplaceBinaryExpressionOperators(binaryExpression);
+                case BinaryExpressionSyntax binaryExpression:
+                    return MutatorsThatModifyBinaryExpressions(binaryExpression);
 
                 case PrefixUnaryExpressionSyntax prefixUnaryExpression:
                     return MutatorsThatSwapUnaryExpressions(prefixUnaryExpression.OperatorToken);
@@ -49,17 +50,24 @@ namespace Fettle.Core.Internal.RoslynExtensions
             return MutatorsThatReplaceOperators(operatorToken.ToString(), new[] { new[] { "--", "++" } });
         }
 
-        private static IList<IMutator> MutatorsThatReplaceBinaryExpressionOperators(BinaryExpressionSyntax binaryExpression)
+        private static IList<IMutator> MutatorsThatModifyBinaryExpressions(BinaryExpressionSyntax binaryExpression)
         {
-            var operatorFrom = binaryExpression.OperatorToken.ToString();
-            return MutatorsThatReplaceOperators(operatorFrom,
-                new[]
-                {
-                    new[] {"+", "-", "*", "/", "%"},
-                    new[] {">", "<", ">=", "<="},
-                    new[] {"==", "!="},
-                    new[] {"&&", "||"}
-                });
+            if (binaryExpression.Kind() == SyntaxKind.CoalesceExpression)
+            {
+                return new List<IMutator> { new InvertNullCoalescingOperatorMutator() };
+            }
+            else
+            {
+                var operatorFrom = binaryExpression.OperatorToken.ToString();
+                return MutatorsThatReplaceOperators(operatorFrom,
+                    new[]
+                    {
+                        new[] {"+", "-", "*", "/", "%"},
+                        new[] {">", "<", ">=", "<="},
+                        new[] {"==", "!="},
+                        new[] {"&&", "||"}
+                    });
+            }
         }
 
         private static IList<IMutator> MutatorsThatReplaceOperators(string operatorFrom, string[][] operatorSets)

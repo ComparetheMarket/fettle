@@ -21,7 +21,6 @@ namespace Fettle.Tests.Core.ImplementationDetails.Mutation
                 .Single(s => s.Kind() == SyntaxKind.CoalesceExpression);
 
             var mutators = nodeToMutate.SupportedMutators().OfType<InvertNullCoalescingOperatorMutator>().ToArray();
-            
             var mutatedNode = mutators.Select(m => m.Mutate(nodeToMutate)).Single();
 
             Assert.That(mutatedNode.ToString(), Does.StartWith("right ?? left"));
