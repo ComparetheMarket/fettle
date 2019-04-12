@@ -10,47 +10,56 @@ namespace Fettle.Core.Internal.RoslynExtensions
     {
         public static IList<IMutator> SupportedMutators(this SyntaxNode node)
         {
-            if (node is BinaryExpressionSyntax binaryExpression)
+            switch (node)
             {
-                var operatorFrom = binaryExpression.OperatorToken.ToString();
-                return MutatorsThatReplaceOperators(operatorFrom, 
-                    new[]
-                    {
-                        new[] {"+", "-", "*", "/", "%"},
-                        new[] {">", "<", ">=", "<="},
-                        new[] {"==", "!="},
-                        new[] {"&&", "||"}
-                    });
+                case BinaryExpressionSyntax binaryExpression: 
+                    return MutatorsThatReplaceBinaryExpressionOperators(binaryExpression);
+
+                case PrefixUnaryExpressionSyntax prefixUnaryExpression:
+                    return MutatorsThatSwapUnaryExpressions(prefixUnaryExpression.OperatorToken);
+
+                case PostfixUnaryExpressionSyntax postfixUnaryExpression:
+                    return MutatorsThatSwapUnaryExpressions(postfixUnaryExpression.OperatorToken);
+
+                case AssignmentExpressionSyntax assignmentExpression:
+                    return MutatorsThatReplaceAssignmentOperators(assignmentExpression);
+
+                case ConditionalExpressionSyntax _:
+                    return new List<IMutator> { new InvertConditionalExpressionMutator() };
+
+                case IfStatementSyntax _:
+                    return new List<IMutator> { new InvertIfStatementConditionMutator() };
             }
-            else if (node is PrefixUnaryExpressionSyntax prefixUnaryExpression)
-            {
-                var operatorFrom = prefixUnaryExpression.OperatorToken.ToString();
-                return MutatorsThatReplaceOperators(operatorFrom, new[] { new[]{ "--", "++" } });
-            }
-            else if (node is PostfixUnaryExpressionSyntax postfixUnaryExpression)
-            {
-                var operatorFrom = postfixUnaryExpression.OperatorToken.ToString();
-                return MutatorsThatReplaceOperators(operatorFrom, new[] { new[]{ "--", "++" } });
-            }
-            else if (node is AssignmentExpressionSyntax assignmentExpression)
-            {
-                var operatorFrom = assignmentExpression.OperatorToken.ToString();
-                return MutatorsThatReplaceOperators(operatorFrom,
-                    new []
-                    {
-                        new[]{ "+=", "-=", "*=", "/=", "%=" }
-                    });
-            }
-            else if (node is ConditionalExpressionSyntax)
-            {
-                return new List<IMutator> { new InvertConditionalExpressionMutator() };
-            }
-            else if (node is IfStatementSyntax ifStatement)
-            {
-                return new List<IMutator> { new InvertIfStatementConditionMutator() };
-            }
-            
+
             return new List<IMutator>();
+        }
+
+        private static IList<IMutator> MutatorsThatReplaceAssignmentOperators(AssignmentExpressionSyntax assignmentExpression)
+        {
+            var operatorFrom = assignmentExpression.OperatorToken.ToString();
+            return MutatorsThatReplaceOperators(operatorFrom,
+                new[]
+                {
+                    new[] {"+=", "-=", "*=", "/=", "%="}
+                });
+        }
+
+        private static IList<IMutator> MutatorsThatSwapUnaryExpressions(SyntaxToken operatorToken)
+        {
+            return MutatorsThatReplaceOperators(operatorToken.ToString(), new[] { new[] { "--", "++" } });
+        }
+
+        private static IList<IMutator> MutatorsThatReplaceBinaryExpressionOperators(BinaryExpressionSyntax binaryExpression)
+        {
+            var operatorFrom = binaryExpression.OperatorToken.ToString();
+            return MutatorsThatReplaceOperators(operatorFrom,
+                new[]
+                {
+                    new[] {"+", "-", "*", "/", "%"},
+                    new[] {">", "<", ">=", "<="},
+                    new[] {"==", "!="},
+                    new[] {"&&", "||"}
+                });
         }
 
         private static IList<IMutator> MutatorsThatReplaceOperators(string operatorFrom, string[][] operatorSets)
