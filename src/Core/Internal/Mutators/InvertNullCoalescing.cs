@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Fettle.Core.Internal.Mutators
 {
-    internal class InvertNullCoalescingOperatorMutator : IMutator
+    internal class InvertNullCoalescing : IMutator
     {
         public SyntaxNode Mutate(SyntaxNode node)
         {

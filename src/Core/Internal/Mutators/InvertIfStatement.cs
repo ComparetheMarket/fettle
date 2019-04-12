@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Simplification;
 
 namespace Fettle.Core.Internal.Mutators
 {    
-    internal class InvertIfStatementConditionMutator : IMutator
+    internal class InvertIfStatement : IMutator
     {
         public SyntaxNode Mutate(SyntaxNode node)
         {

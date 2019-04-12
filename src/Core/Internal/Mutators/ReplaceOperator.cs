@@ -3,12 +3,12 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Fettle.Core.Internal.Mutators
 {
-    internal class ReplaceOperatorMutator : IMutator
+    internal class ReplaceOperator : IMutator
     {
         private readonly string from;
         private readonly string to;
 
-        public ReplaceOperatorMutator(string from, string to)
+        public ReplaceOperator(string from, string to)
         {
             this.from = from;
             this.to = to;

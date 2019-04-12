@@ -26,10 +26,10 @@ namespace Fettle.Core.Internal.RoslynExtensions
                     return MutatorsThatReplaceAssignmentOperators(assignmentExpression);
 
                 case ConditionalExpressionSyntax _:
-                    return new List<IMutator> { new InvertConditionalExpressionMutator() };
+                    return new List<IMutator> { new InvertConditionalExpression() };
 
                 case IfStatementSyntax _:
-                    return new List<IMutator> { new InvertIfStatementConditionMutator() };
+                    return new List<IMutator> { new InvertIfStatement() };
             }
 
             return new List<IMutator>();
@@ -54,7 +54,7 @@ namespace Fettle.Core.Internal.RoslynExtensions
         {
             if (binaryExpression.Kind() == SyntaxKind.CoalesceExpression)
             {
-                return new List<IMutator> { new InvertNullCoalescingOperatorMutator() };
+                return new List<IMutator> { new InvertNullCoalescing() };
             }
             else
             {
@@ -79,7 +79,7 @@ namespace Fettle.Core.Internal.RoslynExtensions
             }
 
             return operatorSet.Except(new[] { operatorFrom })
-                .Select(operatorTo => new ReplaceOperatorMutator(operatorFrom, operatorTo))
+                .Select(operatorTo => new ReplaceOperator(operatorFrom, operatorTo))
                 .Cast<IMutator>()
                 .ToList();
         }

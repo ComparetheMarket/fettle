@@ -75,8 +75,8 @@
     <Compile Include="Internal\Instrumentation\PropertyInstrumentation.cs" />
     <Compile Include="Internal\ITestFinder.cs" />
     <Compile Include="Internal\ICoverageTestRunner.cs" />
-    <Compile Include="Internal\Mutators\InvertIfStatementConditionMutator.cs" />
-    <Compile Include="Internal\Mutators\InvertNullCoalescingOperatorMutator.cs" />
+    <Compile Include="Internal\Mutators\InvertIfStatement.cs" />
+    <Compile Include="Internal\Mutators\InvertNullCoalescing.cs" />
     <Compile Include="Internal\NUnit\NUnitCoverageTestRunner.cs" />
     <Compile Include="Internal\NUnit\NUnitTestFinder.cs" />
     <Compile Include="Internal\NUnit\NUnitTestRunner.cs" />
@@ -85,8 +85,8 @@
     <Compile Include="Internal\MutationJob.cs" />
     <Compile Include="Internal\MutationJobList.cs" />
     <Compile Include="Internal\MutationJobMetadata.cs" />
-    <Compile Include="Internal\Mutators\SwapChildExpressionsMutator.cs" />
-    <Compile Include="Internal\Mutators\SwapOperatorMutator.cs" />
+    <Compile Include="Internal\Mutators\InvertConditionalExpression.cs" />
+    <Compile Include="Internal\Mutators\ReplaceOperator.cs" />
     <Compile Include="Internal\NUnit\NUnitEventListener.cs" />
     <Compile Include="Internal\NUnit\NUnitExploreResults.cs" />
     <Compile Include="Internal\NUnit\NUnitCoverageCollector.cs" />

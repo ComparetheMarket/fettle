@@ -30,7 +30,7 @@ $@"public static string BooleanToString(bool b)
                 .OfType<IfStatementSyntax>()
                 .Single();
 
-            var mutators = nodeToMutate.SupportedMutators().OfType<InvertIfStatementConditionMutator>().ToArray();
+            var mutators = nodeToMutate.SupportedMutators().OfType<InvertIfStatement>().ToArray();
             var mutatedNode = mutators.Select(m => m.Mutate(nodeToMutate)).Single();
             Assert.That(mutatedNode.ToString(), Does.StartWith(expectedAfter));
         }
@@ -57,7 +57,7 @@ $@"public static string BooleanToString(bool b)
                 .Skip(1)
                 .Single();
 
-            var mutators = nodeToMutate.SupportedMutators().OfType<InvertIfStatementConditionMutator>().ToArray();
+            var mutators = nodeToMutate.SupportedMutators().OfType<InvertIfStatement>().ToArray();
             var mutatedNode = mutators.Select(m => m.Mutate(nodeToMutate)).Single();
             Assert.That(mutatedNode.ToString(), Does.StartWith("if (!(b)"));
         }
@@ -78,7 +78,7 @@ $@"public static string BooleanToString(bool b)
                 .OfType<IfStatementSyntax>()
                 .Single();
 
-            var mutators = nodeToMutate.SupportedMutators().OfType<InvertIfStatementConditionMutator>().ToArray();
+            var mutators = nodeToMutate.SupportedMutators().OfType<InvertIfStatement>().ToArray();
             var mutatedNode = mutators.Select(m => m.Mutate(nodeToMutate)).Single();
             Assert.That(mutatedNode.ToString(), Does.StartWith("if (!(a && b)"));
         }
