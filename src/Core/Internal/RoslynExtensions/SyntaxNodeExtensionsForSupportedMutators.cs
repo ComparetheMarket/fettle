@@ -2,6 +2,7 @@
 using System.Linq;
 using Fettle.Core.Internal.Mutators;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Fettle.Core.Internal.RoslynExtensions
@@ -10,10 +11,55 @@ namespace Fettle.Core.Internal.RoslynExtensions
     {
         public static IList<IMutator> SupportedMutators(this SyntaxNode node)
         {
-            if (node is BinaryExpressionSyntax binaryExpression)
+            switch (node)
+            {
+                case BinaryExpressionSyntax binaryExpression:
+                    return MutatorsThatModifyBinaryExpressions(binaryExpression);
+
+                case PrefixUnaryExpressionSyntax prefixUnaryExpression:
+                    return MutatorsThatSwapUnaryExpressions(prefixUnaryExpression.OperatorToken);
+
+                case PostfixUnaryExpressionSyntax postfixUnaryExpression:
+                    return MutatorsThatSwapUnaryExpressions(postfixUnaryExpression.OperatorToken);
+
+                case AssignmentExpressionSyntax assignmentExpression:
+                    return MutatorsThatReplaceAssignmentOperators(assignmentExpression);
+
+                case ConditionalExpressionSyntax _:
+                    return new List<IMutator> { new InvertConditionalExpression() };
+
+                case IfStatementSyntax _:
+                    return new List<IMutator> { new InvertIfStatement() };
+            }
+
+            return new List<IMutator>();
+        }
+
+        private static IList<IMutator> MutatorsThatReplaceAssignmentOperators(AssignmentExpressionSyntax assignmentExpression)
+        {
+            var operatorFrom = assignmentExpression.OperatorToken.ToString();
+            return MutatorsThatReplaceOperators(operatorFrom,
+                new[]
+                {
+                    new[] {"+=", "-=", "*=", "/=", "%="}
+                });
+        }
+
+        private static IList<IMutator> MutatorsThatSwapUnaryExpressions(SyntaxToken operatorToken)
+        {
+            return MutatorsThatReplaceOperators(operatorToken.ToString(), new[] { new[] { "--", "++" } });
+        }
+
+        private static IList<IMutator> MutatorsThatModifyBinaryExpressions(BinaryExpressionSyntax binaryExpression)
+        {
+            if (binaryExpression.Kind() == SyntaxKind.CoalesceExpression)
+            {
+                return new List<IMutator> { new InvertNullCoalescing() };
+            }
+            else
             {
                 var operatorFrom = binaryExpression.OperatorToken.ToString();
-                return MutatorsThatReplaceOperators(operatorFrom, 
+                return MutatorsThatReplaceOperators(operatorFrom,
                     new[]
                     {
                         new[] {"+", "-", "*", "/", "%"},
@@ -22,35 +68,6 @@ namespace Fettle.Core.Internal.RoslynExtensions
                         new[] {"&&", "||"}
                     });
             }
-            else if (node is PrefixUnaryExpressionSyntax prefixUnaryExpression)
-            {
-                var operatorFrom = prefixUnaryExpression.OperatorToken.ToString();
-                return MutatorsThatReplaceOperators(operatorFrom, new[] { new[]{ "--", "++" } });
-            }
-            else if (node is PostfixUnaryExpressionSyntax postfixUnaryExpression)
-            {
-                var operatorFrom = postfixUnaryExpression.OperatorToken.ToString();
-                return MutatorsThatReplaceOperators(operatorFrom, new[] { new[]{ "--", "++" } });
-            }
-            else if (node is AssignmentExpressionSyntax assignmentExpression)
-            {
-                var operatorFrom = assignmentExpression.OperatorToken.ToString();
-                return MutatorsThatReplaceOperators(operatorFrom,
-                    new []
-                    {
-                        new[]{ "+=", "-=", "*=", "/=", "%=" }
-                    });
-            }
-            else if (node is ConditionalExpressionSyntax)
-            {
-                return new List<IMutator> { new InvertConditionalExpressionMutator() };
-            }
-            else if (node is IfStatementSyntax ifStatement)
-            {
-                return new List<IMutator> { new InvertIfStatementConditionMutator() };
-            }
-            
-            return new List<IMutator>();
         }
 
         private static IList<IMutator> MutatorsThatReplaceOperators(string operatorFrom, string[][] operatorSets)
@@ -62,7 +79,7 @@ namespace Fettle.Core.Internal.RoslynExtensions
             }
 
             return operatorSet.Except(new[] { operatorFrom })
-                .Select(operatorTo => new ReplaceOperatorMutator(operatorFrom, operatorTo))
+                .Select(operatorTo => new ReplaceOperator(operatorFrom, operatorTo))
                 .Cast<IMutator>()
                 .ToList();
         }

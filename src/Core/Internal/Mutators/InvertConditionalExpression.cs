@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Fettle.Core.Internal.Mutators
 {
-    internal class InvertConditionalExpressionMutator : IMutator
+    internal class InvertConditionalExpression : IMutator
     {
         public SyntaxNode Mutate(SyntaxNode node)
         {
