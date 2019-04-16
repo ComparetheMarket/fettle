@@ -10,7 +10,7 @@ namespace Fettle.Core.Internal.RoslynExtensions
         public static string NameOfContainingMember(this SyntaxNode targetNode, SemanticModel semanticModel)
         {
             NamespaceDeclarationSyntax foundNamespace = null;
-            ClassDeclarationSyntax foundClass = null;
+            TypeDeclarationSyntax foundType = null;
             MemberDeclarationSyntax foundMember = null;
 
             SyntaxNode node = targetNode.Parent;
@@ -19,14 +19,17 @@ namespace Fettle.Core.Internal.RoslynExtensions
                 switch (node)
                 {
                     case NamespaceDeclarationSyntax @namespace: foundNamespace = @namespace; break;
-                    case ClassDeclarationSyntax @class: foundClass = @class; break;
+
+                    case StructDeclarationSyntax structType: foundType = structType; break;
+                    case ClassDeclarationSyntax classType: foundType = classType; break;
+
                     case MemberDeclarationSyntax member: foundMember = member; break;
                 }
 
                 node = node.Parent;
             }
 
-            var foundContainingMember = foundNamespace != null && foundClass != null && foundMember != null;
+            var foundContainingMember = foundNamespace != null && foundType != null && foundMember != null;
             if (foundContainingMember && SupportsMember(foundMember))
             {
                 var formattedParameters = FormattedParameters(semanticModel, foundMember);
@@ -36,7 +39,7 @@ namespace Fettle.Core.Internal.RoslynExtensions
 
                 var identifier = Identifier(foundMember);
 
-                return $"{returnTypeFormatted}{foundNamespace.Name}.{foundClass.Identifier}::{identifier}{formattedParameters}";
+                return $"{returnTypeFormatted}{foundNamespace.Name}.{foundType.Identifier}::{identifier}{formattedParameters}";
             }
 
             return null;
