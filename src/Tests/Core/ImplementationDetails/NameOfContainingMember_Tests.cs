@@ -56,6 +56,32 @@ namespace Fettle.Tests.Core.ImplementationDetails
         }
 
         [Test]
+        public void Members_within_structs_are_supported()
+        {
+            var syntaxTree = CSharpSyntaxTree.ParseText(
+            @"namespace DummyNamespace
+            {
+                public struct DummyStruct
+                {
+                    public int a, b;
+
+                    public DummyStruct(int x, int y)
+                    {
+                        a = x;
+                        b = y;
+                    }
+                }
+            }");
+            var compilation = CSharpCompilation.Create("DummyAssembly", new[] { syntaxTree });
+            var returnStatementNode = syntaxTree.GetRoot().DescendantNodes().OfType<ExpressionStatementSyntax>().Last();
+            var semanticModel = compilation.GetSemanticModel(syntaxTree);
+
+            var containingMemberName = returnStatementNode.NameOfContainingMember(semanticModel);
+
+            Assert.That(containingMemberName, Is.EqualTo("DummyNamespace.DummyStruct::DummyStruct(System.Int32,System.Int32)"));
+        }
+
+        [Test]
         public void Properties_are_supported()
         {
             var syntaxTree = CSharpSyntaxTree.ParseText(

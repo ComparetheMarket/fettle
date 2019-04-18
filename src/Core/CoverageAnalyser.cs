@@ -119,16 +119,16 @@ namespace Fettle.Core
             var originalSyntaxTrees = new List<SyntaxTree>();
             var modifiedSyntaxTrees = new List<SyntaxTree>();
 
-            var classesToInstrument = project.Documents
+            var documentsToInstrument = project.Documents
                 .Where(d => Filtering.ShouldMutateDocument(d, config))
                 .Where(d => !d.IsAutomaticallyGenerated());
 
-            foreach (var originalClass in classesToInstrument)
+            foreach (var originalDocument in documentsToInstrument)
             {
-                var originalSyntaxTree = await originalClass.GetSyntaxTreeAsync().ConfigureAwait(false);
+                var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync().ConfigureAwait(false);
                 var modifiedSyntaxTree = await Instrumentation.InstrumentDocument(
-                    originalSyntaxTree, 
-                    originalClass,
+                    originalSyntaxTree,
+                    originalDocument,
                     memberIdsToNames.Add,
                     memberIdGenerator);
 
