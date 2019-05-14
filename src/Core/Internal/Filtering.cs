@@ -57,7 +57,7 @@ namespace Fettle.Core.Internal
 
         private static string RelativeDocumentPath(Document document, Config config)
         {
-            var baseDir = Path.GetFullPath(Path.GetDirectoryName(config.SolutionFilePath));
+            var baseDir = DirectoryUtils.SafeGetFullPath(Path.GetDirectoryName(config.SolutionFilePath));
             var relativePath = document.FilePath.Substring(baseDir.Length + 1);
             return relativePath;
         }

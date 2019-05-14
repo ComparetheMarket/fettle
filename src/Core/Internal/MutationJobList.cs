@@ -112,9 +112,9 @@ namespace Fettle.Core.Internal
             {
                 var jobsForSourceFile = jobsBySourceFile[sourceFileIndex];
                 var sourceFilePath = jobsForSourceFile.Key;
+	            var baseSourceDirectory = DirectoryUtils.SafeGetFullPath(Path.GetDirectoryName(config.SolutionFilePath));
 
-                eventListener.BeginMutationOfFile(
-                    sourceFilePath, Path.GetFullPath(Path.GetDirectoryName(config.SolutionFilePath)), sourceFileIndex, jobsBySourceFile.Length);
+	            eventListener.BeginMutationOfFile(sourceFilePath, baseSourceDirectory, sourceFileIndex, jobsBySourceFile.Length);
 
                 foreach (var mutationJobAndMetadata in jobsForSourceFile)
                 {

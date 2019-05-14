@@ -19,5 +19,15 @@ namespace Fettle.Core.Internal
                 File.Copy(file, file.Replace(sourcePath, destinationPath));
             }
         }
-    }
+
+	    public static string SafeGetFullPath(string path)
+	    {
+		    if (string.IsNullOrEmpty(path))
+		    {
+			    path = ".";
+		    }
+
+		    return Path.GetFullPath(path);
+	    }
+	}
 }
