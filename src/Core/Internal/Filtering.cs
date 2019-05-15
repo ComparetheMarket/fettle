@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using DotNet.Globbing;
 using Microsoft.CodeAnalysis;
@@ -57,7 +56,7 @@ namespace Fettle.Core.Internal
 
         private static string RelativeDocumentPath(Document document, Config config)
         {
-            var baseDir = DirectoryUtils.SafeGetFullPath(Path.GetDirectoryName(config.SolutionFilePath));
+	        var baseDir = config.GetSolutionFolder();
             var relativePath = document.FilePath.Substring(baseDir.Length + 1);
             return relativePath;
         }

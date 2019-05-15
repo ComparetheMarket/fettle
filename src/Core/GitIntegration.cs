@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 
 namespace Fettle.Core
@@ -15,15 +14,13 @@ namespace Fettle.Core
 
         private static string GitStatusOutput(Config config)
         {
-            var solutionDir = Path.GetFullPath(Path.GetDirectoryName(config.SolutionFilePath));
-
-            const string gitStatusWithParseableOutput = "git status --porcelain=2";
+	        const string gitStatusWithParseableOutput = "git status --porcelain=2";
 
             var process = Process.Start(new ProcessStartInfo
             {
                 FileName = "cmd.exe",
                 Arguments = $"/c {gitStatusWithParseableOutput}",
-                WorkingDirectory = solutionDir,
+                WorkingDirectory = config.GetSolutionFolder(),
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,

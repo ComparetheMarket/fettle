@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Fettle.Core.Internal;
 using Fettle.Core.Internal.RoslynExtensions;
 using Microsoft.CodeAnalysis;
 
@@ -45,6 +46,13 @@ namespace Fettle.Core
         }
 
         public bool HasCustomTestRunnerCommand => !string.IsNullOrEmpty(CustomTestRunnerCommand);
+
+	    public string GetSolutionFolder()
+	    {
+		    var relativePath = Path.GetDirectoryName(SolutionFilePath);
+
+		    return DirectoryUtils.SafeGetFullPath(relativePath);
+	    }
 
         public IEnumerable<string> Validate()
         {
