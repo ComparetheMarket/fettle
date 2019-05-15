@@ -3,7 +3,7 @@
 namespace Fettle.Core.Internal
 {
     internal static class DirectoryUtils
-    {        
+    {
         public static void CopyDirectoryContents(string binariesDirectory, string tempDirectory)
         {
             var sourcePath = Path.GetFullPath(binariesDirectory) + Path.DirectorySeparatorChar;
@@ -20,14 +20,14 @@ namespace Fettle.Core.Internal
             }
         }
 
-	    public static string SafeGetFullPath(string path)
-	    {
-		    if (string.IsNullOrEmpty(path))
-		    {
-			    path = ".";
-		    }
+        public static string SafeGetFullPath(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                path = ".";
+            }
 
-		    return Path.GetFullPath(path);
-	    }
-	}
+            return Path.GetFullPath(path);
+        }
+    }
 }
