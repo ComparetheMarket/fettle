@@ -7,9 +7,7 @@ namespace Fettle.Core.Internal
     {
         public static bool IsAutomaticallyGenerated(this Document document)
         {
-            if (document.FilePath.StartsWith(Path.GetTempPath())) return true;
-
-            return false;
+            return document.FilePath.StartsWith(Path.GetTempPath());
         }
     }
 }

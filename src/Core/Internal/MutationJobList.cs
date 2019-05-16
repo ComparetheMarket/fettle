@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Fettle.Core.Internal.RoslynExtensions;
@@ -112,9 +111,9 @@ namespace Fettle.Core.Internal
             {
                 var jobsForSourceFile = jobsBySourceFile[sourceFileIndex];
                 var sourceFilePath = jobsForSourceFile.Key;
+	            var baseSourceDirectory = config.GetSolutionFolder();
 
-                eventListener.BeginMutationOfFile(
-                    sourceFilePath, Path.GetFullPath(Path.GetDirectoryName(config.SolutionFilePath)), sourceFileIndex, jobsBySourceFile.Length);
+	            eventListener.BeginMutationOfFile(sourceFilePath, baseSourceDirectory, sourceFileIndex, jobsBySourceFile.Length);
 
                 foreach (var mutationJobAndMetadata in jobsForSourceFile)
                 {

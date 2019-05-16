@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Autofac;
 using Fettle.Core;
@@ -251,7 +250,7 @@ More info at: https://github.com/ComparetheMarket/fettle/wiki/Custom-Test-Runner
         {
             string ToRelativePath(string filePath)
             {
-                var baseSourceDir = Path.GetDirectoryName(Path.GetFullPath(config.SolutionFilePath));
+	            var baseSourceDir = config.GetSolutionFolder();
                 return filePath.Substring(baseSourceDir.Length);
             }
 
