@@ -15,8 +15,10 @@ namespace Fettle.Core.Internal
                 return true;
             }
 
+            var relativePath = RelativeFilePath(project.FilePath, config);
+
             return config.ProjectFilters
-                .Any(f => Glob.Parse(f).IsMatch(project.Name));
+                .Any(f => Glob.Parse(f).IsMatch(project.Name) || Glob.Parse(f).IsMatch(relativePath));
         }
 
         public static bool ShouldMutateDocument(Document document, Config config)
@@ -33,7 +35,7 @@ namespace Fettle.Core.Internal
                 return true;
             }
 
-            var relativePath = RelativeDocumentPath(document, config);
+            var relativePath = RelativeFilePath(document.FilePath, config);
 
             var matchesAnyFilter = config.SourceFileFilters
                 .Any(f => Glob.Parse(f).IsMatch(relativePath));
@@ -48,16 +50,16 @@ namespace Fettle.Core.Internal
                 return true;
             }
 
-            var relativePath = RelativeDocumentPath(document, config);
+            var relativePath = RelativeFilePath(document.FilePath, config);
 
             return config.LocallyModifiedSourceFiles
                 .Any(f => string.Equals(f, relativePath, StringComparison.InvariantCultureIgnoreCase));
         }
 
-        private static string RelativeDocumentPath(Document document, Config config)
+        private static string RelativeFilePath(string filePath, Config config)
         {
 	        var baseDir = config.GetSolutionFolder();
-            var relativePath = document.FilePath.Substring(baseDir.Length + 1);
+            var relativePath = filePath.Substring(baseDir.Length + 1);
             return relativePath;
         }
     }
