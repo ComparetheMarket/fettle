@@ -6,17 +6,26 @@ namespace Fettle.Tests.Core
     {
         public Invalid_mutation()
         {
-            Given_a_partially_tested_app_in_which_a_mutant_will_survive();
+            Given_an_app_to_be_mutation_tested();
 
-            Given_source_file_filters("*ProducesInvalidMutation.cs");
+            Given_a_single_file_is_mutated("ProducesInvalidMutation.cs");
 
             When_mutation_testing_the_app();
         }
 
         [Test]
-        public void Then_testing_is_not_attempted_because_compilation_fails()
+        public void Then_the_mutation_is_skipped()
         {
-            Assert.That(SpyEventListener.HaveAnyFilesBegun, Is.False);
+            Assert.That(SpyEventListener.HaveAnyMutantsBeenSkipped, Is.True);
+
+            Assert.That(SpyEventListener.HaveAnyMutantsBeenKilled, Is.False);
+            Assert.That(SpyEventListener.HaveAnyMutantsSurvived, Is.False);
+        }
+
+        [Test]
+        public void Then_mutation_testing_does_not_fail()
+        {
+            Assert.That(MutationTestResult.Errors, Has.Count.Zero);
         }
     }
 }

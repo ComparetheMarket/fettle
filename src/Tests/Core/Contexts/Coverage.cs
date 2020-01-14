@@ -14,7 +14,7 @@ namespace Fettle.Tests.Core.Contexts
         private readonly string baseExampleDir = Path.Combine(TestContext.CurrentContext.TestDirectory,
             "..", "..", "..", "Examples");
 
-        private ITestRunner testRunner = new NUnitTestEngine();
+        private ICoverageTestRunner testRunner = new NUnitCoverageTestRunner();
 
         protected Config Config { get; private set; }
 
@@ -49,27 +49,16 @@ namespace Fettle.Tests.Core.Contexts
             };
         }
 
-        protected void Given_some_failing_tests()
+        protected void Given_some_failing_tests(string failingTest)
         {
-            var mockTestRunner = new Mock<ITestRunner>();
+            var mockTestRunner = new Mock<ICoverageTestRunner>();
             mockTestRunner
-                .Setup(x => x.RunTests(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
-                .Returns(new TestRunResult
-                {
-                    Status = TestRunStatus.SomeTestsFailed,
-                    Error = "HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred failed"
-                });
-
-            mockTestRunner
-                .Setup(x => x.RunTestsAndAnalyseCoverage(
-                    It.IsAny<IEnumerable<string>>(),
-                    It.IsAny<IEnumerable<string>>(),
-                    It.IsAny<IDictionary<string,string>>(),
-                    It.IsAny<Action<string,int>>()))
+                .Setup(x => x.RunAllTestsAndAnalyseCoverage(
+                    It.IsAny<IEnumerable<string>>(), It.IsAny<IDictionary<string,string>>(), It.IsAny<Action<string,int>>(), It.IsAny<Action<string>>()))
                 .Returns(new CoverageTestRunResult
                 {
                     Status = TestRunStatus.SomeTestsFailed,
-                    Error = "HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred failed"
+                    Error = $"{failingTest} failed"
                 });
 
             testRunner = mockTestRunner.Object;
@@ -85,16 +74,16 @@ namespace Fettle.Tests.Core.Contexts
             Config.SourceFileFilters = sourceFileFilters;
         }
 
-        protected void When_analysing_method_coverage(bool catchExceptions = false)
+        protected void When_analysing_coverage(bool catchExceptions = false)
         {
             try
             {
-                var methodCoverage = new Fettle.Core.CoverageAnalyser(
+                var analyser = new CoverageAnalyser(
                     eventListener: MockEventListener.Object,
-                    testFinder: new NUnitTestEngine(), 
+                    testFinder: new NUnitTestFinder(), 
                     testRunner: testRunner);
 
-                Result = methodCoverage.AnalyseMethodCoverage(Config).Result;
+                Result = analyser.AnalyseCoverage(Config).Result;
             }
             catch (Exception e)
             {

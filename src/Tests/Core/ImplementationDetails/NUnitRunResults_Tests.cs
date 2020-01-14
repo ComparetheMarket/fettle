@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml;
+using Fettle.Core;
 using Fettle.Core.Internal;
 using Fettle.Core.Internal.NUnit;
 using NUnit.Framework;
@@ -37,23 +38,29 @@ namespace Fettle.Tests.Core.ImplementationDetails
         }
 
         [Test]
-        public void When_results_xml_indicates_that_some_tests_failed_Then_error_reflects_their_errors()
+        public void When_results_xml_indicates_that_some_tests_failed_Then_error_field_contains_error_info()
         {
             var xmlNode = StringToXmlNode(
                 @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""no""?>
                   <test-run id=""2"" result=""Failed"" total=""2"">
                      <test-suite runstate=""Runnable"">
                         <test-suite runstate=""Runnable"">
-                            <test-case>
+                            <test-case fullname=""HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsPositive"">
                                 <failure>
                                     <message>error message 1</message>
+                                    <stack-trace>
+                                        <![CDATA[   at HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsPositive() in C:\dev\fettle\src\Examples\HasSurvivingMutants\Tests\PartialNumberComparisonTests.cs:line 14 ]]>
+                                    </stack-trace>
                                 </failure>
                             </test-case>
                         </test-suite>
                         <test-suite runstate=""Runnable"">
-                            <test-case>
+                            <test-case fullname=""HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsNegative"">
                                 <failure>
                                     <message>error message 2</message>
+                                    <stack-trace>
+                                        <![CDATA[   at HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsNegative() in C:\dev\fettle\src\Examples\HasSurvivingMutants\Tests\PartialNumberComparisonTests.cs:line 15 ]]>
+                                    </stack-trace>
                                 </failure>
                             </test-case>
                         </test-suite>
@@ -63,59 +70,16 @@ namespace Fettle.Tests.Core.ImplementationDetails
 
             var result = NUnitRunResults.Parse(xmlNode);
 
-            Assert.That(result.Error, Does.Contain("error message 1"));
-            Assert.That(result.Error, Does.Contain("error message 2"));
-        }
-       
-        [Test]
-        public void When_results_xml_contains_output_Then_all_ouput_is_collated()
-        {
-            var xmlNode = StringToXmlNode(
-                @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""no""?>
-                  <test-run id=""2"" result=""Failed"" total=""7"">
-                     <test-suite runstate=""Runnable"">
-                       <test-case>
-                         <output>
-                           <![CDATA[hello world
-hello world again
-]]>
-                         </output>
-                       </test-case>
-                     </test-suite>
-                     <test-suite runstate=""Runnable"">
-                       <test-case>
-                         <output>
-                           <![CDATA[wibble
-womble
-]]>
-                         </output>
-                       </test-case>
-                     </test-suite>
-                  </test-run>
-                ");
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Error, Does.Contain("HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsPositive"));
+                Assert.That(result.Error, Does.Contain("PartialNumberComparisonTests.cs:line 14"));
+                Assert.That(result.Error, Does.Contain("error message 1"));
 
-            var result = NUnitRunResults.Parse(xmlNode);
-
-            Assert.That(result.ConsoleOutput, Is.EqualTo(
-@"hello world
-hello world again
-wibble
-womble
-"));
-        }
-
-        [Test]
-        public void When_results_xml_does_not_contain_output_Then_consoleOutput_is_empty()
-        {
-            var xmlNode = StringToXmlNode(
-                @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""no""?>
-                  <test-run id=""2"" result=""Failed"" total=""7"">
-                  </test-run>
-                ");
-
-            var result = NUnitRunResults.Parse(xmlNode);
-
-            Assert.That(result.ConsoleOutput, Is.EqualTo(""));
+                Assert.That(result.Error, Does.Contain("HasSurvivingMutants.Tests.PartialNumberComparisonTests.IsNegative"));
+                Assert.That(result.Error, Does.Contain("PartialNumberComparisonTests.cs:line 15"));
+                Assert.That(result.Error, Does.Contain("error message 2"));
+            });
         }
         
         [Test]

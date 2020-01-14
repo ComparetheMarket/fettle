@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Fettle.Core.Internal;
+using Fettle.Core.Internal.RoslynExtensions;
+using Microsoft.CodeAnalysis;
 
 namespace Fettle.Core
 {
@@ -16,34 +20,58 @@ namespace Fettle.Core
         // Optional
         //
         public string[] SourceFileFilters { get; set; }
- 
+        public string CustomTestRunnerCommand { get; set; }
+
+        // Auto-generated
+        //
+        public string[] LocallyModifiedSourceFiles { get; set; }
+        public string BaseDirectory { get; set; }
+
         public Config WithPathsRelativeTo(string baseDirectory)
         {
-            var result = new Config();
-
-            result.SolutionFilePath = SolutionFilePath != null
-                ? Path.Combine(baseDirectory, SolutionFilePath)
-                : null;
-
-            if (TestAssemblyFilePaths != null)
+            return new Config
             {
-                result.TestAssemblyFilePaths = TestAssemblyFilePaths
-                    .Select(x => x != null ? Path.Combine(baseDirectory, x) : null)
-                    .ToArray();
-            }
+                SolutionFilePath = SolutionFilePath != null
+                    ? Path.Combine(baseDirectory, SolutionFilePath)
+                    : null,
 
-            result.ProjectFilters = ProjectFilters?.ToArray();
-            result.SourceFileFilters = SourceFileFilters?.ToArray();
- 
-            return result;
+                TestAssemblyFilePaths = TestAssemblyFilePaths?
+                    .Select(x => x != null ? Path.Combine(baseDirectory, x) : null)
+                    .ToArray(),
+
+                ProjectFilters = ProjectFilters?.ToArray(),
+                SourceFileFilters = SourceFileFilters?.ToArray(),
+                CustomTestRunnerCommand = CustomTestRunnerCommand
+            };
         }
+
+        public bool HasCustomTestRunnerCommand => !string.IsNullOrEmpty(CustomTestRunnerCommand);
+
+	    public string GetSolutionFolder()
+	    {
+		    var relativePath = Path.GetDirectoryName(SolutionFilePath);
+
+		    return DirectoryUtils.SafeGetFullPath(relativePath);
+	    }
 
         public IEnumerable<string> Validate()
         {
             return ValidateRequiredPropertiesArePresent()
+                   .Concat(ValidateContentsOfCollections())
                    .Concat(ValidateFilesArePresent());
         }
-        
+
+        public async Task<Document[]> FindMutatableDocuments()
+        {
+            using (var workspace = MSBuildWorkspaceFactory.Create())
+            {
+                var solution = await workspace.OpenSolutionAsync(SolutionFilePath);
+                return solution.MutatableClasses(this);
+            }
+        }
+
+        public async Task<bool> HasAnyMutatableDocuments() => (await FindMutatableDocuments()).Any();
+
         private IEnumerable<string> ValidateRequiredPropertiesArePresent()
         {
             string PropertyNotSpecified(string propertyName)
@@ -70,12 +98,35 @@ namespace Fettle.Core
                     $"The solution file was not found: \"{SolutionFilePath}\"";
             }
 
-            var nonExistentTestAssemblies = TestAssemblyFilePaths.Where(f => !File.Exists(f)).ToList();
-            if (nonExistentTestAssemblies.Any())
+            if (TestAssemblyFilePaths != null)
             {
-                var filesListMessage = string.Join(Environment.NewLine, nonExistentTestAssemblies);
-                yield return
-                    $"One or more test assemblies were not found:{Environment.NewLine}{filesListMessage}";
+                var nonExistentTestAssemblies = TestAssemblyFilePaths.Where(f => !File.Exists(f)).ToList();
+                if (nonExistentTestAssemblies.Any())
+                {
+                    var filesListMessage = string.Join(Environment.NewLine, nonExistentTestAssemblies);
+                    yield return
+                        $"One or more test assemblies were not found:{Environment.NewLine}{filesListMessage}";
+                }
+            }
+        }
+
+        private IEnumerable<string> ValidateContentsOfCollections()
+        {
+            bool AnyItemsNull(IEnumerable<string> items) => items != null && items.Any(i => i == null);
+
+            if (AnyItemsNull(TestAssemblyFilePaths))
+            {
+                yield return "One or more items in the list of test assemblies is blank";
+            }
+
+            if (AnyItemsNull(ProjectFilters))
+            {
+                yield return "One or more items in the list of project filters is blank";
+            }
+            
+            if (AnyItemsNull(SourceFileFilters))
+            {
+                yield return "One or more items in the list of source file filters is blank";
             }
         }
     }

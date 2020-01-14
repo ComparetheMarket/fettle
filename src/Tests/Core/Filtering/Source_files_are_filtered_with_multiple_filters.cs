@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Moq;
 using NUnit.Framework;
 
 namespace Fettle.Tests.Core.Filtering

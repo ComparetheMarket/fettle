@@ -1,0 +1,10 @@
+﻿
+solution: .\src\Examples\HasSurvivingMutants\HasSurvivingMutants.sln
+
+testAssemblies:
+    - .\src\Examples\HasSurvivingMutants\XUnitTests\bin\Debug\HasSurvivingMutants.XUnitTests.dll
+
+projectFilters:
+    - HasSurvivingMutants.MoreImplementation
+
+customTestRunnerCommand: example-custom-test-runner.bat

@@ -15,7 +15,7 @@ namespace Fettle.Tests.Core
         [Test]
         public void Then_lines_marked_as_ignore_are_not_mutation_tested()
         {
-            Assert.That(SpyEventListener.BegunMethods.Any(m => m.Contains("AddNumbers_should_be_ignored")), Is.False);
+            Assert.That(SpyEventListener.BegunMembers.Any(m => m.Contains("AddNumbers_should_be_ignored")), Is.False);
         }
     }
 }

@@ -17,7 +17,9 @@ namespace Fettle.Console
 
             public string[] ProjectFilters { get; set; }
             public string[] SourceFileFilters { get; set; }
-        
+
+            public string CustomTestRunnerCommand { get; set; }
+
             public Config ToConfig()
             {
                 return new Config
@@ -25,7 +27,8 @@ namespace Fettle.Console
                     SolutionFilePath = Solution,
                     TestAssemblyFilePaths = TestAssemblies,
                     ProjectFilters = ProjectFilters,
-                    SourceFileFilters = SourceFileFilters
+                    SourceFileFilters = SourceFileFilters,
+                    CustomTestRunnerCommand = CustomTestRunnerCommand
                 };
             }
         }

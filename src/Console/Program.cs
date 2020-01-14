@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
+using Autofac;
 using Fettle.Core;
 
 namespace Fettle.Console
@@ -12,88 +11,137 @@ namespace Fettle.Console
         public static int Main(string[] args)
         {
             IMutationTestRunner CreateRealMutationTestRunner(
+                ITestRunner testRunner,
                 IEventListener eventListener,
                 ICoverageAnalysisResult coverageAnalysisResult)
             {
                 return new MutationTestRunner(
+                    testRunner,
                     coverageAnalysisResult, 
                     eventListener);
             }
 
-            ICoverageAnalyser CreateRealCoverageAnalyser(IEventListener eventListener)
-            {
-                return new CoverageAnalyser(eventListener);
-            }
-            
-            return InternalEntryPoint(
-                args, 
-                CreateRealMutationTestRunner, 
-                CreateRealCoverageAnalyser, 
-                new ConsoleOutputWriter());
+            ICoverageAnalyser CreateRealCoverageAnalyser(IEventListener eventListener) => new CoverageAnalyser(eventListener);
+
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<TestRunnerFactory>().As<ITestRunnerFactory>();
+            containerBuilder.RegisterType<GitIntegration>().As<ISourceControlIntegration>();
+            containerBuilder.RegisterType<ConsoleOutputWriter>().As<IOutputWriter>();
+            containerBuilder.RegisterInstance<Func<IEventListener, ICoverageAnalyser>>(CreateRealCoverageAnalyser);
+            containerBuilder.RegisterInstance<Func<ITestRunner, IEventListener, ICoverageAnalysisResult, IMutationTestRunner>>(CreateRealMutationTestRunner);
+            var container = containerBuilder.Build();
+
+            return Run(args, container);
         }
-        
+
         private static class ExitCodes
         {
-            public const int NoMutantsSurvived = 0;
+            public const int Success = 0;
             public const int SomeMutantsSurvived = 1;
             public const int ConfigOrArgsAreInvalid = 2;
             public const int UnexpectedError = 3;
         }
-        
-        internal static int InternalEntryPoint(
+
+        internal static int Run(string[] args, IContainer diContainer)
+        {
+            return Run(
+                args,
+                diContainer.Resolve<ITestRunnerFactory>(),
+                diContainer.Resolve<Func<ITestRunner, IEventListener, ICoverageAnalysisResult, IMutationTestRunner>>(),
+                diContainer.Resolve<Func<IEventListener, ICoverageAnalyser>>(),
+                diContainer.Resolve<ISourceControlIntegration>(),
+                diContainer.Resolve<IOutputWriter>());
+        }
+
+        internal static int Run(
             string[] args,
-            Func<IEventListener, ICoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
+            ITestRunnerFactory testRunnerFactory,
+            Func<ITestRunner, IEventListener, ICoverageAnalysisResult, IMutationTestRunner> mutationTestRunnerFactory,
             Func<IEventListener, ICoverageAnalyser> coverageAnalyserFactory,
+            ISourceControlIntegration sourceControlIntegration,
             IOutputWriter outputWriter)
         {
             try
             {
+                outputWriter.WriteLine($"Fettle v{AssemblyVersionInformation.AssemblyVersion}");
+
                 var parsedArgs = CommandLineArguments.Parse(args, outputWriter);
                 if (!parsedArgs.Success)
                 {
                     return ExitCodes.ConfigOrArgsAreInvalid;
                 }
-                
-                var eventListener = parsedArgs.ConsoleOptions.Quiet
-                    ? (IEventListener) new QuietEventListener(outputWriter)
-                    : (IEventListener) new VerboseEventListener(outputWriter);
 
-                var analyser = coverageAnalyserFactory(eventListener);
-                var coverageResult = AnalyseCoverage(analyser, outputWriter, parsedArgs.Config);
-                if (coverageResult.ErrorDescription != null)
+                var validationErrors = parsedArgs.Config.Validate().ToList();
+                if (validationErrors.Any())
                 {
+                    OutputValidationErrors(validationErrors, outputWriter);
                     return ExitCodes.ConfigOrArgsAreInvalid;
                 }
 
-                outputWriter.WriteLine("Mutation testing starting...");
-                var runner = mutationTestRunnerFactory(eventListener, coverageResult);
-                var result = runner.Run(parsedArgs.Config).Result;
-                
-                if (result.Errors.Any())
+                if (!string.IsNullOrEmpty(parsedArgs.Config.CustomTestRunnerCommand) &&
+                    !parsedArgs.ConsoleOptions.SkipCoverageAnalysis)
+                {
+                    WarnThatOptionsAreIncompatibleWithCoverageAnalysis(outputWriter);
+                }
+
+                if (parsedArgs.ConsoleOptions.ModificationsOnly)
+                {
+                    var result = FindLocallyModifiedSourceFiles(sourceControlIntegration, parsedArgs.Config, outputWriter);
+                    if (!result.Success)
+                    {
+                        outputWriter.WriteFailureLine("Failed to find local modifications.");
+                        return ExitCodes.UnexpectedError;
+                    }
+
+                    parsedArgs.Config.LocallyModifiedSourceFiles = result.Files;
+                }
+
+                if (!parsedArgs.Config.HasAnyMutatableDocuments().Result)
+                {
+                    outputWriter.WriteLine("No source files found to mutate (or none matched the filters), exiting.");
+                    return ExitCodes.Success;
+                }
+
+                var eventListener = CreateEventListener(outputWriter, parsedArgs.ConsoleOptions.Verbosity);
+
+                ICoverageAnalysisResult coverageResult = null;
+                var shouldDoCoverageAnalysis = !parsedArgs.Config.HasCustomTestRunnerCommand && !parsedArgs.ConsoleOptions.SkipCoverageAnalysis;
+                if (shouldDoCoverageAnalysis)
+                {
+                    var analyser = coverageAnalyserFactory(eventListener);
+                    coverageResult = AnalyseCoverage(analyser, outputWriter, parsedArgs.Config);
+
+                    if (!coverageResult.WasSuccessful)
+                    {
+                        OutputCoverageAnalysisError(coverageResult.ErrorDescription, outputWriter);
+                        return ExitCodes.ConfigOrArgsAreInvalid;
+                    }
+                }
+
+                var testRunner = parsedArgs.Config.HasCustomTestRunnerCommand ?
+                    testRunnerFactory.CreateCustomTestRunner(parsedArgs.Config.CustomTestRunnerCommand, parsedArgs.Config.BaseDirectory) :
+                    testRunnerFactory.CreateNUnitTestRunner();
+
+                var mutationTestRunner = mutationTestRunnerFactory(testRunner, eventListener, coverageResult);
+                var mutationTestResult = PerformMutationTesting(mutationTestRunner, parsedArgs.Config, outputWriter);
+                if (mutationTestResult.Errors.Any())
                 {
                     outputWriter.WriteFailureLine("Unable to perform mutation testing:");
-                    result.Errors.ToList().ForEach(e => outputWriter.WriteFailureLine($"==> {e}"));
-                    return ExitCodes.ConfigOrArgsAreInvalid;
+                    mutationTestResult.Errors.ToList().ForEach(e => outputWriter.WriteFailureLine($"==> {e}"));
+                    {
+                        return ExitCodes.ConfigOrArgsAreInvalid;
+                    }
                 }
 
-                outputWriter.Write(Environment.NewLine + Environment.NewLine);
-                outputWriter.WriteLine("Mutation testing complete.");
-
-                if (result.SurvivingMutants.Any())
+                if (mutationTestResult.SurvivingMutants.Any())
                 {
-                    outputWriter.WriteFailureLine($"{result.SurvivingMutants.Count} mutant(s) survived!");
-
-                    result.SurvivingMutants
-                        .Select((sm, index) => new {sm, index})
-                        .ToList()
-                        .ForEach(item => OutputSurvivorInfo(item.sm, item.index, parsedArgs.Config, outputWriter));
-
+                    OutputAllSurvivorInfo(mutationTestResult.SurvivingMutants, outputWriter, parsedArgs.Config);
                     return ExitCodes.SomeMutantsSurvived;
                 }
                 else
                 {
                     outputWriter.WriteSuccessLine("No mutants survived.");
-                    return ExitCodes.NoMutantsSurvived;
+                    return ExitCodes.Success;
                 }
             }
             catch (Exception ex)
@@ -103,32 +151,106 @@ namespace Fettle.Console
             }
         }
 
+        private static void WarnThatOptionsAreIncompatibleWithCoverageAnalysis(IOutputWriter outputWriter)
+        {
+            outputWriter.WriteWarningLine(
+@"Warning: coverage analysis will be skipped because it's not compatible with a custom test runner command.
+To stop seeing this warning, add the --skipcoverageanalysis command-line option.
+More info at: https://github.com/ComparetheMarket/fettle/wiki/Custom-Test-Runners
+");
+        }
+
+        private static (bool Success, string[] Files) FindLocallyModifiedSourceFiles(
+            ISourceControlIntegration sourceControlIntegration, 
+            Config config,
+            IOutputWriter outputWriter)
+        {
+            try
+            {
+                outputWriter.WriteLine("Finding local modifications...");
+
+                var files = sourceControlIntegration.FindLocallyModifiedFiles(config);
+
+                var noun = files.Length == 1 ? "change" : "changes";
+                outputWriter.WriteLine($"Found {files.Length} relevant {noun}.");
+
+                return (true, files);
+            }
+            catch (SourceControlIntegrationException ex)
+            {
+                outputWriter.WriteFailureLine(ex.Message);
+                return (false, null);
+            }
+        }
+
+        private static IEventListener CreateEventListener(IOutputWriter outputWriter, Verbosity verbosity)
+        {
+            switch (verbosity)
+            {
+                case Verbosity.Quiet: return new QuietEventListener(outputWriter);
+                case Verbosity.Verbose: return new VerboseEventListener(outputWriter);
+                default: return new DefaultEventListener(outputWriter);
+            }
+        }
+
         private static ICoverageAnalysisResult AnalyseCoverage(
             ICoverageAnalyser coverageAnalyser, 
             IOutputWriter outputWriter,
             Config config)
         {
-            outputWriter.Write("Analysing test coverage");
+            outputWriter.WriteLine("Test coverage analysis starting...");
 
-            var coverageResult = coverageAnalyser.AnalyseMethodCoverage(config).Result;
-            if (coverageResult.ErrorDescription != null)
-            {
-                outputWriter.WriteFailureLine("Unable to perform test coverage analysis:");
-                outputWriter.WriteFailureLine(coverageResult.ErrorDescription);
-            }
-            else
-            {
-                outputWriter.Write(Environment.NewLine);
-            }
+            var result = coverageAnalyser.AnalyseCoverage(config).Result;
 
-            return coverageResult;
+            outputWriter.WriteLine($"Test coverage analysis complete.");
+
+            return result;
         }
 
-        private static void OutputSurvivorInfo(SurvivingMutant survivor, int index, Config config, IOutputWriter outputWriter)
+        private static MutationTestResult PerformMutationTesting(
+            IMutationTestRunner mutationTestRunner, 
+            Config config, 
+            IOutputWriter outputWriter)
+        {
+            outputWriter.WriteLine("Mutation testing starting...");
+            
+            var result = mutationTestRunner.Run(config).Result;
+            
+            outputWriter.WriteLine("Mutation testing complete.");
+
+            return result;
+        }
+
+        private static void OutputValidationErrors(List<string> validationErrors, IOutputWriter outputWriter)
+        {
+            outputWriter.WriteFailureLine("Validation of configuration failed, check your config file for errors.");
+            validationErrors.ForEach(e => outputWriter.WriteFailureLine($"==> {e}"));
+        }
+
+        private static void OutputCoverageAnalysisError(string errorDescription, IOutputWriter outputWriter)
+        {
+            outputWriter.WriteFailureLine("Unable to perform test coverage analysis:");
+            outputWriter.WriteFailureLine(errorDescription);
+        }
+
+        private static void OutputAllSurvivorInfo(
+            IReadOnlyCollection<Mutant> survivingMutants,
+            IOutputWriter outputWriter, 
+            Config config)
+        {
+            outputWriter.WriteFailureLine($"{survivingMutants.Count} mutant(s) survived!");
+
+            survivingMutants
+                .Select((sm, index) => new {sm, index})
+                .ToList()
+                .ForEach(item => OutputSurvivorInfo(item.sm, item.index, config, outputWriter));
+        }
+        
+        private static void OutputSurvivorInfo(Mutant survivor, int index, Config config, IOutputWriter outputWriter)
         {
             string ToRelativePath(string filePath)
             {
-                var baseSourceDir = Path.GetDirectoryName(Path.GetFullPath(config.SolutionFilePath));
+	            var baseSourceDir = config.GetSolutionFolder();
                 return filePath.Substring(baseSourceDir.Length);
             }
 

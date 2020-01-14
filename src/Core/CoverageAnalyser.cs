@@ -4,11 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Fettle.Core.Internal;
+using Fettle.Core.Internal.Instrumentation;
 using Fettle.Core.Internal.NUnit;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Editing;
 
 namespace Fettle.Core
 {
@@ -16,27 +14,28 @@ namespace Fettle.Core
     {
         private readonly IEventListener eventListener;
         private readonly ITestFinder testFinder;
-        private readonly ITestRunner testRunner;
-
-        public const string CoverageOutputLinePrefix = "fettle_covered_method:";
+        private readonly ICoverageTestRunner testRunner;
 
         public CoverageAnalyser(IEventListener eventListener) : 
-            this(eventListener, new NUnitTestEngine(), new NUnitTestEngine())
+            this(eventListener, new NUnitTestFinder(), new NUnitCoverageTestRunner())
         {
         }
 
-        internal CoverageAnalyser(IEventListener eventListener, ITestFinder testFinder, ITestRunner testRunner)
+        internal CoverageAnalyser(IEventListener eventListener, ITestFinder testFinder, ICoverageTestRunner testRunner)
         {
             this.eventListener = eventListener;
             this.testFinder = testFinder;
             this.testRunner = testRunner;
         }
 
-        public async Task<ICoverageAnalysisResult> AnalyseMethodCoverage(Config config)
+        public async Task<ICoverageAnalysisResult> AnalyseCoverage(Config config)
         {
-            var methodIdsToNames = new Dictionary<string, string>();
+            var memberIdsToNames = new Dictionary<string, string>();
             
             var baseTempDirectory = TempDirectory.Create();
+
+            long memberId = 0;
+            long GenerateMemberId() => ++memberId;
 
             try
             {
@@ -55,7 +54,8 @@ namespace Fettle.Core
                         config,
                         baseTempDirectory,
                         copiedTestAssemblyFilePaths,
-                        methodIdsToNames);
+                        GenerateMemberId,
+                        memberIdsToNames);
 
                     var result = new CoverageAnalysisResult();
 
@@ -63,13 +63,13 @@ namespace Fettle.Core
                     {
                         var copiedTestAssemblyFilePath = copiedTestAssemblyFilePaths[testAssemblyIndex];
 
-                        var tests = testFinder.FindTests(new [] { copiedTestAssemblyFilePath });
+                        var numTests = testFinder.FindTests(new[]{ copiedTestAssemblyFilePath }).Length;
 
-                        var runResult = testRunner.RunTestsAndAnalyseCoverage(
-                            testAssemblyFilePaths: new [] { copiedTestAssemblyFilePath }, 
-                            testMethodNames: tests, 
-                            methodIdsToNames: methodIdsToNames, 
-                            onAnalysingTestCase: (test, index) => eventListener.BeginCoverageAnalysisOfTestCase(test, index, tests.Length));
+                        var runResult = testRunner.RunAllTestsAndAnalyseCoverage(
+                            testAssemblyFilePaths: new [] { copiedTestAssemblyFilePath },
+                            memberIdsToNames: memberIdsToNames, 
+                            onAnalysingTestCase: (test, index) => eventListener.BeginCoverageAnalysisOfTestCase(test, index, numTests),
+                            onMemberExecuted: memberName => eventListener.MemberCoveredByTests(memberName));
 
                         if (runResult.Status != TestRunStatus.AllTestsPassed)
                         {
@@ -77,7 +77,7 @@ namespace Fettle.Core
                         }
 
                         var originalTestAssemblyFilePath = config.TestAssemblyFilePaths[testAssemblyIndex];
-                        result = result.WithCoveredMethods(runResult.MethodsAndCoveringTests, originalTestAssemblyFilePath);
+                        result = result.WithCoveredMembers(runResult.MembersAndCoveringTests, originalTestAssemblyFilePath);
                     }
 
                     return result;
@@ -94,13 +94,14 @@ namespace Fettle.Core
             Config config,
             string baseTempDirectory,
             IList<string> copiedTestAssemblyFilePaths,
-            IDictionary<string, string> methodIdsToNames)
+            Func<long> memberIdGenerator,
+            IDictionary<string, string> memberIdsToNames)
         {
             foreach (var project in projects)
             {
                 var outputFilePath = Path.Combine(baseTempDirectory, $@"{project.AssemblyName}.dll");
 
-                await InstrumentThenCompileProject(project, config, outputFilePath, methodIdsToNames);
+                await InstrumentThenCompileProject(project, config, outputFilePath, memberIdGenerator, memberIdsToNames);
 
                 CopyInstrumentedAssemblyIntoTempTestAssemblyDirectories(
                     outputFilePath, 
@@ -110,23 +111,29 @@ namespace Fettle.Core
 
         private static async Task InstrumentThenCompileProject(
             Project project,
-            Config config,            
+            Config config,
             string outputFilePath,
-            IDictionary<string, string> methodIdsToNames)
+            Func<long> memberIdGenerator,
+            IDictionary<string, string> memberIdsToNames)
         {
             var originalSyntaxTrees = new List<SyntaxTree>();
             var modifiedSyntaxTrees = new List<SyntaxTree>();
 
-            var classesToInstrument = project.Documents
-                .Where(d => Filtering.ShouldMutateClass(d, config))
+            var documentsToInstrument = project.Documents
+                .Where(d => Filtering.ShouldMutateDocument(d, config))
                 .Where(d => !d.IsAutomaticallyGenerated());
 
-            foreach (var originalClass in classesToInstrument)
+            foreach (var originalDocument in documentsToInstrument)
             {
-                var originalSyntaxTree = await originalClass.GetSyntaxTreeAsync().ConfigureAwait(false);
+                var originalSyntaxTree = await originalDocument.GetSyntaxTreeAsync().ConfigureAwait(false);
+                var modifiedSyntaxTree = await Instrumentation.InstrumentDocument(
+                    originalSyntaxTree,
+                    originalDocument,
+                    memberIdsToNames.Add,
+                    memberIdGenerator);
+
                 originalSyntaxTrees.Add(originalSyntaxTree);
-                modifiedSyntaxTrees.Add(
-                    await InstrumentDocument(originalSyntaxTree, originalClass, methodIdsToNames));
+                modifiedSyntaxTrees.Add(modifiedSyntaxTree);
             }
 
             var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
@@ -142,48 +149,6 @@ namespace Fettle.Core
                 throw new Exception(
                     $"Failed to compile project {compilation.AssemblyName}{Environment.NewLine}{diagnostics}");
             }
-        }
-
-        private static async Task<SyntaxTree> InstrumentDocument(
-            SyntaxTree originalSyntaxTree,
-            Document document,
-            IDictionary<string,string> methodIdsToNames)
-        {
-            var root = await originalSyntaxTree.GetRootAsync();
-            var semanticModel = await document.GetSemanticModelAsync();
-            var documentEditor = DocumentEditor.CreateAsync(document).Result;
-
-            foreach (var classNode in root.DescendantNodes().OfType<ClassDeclarationSyntax>())
-            {
-                foreach (var methodNode in classNode.DescendantNodes().OfType<MethodDeclarationSyntax>())
-                {
-                    var methodSymbol = semanticModel.GetDeclaredSymbol(methodNode);
-                    if (!methodSymbol.IsAbstract)
-                    {
-                        var fullMethodName = methodNode.ChildNodes().First().NameOfContainingMethod(semanticModel);
-                        var methodId = Guid.NewGuid().ToString();
-                        methodIdsToNames.Add(methodId, fullMethodName);
-
-                        var newNode = SyntaxFactory.ParseStatement(
-                            $"System.Console.WriteLine(\"{CoverageOutputLinePrefix}{methodId}\");");
-
-                        var firstChildNode = methodNode.Body.ChildNodes().FirstOrDefault();
-                        if (firstChildNode != null)
-                        {
-                            documentEditor.InsertBefore(firstChildNode, newNode);
-                        }
-                        else
-                        {
-                            // the method is empty
-                            documentEditor.ReplaceNode(
-                                methodNode,
-                                methodNode.WithBody(SyntaxFactory.Block(newNode)));
-                        }
-                    }
-                }
-            }
-
-            return await documentEditor.GetChangedDocument().GetSyntaxTreeAsync();
         }
 
         private static void CopyInstrumentedAssemblyIntoTempTestAssemblyDirectories(

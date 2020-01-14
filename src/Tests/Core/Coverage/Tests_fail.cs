@@ -9,9 +9,9 @@ namespace Fettle.Tests.Core.Coverage
             Given_an_app_with_tests();
             Given_project_filters("HasSurvivingMutants.Implementation");
 
-            Given_some_failing_tests();
+            Given_some_failing_tests(failingTest: "ExampleTests.TestThatFails");
 
-            When_analysing_method_coverage();
+            When_analysing_coverage();
         }
 
         [Test]
@@ -23,8 +23,7 @@ namespace Fettle.Tests.Core.Coverage
         [Test]
         public void Then_error_description_indicates_the_test_that_failed()
         {
-            Assert.That(Result.ErrorDescription, 
-                Does.Contain("HasSurvivingMutants.Tests.MorePartialNumberComparisonTests.IsGreaterThanOneHundred"));
+            Assert.That(Result.ErrorDescription, Does.Contain("ExampleTests.TestThatFails"));
         }
     }
 }

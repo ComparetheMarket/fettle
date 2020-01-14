@@ -5,7 +5,7 @@ namespace Fettle.Core
 {
     public class MutationTestResult
     {
-        public IReadOnlyCollection<SurvivingMutant> SurvivingMutants { get; private set; } = new List<SurvivingMutant>();
+        public IReadOnlyCollection<Mutant> SurvivingMutants { get; private set; } = new List<Mutant>();
         public IReadOnlyCollection<string> Errors { get; private set; } = new List<string>();
 
         public MutationTestResult WithErrors(IEnumerable<string> errors)
@@ -20,7 +20,7 @@ namespace Fettle.Core
             return this;
         }
 
-        public MutationTestResult WithSurvivingMutants(IEnumerable<SurvivingMutant> survivingMutants)
+        public MutationTestResult WithSurvivingMutants(IEnumerable<Mutant> survivingMutants)
         {
             SurvivingMutants = survivingMutants.ToList();
             return this;

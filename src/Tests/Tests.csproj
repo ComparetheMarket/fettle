@@ -6,6 +6,8 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -36,9 +38,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="dotMemory.Unit, Version=109.0.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
-      <HintPath>..\packages\JetBrains.dotMemoryUnit.2.4.20170830.172630\lib\dotMemory.Unit.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.engine">
       <HintPath>..\..\packages\NUnit.ConsoleRunner\tools\nunit.engine.dll</HintPath>
     </Reference>
@@ -53,30 +52,54 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildConfig.cs" />
+    <Compile Include="Console\Configuration.cs" />
     <Compile Include="Console\Contexts\Default.cs" />
+    <Compile Include="Console\Contexts\EndToEnd.cs" />
+    <Compile Include="Console\Contexts\SourceControlIntegration.cs" />
     <Compile Include="Console\Contexts\SpyOutputWriter.cs" />
-    <Compile Include="Console\Coverage_analysis_throws_an_exception.cs" />
+    <Compile Include="Console\CoverageAnalysis\Coverage_analysis_disabled.cs" />
+    <Compile Include="Console\CoverageAnalysis\Coverage_analysis_throws_an_exception.cs" />
+    <Compile Include="Console\Custom_test_runner.cs" />
     <Compile Include="Console\EndToEnd\Happy_path.cs" />
-    <Compile Include="Console\Errors_occur_during_coverage_analysis.cs" />
-    <Compile Include="Console\Errors_occur_during_mutation_testing.cs" />
+    <Compile Include="Console\CoverageAnalysis\Errors_occur_during_coverage_analysis.cs" />
+    <Compile Include="Console\ImplementationDetails\Config_file_parsing.cs" />
+    <Compile Include="Console\ImplementationDetails\DirectoryUtils_Tests.cs" />
+    <Compile Include="Console\ImplementationDetails\VerboseEventListener_Tests.cs" />
+    <Compile Include="Console\Invalid_combination_of_command_line_arguments.cs" />
+    <Compile Include="Console\Verbose_mode.cs" />
+    <Compile Include="Console\SourceControlIntegration\Finding_local_modifications_throws_an_exception.cs" />
+    <Compile Include="Console\SourceControlIntegration\Local_modifications_only_option_disabled.cs" />
+    <Compile Include="Console\SourceControlIntegration\Local_modifications_only_option_enabled.cs" />
+    <Compile Include="Console\MutationTesting\Errors_occur_during_mutation_testing.cs" />
+    <Compile Include="Console\ImplementationDetails\DefaultEventListener_Tests.cs" />
     <Compile Include="Console\Missing_command_line_arguments.cs" />
-    <Compile Include="Console\Mutation_testing_throws_an_exception.cs" />
+    <Compile Include="Console\MutationTesting\Mutation_testing_throws_an_exception.cs" />
     <Compile Include="Console\Missing_config_file.cs" />
-    <Compile Include="Console\No_surviving_mutants.cs" />
+    <Compile Include="Console\No_files_to_mutate.cs" />
+    <Compile Include="Console\MutationTesting\No_surviving_mutants.cs" />
     <Compile Include="Console\Quiet_mode.cs" />
-    <Compile Include="Console\Surviving_mutants.cs" />
+    <Compile Include="Console\MutationTesting\Surviving_mutants.cs" />
     <Compile Include="Console\Unrecognised_command_line_arguments.cs" />
     <Compile Include="Core\Assembly_modification.cs" />
+    <Compile Include="Core\Contexts\AssignmentExpressionMutators.cs" />
     <Compile Include="Core\Contexts\EndToEnd.cs" />
     <Compile Include="Core\Contexts\BinaryExpressionMutators.cs" />
     <Compile Include="Core\Contexts\Default.cs" />
-    <Compile Include="Core\Contexts\InvalidConfig.cs" />
+    <Compile Include="Console\Contexts\InvalidConfig.cs" />
     <Compile Include="Core\Contexts\SpyEventListener.cs" />
     <Compile Include="Core\Coverage\Compilation_fails.cs" />
     <Compile Include="Core\Coverage\Source_file_filters.cs" />
     <Compile Include="Core\Coverage\Happy_path.cs" />
     <Compile Include="Core\Coverage\Tests_fail.cs" />
-    <Compile Include="Core\Method_coverage.cs" />
+    <Compile Include="Core\EndToEnd\Happy_path_mutating_custom_test_runner.cs" />
+    <Compile Include="Core\ImplementationDetails\CustomTestRunner_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\GitIntegration_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\Instrumentation\InstrumentationTestsBase.cs" />
+    <Compile Include="Core\ImplementationDetails\Instrumentation\Instrumentation_of_fields_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\Instrumentation\Instrumentation_of_methods_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\Instrumentation\Instrumentation_of_properties_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\Instrumentation\Instrumentation_Tests.cs" />
+    <Compile Include="Core\Coverage_analysis.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered.cs" />
     <Compile Include="Core\Filtering\Projects_are_filtered_with_multiple_filters.cs" />
     <Compile Include="Core\Filtering\Projects_are_not_filtered.cs" />
@@ -84,8 +107,11 @@
     <Compile Include="Core\Filtering\Source_files_are_filtered_with_multiple_filters.cs" />
     <Compile Include="Core\Filtering\Source_files_are_not_filtered.cs" />
     <Compile Include="Core\Ignored_lines.cs" />
+    <Compile Include="Core\ImplementationDetails\Mutation\Assignment_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Conditional_operator.cs" />
-    <Compile Include="Core\ImplementationDetails\NameOfContainingMethod_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\Mutation\If_statement_condition.cs" />
+    <Compile Include="Core\ImplementationDetails\Mutation\Null_coalescing_operator.cs" />
+    <Compile Include="Core\ImplementationDetails\NameOfContainingMember_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\NUnitExploreResults_Tests.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Increment_and_decrement_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Equality_operators.cs" />
@@ -93,11 +119,13 @@
     <Compile Include="Core\ImplementationDetails\Mutation\Mathematical_operators.cs" />
     <Compile Include="Core\ImplementationDetails\Mutation\Relational_operators.cs" />
     <Compile Include="Core\ImplementationDetails\NUnitRunResults_Tests.cs" />
-    <Compile Include="Core\Invalid_config.cs" />
+    <Compile Include="Core\ImplementationDetails\ShouldMutateDocument_Tests.cs" />
+    <Compile Include="Core\ImplementationDetails\SurvivingMutant_Create_Tests.cs" />
+    <Compile Include="Console\Invalid_config.cs" />
     <Compile Include="Core\Temporary_files.cs" />
     <Compile Include="Core\Contexts\Coverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Core\EndToEnd\Happy_path.cs" />
+    <Compile Include="Core\EndToEnd\Happy_path_mutating_nunit_tests.cs" />
     <Compile Include="Core\Invalid_mutation.cs" />
     <Compile Include="Core\Events.cs" />
     <Compile Include="Core\Multiple_mutants_per_syntax_node.cs" />
@@ -105,11 +133,27 @@
     <Compile Include="Core\No_mutants_survive.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Console\fettle.config.alloptions.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Console\fettle.config.yml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
+    <None Include="Core\ImplementationDetails\TestData\command-returning-zero-when-correct-arguments-given.bat.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\ImplementationDetails\TestData\command-returning-three.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\ImplementationDetails\TestData\command-returning-one.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\ImplementationDetails\TestData\command-returning-zero.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="paket.references" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -122,10 +166,37 @@
       <Project>{68E9EC27-04AA-4967-94D5-B1CA2992A55B}</Project>
       <Name>Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Examples\HasSurvivingMutants\Implementation\HasSurvivingMutants.Implementation.csproj">
+      <Project>{79ebcf73-afc0-45f4-b3a0-91adf1eb0edc}</Project>
+      <Name>HasSurvivingMutants.Implementation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Examples\HasSurvivingMutants\MoreImplementation\HasSurvivingMutants.MoreImplementation.csproj">
+      <Project>{f75582b2-6dc6-4a9f-94ea-92a28bb54620}</Project>
+      <Name>HasSurvivingMutants.MoreImplementation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Examples\HasSurvivingMutants\MoreTests\HasSurvivingMutants.MoreTests.csproj">
+      <Project>{34c25829-148f-4838-93d8-31f2f531ff2b}</Project>
+      <Name>HasSurvivingMutants.MoreTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Examples\HasSurvivingMutants\Tests\HasSurvivingMutants.Tests.csproj">
+      <Project>{38845271-3d17-45cf-ba6b-b9e0a2d7ab87}</Project>
+      <Name>HasSurvivingMutants.Tests</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
+      <ItemGroup>
+        <Reference Include="Autofac">
+          <HintPath>..\..\packages\Autofac\lib\net45\Autofac.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
@@ -148,6 +219,7 @@
       <Paket>True</Paket>
     </Analyzer>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>

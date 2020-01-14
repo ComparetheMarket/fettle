@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,21 +9,21 @@ namespace Fettle.Core.Internal
 {
     internal class MutationJob
     {
-        private readonly SyntaxNode originalClassRoot;
-        private readonly string methodName;
+        private readonly SyntaxNode originalSyntaxRoot;
+        private readonly string memberName;
         private readonly Config config;
         private readonly IMutator mutator;
         private readonly ICoverageAnalysisResult coverageAnalysisResult;
         
-        public SyntaxNode MutatedClassRoot { get; private set; }
+        public SyntaxNode MutatedSyntaxRoot { get; private set; }
         public SyntaxNode OriginalNode { get; }
         public Document OriginalClass { get;  }
         
         public MutationJob(
-            SyntaxNode originalClassRoot,
+            SyntaxNode originalSyntaxRoot,
             SyntaxNode originalNode,
             Document originalClass,
-            string methodName,
+            string memberName,
             Config config,
             IMutator mutator,
             ICoverageAnalysisResult coverageAnalysisResult)
@@ -30,24 +31,27 @@ namespace Fettle.Core.Internal
             OriginalNode = originalNode;
             OriginalClass = originalClass;
 
-            this.originalClassRoot = originalClassRoot;
-            this.methodName = methodName;
+            this.originalSyntaxRoot = originalSyntaxRoot;
+            this.memberName = memberName;
             this.config = config;
             this.mutator = mutator;
             this.coverageAnalysisResult = coverageAnalysisResult;
         }
 
-        public async Task<SurvivingMutant> Run(ITestRunner testRunner, string tempDirectory, IEventListener eventListener)
+        public async Task<(MutantStatus, Mutant)> Run(ITestRunner testRunner, string tempDirectory, IEventListener eventListener)
         {
             var mutatedNode = mutator.Mutate(OriginalNode);
-            MutatedClassRoot = originalClassRoot.ReplaceNode(OriginalNode, mutatedNode);
+            MutatedSyntaxRoot = originalSyntaxRoot.ReplaceNode(OriginalNode, mutatedNode);
+
+            var mutant = await Mutant.Create(OriginalClass, OriginalNode, MutatedSyntaxRoot);
 
             var compilationResult = await CompileContainingProject(tempDirectory);
             if (!compilationResult.Success)
             {
                 // Not all mutations are valid in all circumstances, and therefore may not compile.
                 // E.g. "a + b" => "a - b" works when a and b are integers but not when they're strings.
-                return null;
+                eventListener.MutantSkipped(mutant, "mutation resulted in invalid code");
+                return (MutantStatus.Skipped, mutant);
             }
 
             CopyMutatedAssemblyIntoTempTestAssemblyDirectories(compilationResult.OutputFilePath, tempDirectory, config);
@@ -60,20 +64,37 @@ namespace Fettle.Core.Internal
                 var originalTestAssemblyFilePath = config.TestAssemblyFilePaths[testAssemblyIndex];
                 var tempTestAssemblyFilePath = copiedTempTestAssemblyFilePaths[testAssemblyIndex];
 
-                var testsToRun = coverageAnalysisResult.TestsThatCoverMethod(methodName, originalTestAssemblyFilePath);
-                if (testsToRun.Any())
+                string[] testsToRun = null;
+                if (coverageAnalysisResult != null)
                 {
-                    ranAnyTests = true;
-
-                    var result = testRunner.RunTests(new[] {tempTestAssemblyFilePath}, testsToRun);
-                    if (result.Status == TestRunStatus.SomeTestsFailed)
+                    testsToRun = coverageAnalysisResult.TestsThatCoverMember(memberName, originalTestAssemblyFilePath);
+                    if (!testsToRun.Any())
                     {
-                        return null;
+                        continue;
                     }
+                }
+
+                var result = testsToRun != null ?
+                    testRunner.RunTests(new[] {tempTestAssemblyFilePath}, testsToRun) :
+                    testRunner.RunAllTests(new[] {tempTestAssemblyFilePath});
+
+                ranAnyTests = true;
+
+                if (result.Status == TestRunStatus.SomeTestsFailed)
+                {
+                    eventListener.MutantKilled(mutant, result.Error);
+                    return (MutantStatus.Dead, mutant);
                 }
             }
 
-            return ranAnyTests ? await SurvivingMutant.CreateFrom(this) : null;
+            if (!ranAnyTests)
+            {
+                eventListener.MutantSkipped(mutant, "no covering tests");
+                return (MutantStatus.Skipped, mutant);
+            }
+
+            eventListener.MutantSurvived(mutant);
+            return (MutantStatus.Alive, mutant);
         }
 
         private async Task<(bool Success, string OutputFilePath)> CompileContainingProject(string outputDirectory)
@@ -82,7 +103,7 @@ namespace Fettle.Core.Internal
 
             var compilation = (await project.GetCompilationAsync().ConfigureAwait(false))
                 .RemoveSyntaxTrees(await OriginalClass.GetSyntaxTreeAsync().ConfigureAwait(false))
-                .AddSyntaxTrees(MutatedClassRoot.SyntaxTree);
+                .AddSyntaxTrees(MutatedSyntaxRoot.SyntaxTree);
 
             var mutatedAssemblyFilePath = Path.Combine(outputDirectory, $"{project.AssemblyName}.dll");
 

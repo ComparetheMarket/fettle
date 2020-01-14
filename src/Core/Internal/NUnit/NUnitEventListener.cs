@@ -29,7 +29,7 @@ namespace Fettle.Core.Internal.NUnit
         {
             if (report.StartsWith("<test-suite"))
             {
-                HandleTestFixtureComplete(report);
+                HandleTestSuiteComplete(report);
             }
             else if (report.StartsWith("<start-test"))
             {
@@ -55,24 +55,34 @@ namespace Fettle.Core.Internal.NUnit
             var doc = XDocument.Parse(report);
 
             var testName = doc.Root.Attribute("fullname").Value;
+
+            var isParameterized = testName.EndsWith(")");
+            if (isParameterized)
+            {
+                testName = WithoutParameters(testName);
+            }
+
             testCasesWithinFixture.Add(testName);
 
-            var calledMethodIds = ParseExecutedMethodIdsFromOutput(doc);
+            var calledMemberIds = ParseExecutedMemberIdsFromOutput(doc);
 
-            onTestComplete(testName, calledMethodIds);
+            onTestComplete(testName, calledMemberIds);
         }
 
-        private void HandleTestFixtureComplete(string report)
+        private void HandleTestSuiteComplete(string report)
         {
             var doc = XDocument.Parse(report);
 
-            var calledMethodIds = ParseExecutedMethodIdsFromOutput(doc);
-            onTestFixtureComplete(testCasesWithinFixture, calledMethodIds);
+            var calledMemberIds = ParseExecutedMemberIdsFromOutput(doc);
+            onTestFixtureComplete(testCasesWithinFixture, calledMemberIds);
 
             testCasesWithinFixture.Clear();
         }
 
-        private static List<string> ParseExecutedMethodIdsFromOutput(XDocument doc)
+        private static string WithoutParameters(string testName) =>
+            testName.Substring(0, testName.IndexOf("(", StringComparison.InvariantCultureIgnoreCase));
+
+        private static List<string> ParseExecutedMemberIdsFromOutput(XDocument doc)
         {
             var consoleOutput = new StringBuilder();
             foreach (var outputNode in doc.XPathSelectElements("//test-case/output|//test-suite/output"))
@@ -80,20 +90,20 @@ namespace Fettle.Core.Internal.NUnit
                 consoleOutput.Append(outputNode.Value);
             }
 
-            var calledMethodIds = new List<string>();
+            var calledMemberIds = new List<string>();
             foreach (var outputLine in consoleOutput
                 .ToString()
                 .Split(new[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries))
             {
-                const string prefix = CoverageAnalyser.CoverageOutputLinePrefix;
+                const string prefix = Instrumentation.Instrumentation.CoverageOutputLinePrefix;
                 if (outputLine.StartsWith(prefix))
                 {
-                    var method = outputLine.Substring(prefix.Length);
-                    calledMethodIds.Add(method);
+                    var member = outputLine.Substring(prefix.Length);
+                    calledMemberIds.Add(member);
                 }
             }
 
-            return calledMethodIds;
+            return calledMemberIds;
         }
     }
 }

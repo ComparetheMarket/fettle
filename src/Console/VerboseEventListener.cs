@@ -1,5 +1,7 @@
 ﻿using System;
-using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Fettle.Core;
 
 namespace Fettle.Console
@@ -7,74 +9,108 @@ namespace Fettle.Console
     internal class VerboseEventListener : IEventListener
     {
         private readonly IOutputWriter outputWriter;
+        private bool anyMutationsMadeForCurrentFile;
         private string baseSourceDir;
-        private bool anyEventsForFile;
+        private readonly Stopwatch stopwatch = new Stopwatch();
 
         public VerboseEventListener(IOutputWriter outputWriter)
         {
             this.outputWriter = outputWriter;
         }
 
-        public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total)
-        {
-            var progress = Math.Floor(((decimal)index / total) * 100);
-            if (progress % 5 == 0)
-            {
-                outputWriter.Write(".");
-            }
+        public void BeginCoverageAnalysisOfTestCase(string fullTestName, int index, int total) {}
 
-            var isLastOne = index == total - 1;
-            if (isLastOne)
+        private readonly HashSet<string> coveredMembers = new HashSet<string>();
+
+        public void MemberCoveredByTests(string memberName)
+        {
+            if (!coveredMembers.Contains(memberName))
             {
-                outputWriter.Write(Environment.NewLine);
+                outputWriter.WriteSuccessLine($"{Indentation(1)}{memberName} is covered by tests");
+                coveredMembers.Add(memberName);
             }
         }
 
         public void BeginMutationOfFile(string filePath, string baseSourceDirectory, int index, int total)
         {
             baseSourceDir = baseSourceDirectory;
+            anyMutationsMadeForCurrentFile = false;
 
-            outputWriter.Write(Environment.NewLine);
-            outputWriter.Write($"Looking in {ToRelativePath(filePath)} ({index+1}/{total}):");
-
-            anyEventsForFile = false;
+            outputWriter.WriteLine($"{Indentation(0)}Found file: {ToRelativePath(filePath)}");
         }
 
-        public void MethodMutating(string name)
+        public void MemberMutating(string name)
         {
-            var shortName = Regex.Match(name, @"\s.*\.(.*)\(").Groups[1].Value.Replace("::", ".");
-            outputWriter.Write(Environment.NewLine);
-            outputWriter.Write($"  Found method: {shortName}\t");
+            anyMutationsMadeForCurrentFile = true;
 
-            anyEventsForFile = true;
+            outputWriter.WriteLine($"{Indentation(1)}Found member {MemberName.Simplify(name)}");
         }
 
         public void SyntaxNodeMutating(int index, int total)
         {
-            outputWriter.Write(".");
+            outputWriter.WriteLine($"{Indentation(2)}Mutating syntax node {index+1}");
+
+            stopwatch.Restart();
         }
 
-        public void MutantSurvived(SurvivingMutant survivingMutant)
+        public void MutantSurvived(Mutant survivingMutant)
         {
-            outputWriter.Write("✗");
+            stopwatch.Stop();
+
+            outputWriter.WriteLine($"{Indentation(3)}Mutated in {FormatMutationDuration(stopwatch.Elapsed)}");
+            outputWriter.WriteLine($"{Indentation(3)}Line {survivingMutant.SourceLine}:");
+            outputWriter.WriteLine($"{Indentation(4)}Original: {survivingMutant.OriginalLine}");
+            outputWriter.WriteLine($"{Indentation(4)}Mutated:  {survivingMutant.MutatedLine}");
+            outputWriter.WriteFailureLine($"{Indentation(3)}Mutant SURVIVED");
+        }
+
+        public void MutantKilled(Mutant killedMutant, string testFailureDescription)
+        {
+            stopwatch.Stop();
+
+            outputWriter.WriteLine($"{Indentation(3)}Mutated in {FormatMutationDuration(stopwatch.Elapsed)}");
+            outputWriter.WriteLine($"{Indentation(3)}Line {killedMutant.SourceLine}:");
+            outputWriter.WriteLine($"{Indentation(4)}Original: {killedMutant.OriginalLine}");
+            outputWriter.WriteLine($"{Indentation(4)}Mutated:  {killedMutant.MutatedLine}");
+            outputWriter.WriteSuccessLine($"{Indentation(3)}Mutant killed because of test failure:");
+            outputWriter.WriteDebugLine($"{FormatTestFailureDescription(testFailureDescription)}");
+        }
+
+        public void MutantSkipped(Mutant skippedMutant, string reason)
+        {
+            stopwatch.Stop();
+
+            outputWriter.WriteLine($"{Indentation(3)}Mutation skipped, reason: {reason}");
+            outputWriter.WriteLine($"{Indentation(3)}Line {skippedMutant.SourceLine}:");
+            outputWriter.WriteLine($"{Indentation(4)}Original: {skippedMutant.OriginalLine}");
+            outputWriter.WriteLine($"{Indentation(4)}Mutated:  {skippedMutant.MutatedLine}");
         }
 
         public void EndMutationOfFile(string filePath)
         {
-            if (anyEventsForFile)
+            if (anyMutationsMadeForCurrentFile)
             {
                 outputWriter.WriteLine("");
             }
             else
             {
                 outputWriter.Write(Environment.NewLine);
-                outputWriter.Write("  Nothing found to mutate.");
+                outputWriter.Write($"{Indentation(0)}Nothing found to mutate.");
             }
         }
 
-        private string ToRelativePath(string filePath)
+        private string FormatTestFailureDescription(string testFailureDescription)
         {
-            return filePath.Substring(baseSourceDir.Length + 1);
+            var modifiedLines = testFailureDescription.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries)
+                                                      .Select(line => line.TrimStart())
+                                                      .Select(line => $"{Indentation(4)}{line}");
+            return string.Join(Environment.NewLine, modifiedLines);
         }
+
+        private static string FormatMutationDuration(TimeSpan duration) => $"{duration.TotalMilliseconds:.}ms";
+
+        private static string Indentation(int level) => new string(Enumerable.Repeat(' ', level*3).ToArray());
+
+        private string ToRelativePath(string filePath) => filePath.Substring(baseSourceDir.Length + 1);
     }
 }

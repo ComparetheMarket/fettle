@@ -4,7 +4,8 @@ using NUnit.Framework;
 namespace HasSurvivingMutants.Tests
 {
     // This fixture will (deliberately) produce surviving mutants because its tests are 
-    // not comprehensive.
+    // not comprehensive. This is mostly achieved by the test methods calling the
+    // implementation code but not having any assertions.
     public class PartialNumberComparisonTests
     {
         [Test]
@@ -33,10 +34,11 @@ namespace HasSurvivingMutants.Tests
             Assert.That(PartiallyTestedNumberComparison.AreBothZero(1, 1), Is.False);
         }
 
-        [Test]
-        public void Sum()
+        [TestCase(1,1)]
+        [TestCase(2,2)]
+        public void Sum(int a, int b)
         {
-            PartiallyTestedNumberComparison.Sum(1, 2);
+            PartiallyTestedNumberComparison.Sum(a,b);
         }
 
         [Test]
@@ -58,6 +60,12 @@ namespace HasSurvivingMutants.Tests
         }
 
         [Test]
+        public void PositiveOrNegativeAsExpressionBody()
+        {
+            PartiallyTestedNumberComparison.PositiveOrNegativeAsExpressionBody(1);
+        }
+
+        [Test]
         public void Methods_with_ignored_statements()
         {
             PartiallyTestedNumberComparison.AddNumbers_should_be_ignored(5);
@@ -74,6 +82,19 @@ namespace HasSurvivingMutants.Tests
         public void EmptyMethod()
         {
             PartiallyTestedNumberComparison.EmptyMethod();
+        }
+
+        [Test]
+        public void IntegerProperty()
+        {
+            var _ = PartiallyTestedNumberComparison.IntegerProperty;
+        }
+
+        [Test]
+        public void BooleanToString()
+        {
+            PartiallyTestedNumberComparison.BooleanToString(true);
+            PartiallyTestedNumberComparison.BooleanToString(false);
         }
     }
 }

@@ -1,0 +1,13 @@
+﻿
+solution: ../../../../../src/Examples/HasSurvivingMutants/HasSurvivingMutants.sln
+
+testAssemblies:
+    - ../../../../../src/Examples/HasSurvivingMutants/Tests/bin/{0}/HasSurvivingMutants.Tests.dll
+
+projectFilters:
+    - HasSurvivingMutants.Implementation
+
+sourceFileFilters:
+    - Implementation/*.cs
+
+customTestRunnerCommand: src/Examples/HasSurvivingMutants/run-tests.bat arg=123

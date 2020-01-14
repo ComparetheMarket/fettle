@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml;
 
 namespace Fettle.Core.Internal.NUnit
@@ -32,23 +32,29 @@ namespace Fettle.Core.Internal.NUnit
                 case "Failed": status = TestRunStatus.SomeTestsFailed; break;
                 default: throw new InvalidOperationException($"Unexpected NUnit test run result: \"{resultValue}\"");
             }
-
-            var consoleOutput = new StringBuilder();
-            foreach (XmlNode outputNode in rootNode.SelectNodes("//test-case/output"))
-            {
-                consoleOutput.Append(outputNode.InnerText);
-            }
-
+            
             return new TestRunResult
             {
                 Status = status,
-                ConsoleOutput = consoleOutput.ToString(),
-
-                Error = string.Join(Environment.NewLine,
-                    rootNode.SelectNodes("//test-case/failure/message")
-                        .Cast<XmlNode>()
-                        .Select(x => x.InnerText))
+                Error = string.Join(Environment.NewLine, CollateErrorLines(rootNode))
             };
+        }
+
+        private static IEnumerable<string> CollateErrorLines(XmlNode rootNode)
+        {
+            return rootNode.SelectNodes("//test-case/failure")
+                .Cast<XmlNode>()
+                .Select(failure => new
+                {
+                    TestName = failure.SelectSingleNode("../@fullname")?.InnerText ?? "",
+                    Message = failure.SelectSingleNode("message")?.InnerText ?? "",
+                    StackTrace = failure.SelectSingleNode("stack-trace")?.InnerText ?? ""
+                })
+                .Select(failure => 
+                    $@"{failure.TestName}{Environment.NewLine}"
+                    + Environment.NewLine
+                    + $"{failure.Message}{Environment.NewLine}"
+                    + $"{failure.StackTrace}{Environment.NewLine}");
         }
     }
 }
