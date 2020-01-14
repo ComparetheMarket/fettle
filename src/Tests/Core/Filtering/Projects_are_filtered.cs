@@ -3,14 +3,16 @@ using NUnit.Framework;
 
 namespace Fettle.Tests.Core.Filtering
 {
+    [TestFixture("HasSurvivingMutants.MoreImplementation")]
+    [TestFixture(@"MoreImplementation\HasSurvivingMutants.MoreImplementation.csproj")]
     class Projects_are_filtered : Contexts.Default
     {
-        public Projects_are_filtered()
+        public Projects_are_filtered(string projectFilter)
         {
             Given_a_partially_tested_app_in_which_a_mutant_will_survive();
             Given_source_file_filters(null);
 
-            Given_project_filters("HasSurvivingMutants.MoreImplementation");
+            Given_project_filters(projectFilter);
 
             When_mutation_testing_the_app();
         }
