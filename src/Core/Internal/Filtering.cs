@@ -37,10 +37,17 @@ namespace Fettle.Core.Internal
 
             var relativePath = RelativeFilePath(document.FilePath, config);
 
-            var matchesAnyFilter = config.SourceFileFilters
-                .Any(f => Glob.Parse(f).IsMatch(relativePath));
+            var excludeFilters = config.SourceFileFilters.Where(f => f.Contains("!")).Select(f => f.Replace("!", ""));
+            var matchesAnyExcludeFilter = excludeFilters.Any(f => Glob.Parse(f).IsMatch(relativePath));
+            if (matchesAnyExcludeFilter)
+            {
+                return false;
+            }
 
-            return matchesAnyFilter;
+            var includeFilters = config.SourceFileFilters.Where(f => !f.Contains("!"));
+            var matchesAnyIncludeFilter = includeFilters.Any(f => Glob.Parse(f).IsMatch(relativePath));
+
+            return matchesAnyIncludeFilter;
         }
 
         private static bool ShouldMutateAccordingToLocallyModifiedList(Document document, Config config)
