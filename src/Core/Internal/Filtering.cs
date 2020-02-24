@@ -37,14 +37,14 @@ namespace Fettle.Core.Internal
 
             var relativePath = RelativeFilePath(document.FilePath, config);
 
-            var excludeFilters = config.SourceFileFilters.Where(f => f.Contains("!")).Select(f => f.Replace("!", ""));
+            var excludeFilters = config.SourceFileFilters.Where(f => f.StartsWith("!")).Select(f => f.Replace("!", ""));
             var matchesAnyExcludeFilter = excludeFilters.Any(f => Glob.Parse(f).IsMatch(relativePath));
             if (matchesAnyExcludeFilter)
             {
                 return false;
             }
 
-            var includeFilters = config.SourceFileFilters.Where(f => !f.Contains("!"));
+            var includeFilters = config.SourceFileFilters.Where(f => !f.StartsWith("!"));
             var matchesAnyIncludeFilter = includeFilters.Any(f => Glob.Parse(f).IsMatch(relativePath));
 
             return matchesAnyIncludeFilter;
