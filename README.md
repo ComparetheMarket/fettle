@@ -4,6 +4,9 @@
 
 Fettle is an experimental [mutation testing](https://github.com/ComparetheMarket/fettle/wiki/What-Is-Mutation-Testing) tool for C#.  
 
+⛔ *THIS PROJECT IS NO LONGER BEING MAINTAINED* ⛔  
+*I recommend using [Stryker](https://stryker-mutator.io/) for mutation testing C# code.*
+
 ## Prerequisites
 
 Fettle can mutate C# code that runs on the .NET Framework (Mono or .NET Core are not supported).  
